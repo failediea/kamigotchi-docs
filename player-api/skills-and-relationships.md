@@ -157,7 +157,7 @@ Earn Skill Points
      │
      ├─── skill.reset(kamiID)                 → Free respec
      │
-     └─── onyx.respec(kamiID)                 → Paid respec (no restrictions)
+     └─── onyx.respec(kamiID)                 → Paid respec (currently disabled)
 ```
 
 ### Skill Categories

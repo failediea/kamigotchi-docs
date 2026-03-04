@@ -29,7 +29,8 @@ Kamigotchi is built on the **MUD Entity Component System (ECS)** framework — a
 The **World** contract is the root of the entire game. It:
 
 - Maintains a registry of all **Systems** (logic contracts)
-- Resolves system addresses via `systems(keccak256(systemId))` — callers invoke systems directly at their resolved addresses
+- Exposes the `systems()` registry component, which maps `systemAddress -> systemId`
+- Resolves system addresses by querying `SystemsComponent.getEntitiesWithValue(keccak256(systemId))` and casting the entity ID to `address`
 - Manages access control and ownership
 - Address: [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7)
 
@@ -40,7 +41,7 @@ Systems are stateless smart contracts that contain **game logic**. Each system:
 - Extends `solecs/System.sol`
 - Implements `execute(bytes)` and `executeTyped(...)` entry points
 - Is identified by a human-readable **System ID** (e.g., `system.kami.level`)
-- Has its address resolved dynamically: `World.systems(keccak256("system.kami.level"))`
+- Has its address resolved dynamically via the `systems()` component
 
 Kamigotchi has **65 documented player-facing systems** — see [System IDs & ABIs](contracts/ids-and-abis.md) for the complete list. The World contract contains additional internal and admin systems not covered here.
 
@@ -91,7 +92,7 @@ The player's primary wallet (MetaMask, Rabby, etc.). Used for:
 - `register()` — Creating a new account
 - `set.operator()` — Delegating to an operator wallet
 - `set.name()` — Renaming account
-- All `onyx.rename` and `onyx.respec` operations (via $ONYX)
+- `onyx.rename` and `onyx.respec` (via $ONYX, currently disabled on production)
 - ERC721 staking/unstaking
 - Trading (create, execute, complete, cancel)
 - Gacha ticket purchase and minting
@@ -164,7 +165,7 @@ const accountData = await getterSystem.getAccount(accountEntityId);
 Every player action follows this pattern:
 
 ```
-1. Client resolves system address: World.systems(keccak256(systemId))
+1. Client resolves system address from World.systems() component using keccak256(systemId)
 2. Player signs tx with Owner or Operator wallet
 3. Tx calls the system contract directly at its resolved address
 4. System.executeTyped(...) (or execute(bytes)) runs game logic
@@ -182,12 +183,23 @@ System contract addresses are **not hardcoded** — they are dynamically resolve
 import { ethers } from "ethers";
 
 const worldAddress = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
-const worldAbi = ["function systems(uint256) view returns (address)"];
+const worldAbi = ["function systems() view returns (address)"];
+const systemsComponentAbi = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 const world = new ethers.Contract(worldAddress, worldAbi, provider);
+const systemsComponentAddress = await world.systems();
+const systemsComponent = new ethers.Contract(
+  systemsComponentAddress,
+  systemsComponentAbi,
+  provider
+);
 
 // Resolve a system address
 const systemId = ethers.keccak256(ethers.toUtf8Bytes("system.kami.level"));
-const systemAddress = await world.systems(systemId);
+const entities = await systemsComponent.getEntitiesWithValue(systemId);
+if (entities.length === 0) throw new Error("System not found");
+const systemAddress = ethers.getAddress(ethers.toBeHex(entities[0], 20));
 ```
 
 ---

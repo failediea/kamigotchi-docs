@@ -173,14 +173,15 @@ const WETH_ABI = [
 ];
 const weth = new ethers.Contract(WETH_ADDRESS, WETH_ABI, ownerSigner);
 
-// Approve the vault to spend WETH on your behalf
+// Approve only your intended max spend (safer than MaxUint256)
 // vaultAddress is from KAMI_MARKET_VAULT config
-const approveTx = await weth.approve(vaultAddress, ethers.MaxUint256);
+const maxOfferSpend = ethers.parseEther("0.25"); // adjust to your strategy
+const approveTx = await weth.approve(vaultAddress, maxOfferSpend);
 await approveTx.wait();
-console.log("WETH approved for marketplace offers");
+console.log("WETH approved:", ethers.formatEther(maxOfferSpend), "WETH");
 ```
 
-> **Note:** WETH on Yominet (`0xE1Ff...2546`) is bridged ETH via LayerZero — it's the same token used for gas. Players typically acquire WETH by wrapping their native ETH or bridging from other chains.
+> **Note:** WETH on Yominet (`0xE1Ff...2546`) is bridged ETH via LayerZero — it's the same token used for gas. Players typically acquire WETH by wrapping their native ETH or bridging from other chains. Prefer exact/limited approvals and top up as needed.
 
 ### 1. Make a Specific Offer
 
@@ -378,35 +379,63 @@ const buyerOwner = new ethers.Wallet(process.env.BUYER_OWNER_KEY, provider);
 // Helper to resolve system contracts
 const world = new ethers.Contract(
   WORLD_ADDRESS,
-  ["function systems(uint256) view returns (address)"],
+  [
+    "function systems() view returns (address)",
+    "function systems(uint256) view returns (address)", // legacy worlds
+  ],
   provider
 );
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 async function sys(id, abi, signer) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(id));
-  const addr = await world.systems(hash);
+  let addr = ethers.ZeroAddress;
+  try {
+    addr = await world["systems(uint256)"](hash);
+  } catch (_) {}
+
+  if (addr === ethers.ZeroAddress) {
+    const systemsComponentAddr = await world["systems()"]();
+    const systemsComponent = new ethers.Contract(
+      systemsComponentAddr,
+      SYSTEMS_COMPONENT_ABI,
+      provider
+    );
+    const entities = await systemsComponent.getEntitiesWithValue(hash);
+    if (entities.length === 0) throw new Error(`System not found: ${id}`);
+    addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
+  }
+
   return new ethers.Contract(addr, abi, signer);
 }
 
 async function main() {
   // --- Seller lists Kami #42 for 0.1 ETH ---
+  const price = ethers.parseEther("0.1");
   const listSys = await sys(
     "system.kamimarket.list",
     ["function executeTyped(uint32, uint256, uint256) returns (bytes)"],
     sellerOperator
   );
-  const listTx = await listSys.executeTyped(42, ethers.parseEther("0.1"), 0);
+  const listingRaw = await listSys.executeTyped.staticCall(42, price, 0);
+  const [listingId] = ethers.AbiCoder.defaultAbiCoder().decode(
+    ["uint256"],
+    listingRaw
+  );
+
+  const listTx = await listSys.executeTyped(42, price, 0);
   await listTx.wait();
   console.log("✅ Kami #42 listed for 0.1 ETH");
 
   // --- Buyer buys the listing ---
-  // (In practice, you'd get the listingID from events or the indexer)
   const buySys = await sys(
     "system.kamimarket.buy",
     ["function executeTyped(uint256[]) payable returns (bytes)"],
     buyerOwner
   );
   const buyTx = await buySys.executeTyped([listingId], {
-    value: ethers.parseEther("0.1"),
+    value: price,
   });
   await buyTx.wait();
   console.log("✅ Kami #42 purchased!");

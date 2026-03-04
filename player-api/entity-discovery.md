@@ -92,11 +92,16 @@ const mintSystem = await getSystem(
   ["function executeTyped(uint256 amount) returns (bytes)"],
   ownerSigner
 );
+
+// Preflight return data with staticCall (same args as the tx)
+const encodedCommitIds = await mintSystem.executeTyped.staticCall(1);
+const [commitIds] = ethers.AbiCoder.defaultAbiCoder().decode(
+  ["uint256[]"],
+  encodedCommitIds
+);
+
 const mintTx = await mintSystem.executeTyped(1);
 const mintReceipt = await mintTx.wait();
-
-// Decode commit IDs from return data
-// The return value is abi.encode(uint256[])
 
 // Step 2: Reveal (must wait ~1 block for randomness)
 const revealSystem = await getSystem(
@@ -109,6 +114,8 @@ const revealReceipt = await revealTx.wait();
 
 // The return value contains the Kami entity IDs
 ```
+
+> **Note:** `staticCall` is a preflight simulation and can drift if state changes between simulation and tx inclusion. For production bots, treat events/indexer data as the source of truth for commit IDs.
 
 ### After Staking a Kami721 NFT
 
@@ -444,14 +451,16 @@ For non-deterministic IDs (like trades), you can also parse **emitted events** f
 const tx = await someSystem.executeTyped(args);
 const receipt = await tx.wait();
 
-// If you need the return value from a state-changing function,
-// you can use staticCall to simulate first:
+// If you need return data before sending a tx,
+// use staticCall as a preflight simulation:
 const returnData = await someSystem.executeTyped.staticCall(args);
 const [entityId] = ethers.AbiCoder.defaultAbiCoder().decode(
   ["uint256"],
   returnData
 );
 ```
+
+> **Important:** `staticCall` does not persist state and can diverge from mined tx results if state changes in between. For non-deterministic IDs, prefer decoding emitted events or reading from the indexer after confirmation.
 
 ---
 

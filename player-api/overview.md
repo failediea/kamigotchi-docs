@@ -38,13 +38,36 @@ const operatorSigner = new ethers.Wallet("YOUR_OPERATOR_PRIVATE_KEY", provider);
 const ownerSigner = new ethers.Wallet("YOUR_OWNER_PRIVATE_KEY", provider);
 
 // --- World Contract ---
-const WORLD_ABI = ["function systems(uint256) view returns (address)"];
+const WORLD_ABI = [
+  "function systems() view returns (address)",
+  "function systems(uint256) view returns (address)", // legacy worlds
+];
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
 
 // --- Helper: Resolve System Address ---
 async function getSystemAddress(systemId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-  return await world.systems(hash);
+
+  // Legacy deployment path (systems(uint256) -> address)
+  try {
+    const legacyAddr = await world["systems(uint256)"](hash);
+    if (legacyAddr !== ethers.ZeroAddress) return legacyAddr;
+  } catch (_) {}
+
+  // Current Yominet path:
+  // World.systems() -> SystemsComponent (systemAddress -> systemId)
+  const systemsComponentAddr = await world["systems()"]();
+  const systemsComponent = new ethers.Contract(
+    systemsComponentAddr,
+    SYSTEMS_COMPONENT_ABI,
+    provider
+  );
+  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  if (entities.length === 0) throw new Error(`System not found: ${systemId}`);
+  return ethers.getAddress(ethers.toBeHex(entities[0], 20));
 }
 
 // --- Helper: Get System Contract ---
@@ -62,7 +85,7 @@ Kamigotchi uses two wallets per player:
 
 | Wallet | Purpose | Used For |
 |--------|---------|----------|
-| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, all `onyx.*` (except `onyx.revive`), ERC721 stake/unstake, ERC20 portal, trade, item transfer, `kamimarket.buy`, `newbievendor.buy`, `auction.buy`, gacha tickets, gacha mint/reroll |
+| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, `onyx.rename`/`onyx.respec` (when enabled), ERC721 stake/unstake, ERC20 portal, trade, item transfer, `kamimarket.buy`, `newbievendor.buy`, `auction.buy`, gacha tickets, gacha mint/reroll |
 | **Operator** | Delegated session wallet | move, chat, harvest, quest, craft, `set.pfp`, `set.bio`, `onyx.revive`, `kamimarket.list`, `kamimarket.offer`, `kamimarket.acceptoffer`, `kamimarket.cancel`, `kami.send`, etc. |
 
 > **Note:** The operator wallet is set during `register()` and can be changed with `set.operator()`. In the official client, Privy manages the operator wallet as an embedded wallet.
@@ -257,7 +280,13 @@ export const provider = new ethers.JsonRpcProvider(RPC_URL, {
   name: "Yominet",
 });
 
-const WORLD_ABI = ["function systems(uint256) view returns (address)"];
+const WORLD_ABI = [
+  "function systems() view returns (address)",
+  "function systems(uint256) view returns (address)", // legacy worlds
+];
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 export const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
 
 const systemCache = new Map();
@@ -265,7 +294,26 @@ const systemCache = new Map();
 export async function getSystemAddress(systemId) {
   if (!systemCache.has(systemId)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-    const addr = await world.systems(hash);
+    let addr = ethers.ZeroAddress;
+
+    // Legacy deployment path
+    try {
+      addr = await world["systems(uint256)"](hash);
+    } catch (_) {}
+
+    // Current Yominet path
+    if (addr === ethers.ZeroAddress) {
+      const systemsComponentAddr = await world["systems()"]();
+      const systemsComponent = new ethers.Contract(
+        systemsComponentAddr,
+        SYSTEMS_COMPONENT_ABI,
+        provider
+      );
+      const entities = await systemsComponent.getEntitiesWithValue(hash);
+      if (entities.length === 0) throw new Error(`System not found: ${systemId}`);
+      addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
+    }
+
     systemCache.set(systemId, addr);
   }
   return systemCache.get(systemId);

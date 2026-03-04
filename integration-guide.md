@@ -58,7 +58,13 @@ console.log("Operator:", operatorSigner.address);
 
 ```javascript
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
-const WORLD_ABI = ["function systems(uint256) view returns (address)"];
+const WORLD_ABI = [
+  "function systems() view returns (address)",
+  "function systems(uint256) view returns (address)", // legacy worlds
+];
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
 
 // Cache for system addresses
@@ -67,10 +73,29 @@ const systemCache = new Map();
 async function getSystemAddress(systemId) {
   if (!systemCache.has(systemId)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-    const addr = await world.systems(hash);
-    if (addr === ethers.ZeroAddress) {
-      throw new Error(`System not found: ${systemId}`);
+
+    // Legacy deployment path (systems(uint256) -> address)
+    try {
+      const legacyAddr = await world["systems(uint256)"](hash);
+      if (legacyAddr !== ethers.ZeroAddress) {
+        systemCache.set(systemId, legacyAddr);
+        return legacyAddr;
+      }
+    } catch (_) {}
+
+    // Current Yominet path:
+    // World.systems() -> SystemsComponent, keyed by systemAddress -> systemId
+    const systemsComponentAddr = await world["systems()"]();
+    const systemsComponent = new ethers.Contract(
+      systemsComponentAddr,
+      SYSTEMS_COMPONENT_ABI,
+      provider
+    );
+    const entities = await systemsComponent.getEntitiesWithValue(hash);
+    if (entities.length === 0) {
+      throw new Error(`System not found in registry: ${systemId}`);
     }
+    const addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
     systemCache.set(systemId, addr);
   }
   return systemCache.get(systemId);
@@ -127,6 +152,7 @@ const price = await vendorSystem.calcPrice();
 console.log("Vendor price:", ethers.formatEther(price), "ETH");
 
 // Buy one of the 3 currently displayed Kamis
+const kamiIndex = 0; // 0/1/2 from the current vendor display
 const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
 await tx.wait();
 console.log("First Kami purchased from the Newbie Vendor!");
@@ -155,16 +181,23 @@ console.log("Gacha ticket purchased!");
 const MINT_ABI = ["function executeTyped(uint256 amount) returns (bytes)"];
 const mintSystem = await getSystem("system.kami.gacha.mint", MINT_ABI, ownerSigner);
 
-const mintTx = await mintSystem.executeTyped(1, { gasLimit: 7_000_000 });
-const mintReceipt = await mintTx.wait();
+const mintAmount = 1;
+
+// Preflight the return data with staticCall (same args as the tx)
+const encodedCommitIds = await mintSystem.executeTyped.staticCall(mintAmount, {
+  gasLimit: 7_000_000,
+});
+const [commitIdArray] = ethers.AbiCoder.defaultAbiCoder().decode(
+  ["uint256[]"],
+  encodedCommitIds
+);
+
+const mintTx = await mintSystem.executeTyped(mintAmount, { gasLimit: 7_000_000 });
+await mintTx.wait();
 console.log("Mint committed!");
 
-// 2b. Extract commit IDs from the mint transaction
-// The mint function returns ABI-encoded commit IDs. Use staticCall to decode:
-const commitIds = await mintSystem.executeTyped.staticCall(1, { gasLimit: 7_000_000 });
-// commitIds is the ABI-encoded uint256[] returned by the contract
-const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["uint256[]"], commitIds);
-const commitIdArray = decoded[0];
+// For production bots: if reveal fails due commit mismatch, refresh commit IDs
+// from the indexer/events before retrying reveal.
 console.log("Commit IDs:", commitIdArray);
 
 // 3. Reveal — determines the Kami's traits (species, stats, rarity)
@@ -341,20 +374,43 @@ const provider = new ethers.JsonRpcProvider(RPC_URL, {
   name: "Yominet",
 });
 
-const ownerSigner = new ethers.Wallet(process.env.OWNER_KEY, provider);
-const operatorSigner = new ethers.Wallet(process.env.OPERATOR_KEY, provider);
+const ownerSigner = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY, provider);
+const operatorSigner = new ethers.Wallet(process.env.OPERATOR_PRIVATE_KEY, provider);
 
 const world = new ethers.Contract(
   WORLD_ADDRESS,
-  ["function systems(uint256) view returns (address)"],
+  [
+    "function systems() view returns (address)",
+    "function systems(uint256) view returns (address)", // legacy worlds
+  ],
   provider
 );
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 
 const cache = new Map();
 async function sys(id, abi, signer) {
   if (!cache.has(id)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(id));
-    cache.set(id, await world.systems(hash));
+    let addr = ethers.ZeroAddress;
+    try {
+      addr = await world["systems(uint256)"](hash);
+    } catch (_) {}
+
+    if (addr === ethers.ZeroAddress) {
+      const systemsComponentAddr = await world["systems()"]();
+      const systemsComponent = new ethers.Contract(
+        systemsComponentAddr,
+        SYSTEMS_COMPONENT_ABI,
+        provider
+      );
+      const entities = await systemsComponent.getEntitiesWithValue(hash);
+      if (entities.length === 0) throw new Error(`System not found: ${id}`);
+      addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
+    }
+
+    cache.set(id, addr);
   }
   return new ethers.Contract(cache.get(id), abi, signer);
 }
@@ -435,6 +491,8 @@ const tx = await system.executeTyped(args, {
 If you send multiple transactions without waiting for each to confirm, you **must** manage nonces manually. Otherwise the RPC will reject transactions with duplicate or out-of-order nonces.
 
 ```javascript
+const signer = operatorSigner; // or ownerSigner, depending on the systems you call
+
 // Fetch the current nonce once, then increment locally
 let nonce = await provider.getTransactionCount(signer.address, "pending");
 

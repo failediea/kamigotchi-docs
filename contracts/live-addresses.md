@@ -24,18 +24,36 @@ System contracts are **not deployed at fixed addresses**. They are registered in
 import { ethers } from "ethers";
 
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
-const WORLD_ABI = ["function systems(uint256) view returns (address)"];
+const WORLD_ABI = ["function systems() view returns (address)"];
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 
 const provider = new ethers.JsonRpcProvider(
   "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz"
 );
 
 const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
+let systemsComponent;
+async function getSystemsComponent() {
+  if (!systemsComponent) {
+    const systemsComponentAddress = await world.systems();
+    systemsComponent = new ethers.Contract(
+      systemsComponentAddress,
+      SYSTEMS_COMPONENT_ABI,
+      provider
+    );
+  }
+  return systemsComponent;
+}
 
 // Resolve any system by its string ID
 async function getSystemAddress(systemId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-  return await world.systems(hash);
+  const systemsComponent = await getSystemsComponent();
+  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  if (entities.length === 0) throw new Error(`System not found: ${systemId}`);
+  return ethers.getAddress(ethers.toBeHex(entities[0], 20));
 }
 
 // Example: resolve the Kami level system

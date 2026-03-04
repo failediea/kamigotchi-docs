@@ -43,9 +43,9 @@ Kamigotchi has **65 documented player-facing systems** in the World contract. Ea
 | `system.kami.cast.item` | Cast item on enemy Kami | Operator | [Kami](../player-api/kami.md) |
 | `system.kami.sacrifice.commit` | Sacrifice Kami | Operator | [Kami](../player-api/kami.md) |
 | `system.kami.sacrifice.reveal` | Reveal sacrifice loot | Operator | [Kami](../player-api/kami.md) |
-| `system.kami.onyx.rename` | Rename Kami via ONYX | Owner | [Kami](../player-api/kami.md) |
+| `system.kami.onyx.rename` | Rename Kami via ONYX (currently disabled) | Owner | [Kami](../player-api/kami.md) |
 | `system.kami.onyx.revive` | Revive dead Kami via ONYX | Operator | [Kami](../player-api/kami.md) |
-| `system.kami.onyx.respec` | Respec Kami via ONYX | Owner | [Kami](../player-api/kami.md) |
+| `system.kami.onyx.respec` | Respec Kami via ONYX (currently disabled) | Owner | [Kami](../player-api/kami.md) |
 | `system.kami.send` | Send in-world Kami(s) to another player | Operator | [Kami](../player-api/kami.md) |
 
 ### Skill Systems
@@ -165,22 +165,40 @@ Kamigotchi has **65 documented player-facing systems** in the World contract. Ea
 
 ## Resolving System Addresses
 
-All system addresses are resolved from the World contract using the hashed system ID:
+All system addresses are resolved from the World registry using the hashed system ID:
 
 ```javascript
 import { ethers } from "ethers";
 
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
-const WORLD_ABI = ["function systems(uint256) view returns (address)"];
+const WORLD_ABI = ["function systems() view returns (address)"];
+const SYSTEMS_COMPONENT_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
 
 const provider = new ethers.JsonRpcProvider(
   "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz"
 );
 const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
+let systemsComponent;
+async function getSystemsComponent() {
+  if (!systemsComponent) {
+    const systemsComponentAddress = await world.systems();
+    systemsComponent = new ethers.Contract(
+      systemsComponentAddress,
+      SYSTEMS_COMPONENT_ABI,
+      provider
+    );
+  }
+  return systemsComponent;
+}
 
 async function getSystemAddress(systemStringId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemStringId));
-  return await world.systems(hash);
+  const systemsComponent = await getSystemsComponent();
+  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  if (entities.length === 0) throw new Error(`System not found: ${systemStringId}`);
+  return ethers.getAddress(ethers.toBeHex(entities[0], 20));
 }
 
 // Examples
