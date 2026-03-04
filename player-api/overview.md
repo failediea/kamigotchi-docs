@@ -28,7 +28,7 @@ const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
 // --- Provider & Signer ---
 const provider = new ethers.JsonRpcProvider(RPC_URL, {
   chainId: 428962654539583n,
-  name: "Yominet Testnet",
+  name: "Yominet",
 });
 
 // Operator wallet for regular gameplay
@@ -211,7 +211,7 @@ export const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
 
 export const provider = new ethers.JsonRpcProvider(RPC_URL, {
   chainId: 428962654539583n,
-  name: "Yominet Testnet",
+  name: "Yominet",
 });
 
 const WORLD_ABI = ["function systems(uint256) view returns (address)"];

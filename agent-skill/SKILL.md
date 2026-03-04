@@ -1,12 +1,12 @@
 ---
 name: kamigotchi
 version: 0.1.0
-description: Play Kamigotchi as an AI agent. Manage Kamis (pets), harvest resources, craft items, trade with players, complete quests, and earn $ONYX. Use when the user wants to play Kamigotchi, manage their Kamis, check game status, or interact with the Kamigotchi onchain game on Yominet.
+description: Play Kamigotchi as an AI agent. Manage Kamis (pets), harvest resources, craft items, trade with players, complete quests, and earn $ONYX. Use when the user wants to play Kamigotchi, manage their Kamis, check game status, or interact with the Kamigotchi onchain game.
 ---
 
 # Kamigotchi
 
-Play Kamigotchi — an onchain idle-MMORPG on Yominet (Initia L2). Manage Kamis (pets), harvest resources, craft items, trade, quest, and interact with other players via smart contract calls.
+Play Kamigotchi — an onchain idle-MMORPG on Yominet. Manage Kamis (pets), harvest resources, craft items, trade, quest, and interact with other players via smart contract calls.
 
 All game interactions go through a local REST API server (`kami-api` at `localhost:3008`) that wraps smart contract calls.
 

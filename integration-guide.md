@@ -11,7 +11,7 @@ This guide walks third-party developers through integrating with Kamigotchi's on
 | **Runtime** | Node.js v18+ |
 | **Library** | ethers.js v6 (`npm install ethers`) |
 | **Wallet** | An EOA with $ETH on Yominet for gas |
-| **Network** | Yominet Testnet (Chain ID: `428962654539583`) |
+| **Network** | Yominet (Chain ID: `428962654539583`) |
 
 ---
 
@@ -22,14 +22,14 @@ import { ethers } from "ethers";
 
 // Network configuration
 const RPC_URL = "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz";
-const CHAIN = { chainId: 428962654539583n, name: "Yominet Testnet" };
+const CHAIN = { chainId: 428962654539583n, name: "Yominet" };
 
 // Connect
 const provider = new ethers.JsonRpcProvider(RPC_URL, CHAIN);
 
 // Verify connection
 const blockNumber = await provider.getBlockNumber();
-console.log("Connected to Yominet. Block:", blockNumber);
+console.log("Connected to Yominet (block:", blockNumber + ")");
 ```
 
 ---
@@ -179,7 +179,6 @@ console.log("Kami leveled up!");
 ## Step 6: Read Game State
 
 ```javascript
-// ⚠️ TBD — verify GetterSystem ID and ABI with Asphodel team
 const GETTER_ABI = [
   "function getKami(uint256 kamiId) view returns (tuple)",
   "function getAccount(uint256 accountId) view returns (tuple)",
@@ -235,7 +234,7 @@ const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
 // --- Setup ---
 const provider = new ethers.JsonRpcProvider(RPC_URL, {
   chainId: 428962654539583n,
-  name: "Yominet Testnet",
+  name: "Yominet",
 });
 
 const ownerSigner = new ethers.Wallet(process.env.OWNER_KEY, provider);
@@ -350,8 +349,4 @@ main().catch(console.error);
 
 ## Support
 
-For questions, integration support, or to report issues:
-
-- ⚠️ TBD — Discord/Telegram support channels
-- ⚠️ TBD — GitHub issues repository
-- Contact the Asphodel team directly for partnership inquiries
+For questions, integration support, or to report issues, contact the Asphodel team directly.

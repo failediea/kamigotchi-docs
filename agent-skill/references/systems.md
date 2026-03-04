@@ -2,9 +2,9 @@
 
 ## Architecture
 
-Kamigotchi uses the MUD Entity Component System (ECS) framework on Yominet (Initia L2).
+Kamigotchi uses the MUD Entity Component System (ECS) framework on Yominet.
 
-- **Chain:** Yominet (Initia L2)
+- **Chain:** Yominet
 - **Chain ID:** 428962654539583
 - **RPC:** `https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz`
 - **World Contract:** `0x2729174c265dbBd8416C6449E0E813E88f43D0E7`

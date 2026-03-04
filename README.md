@@ -15,7 +15,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 
 ### Contracts
 
-- [Live Addresses](contracts/live-addresses.md) — Deployed contract addresses (testnet & mainnet)
+- [Live Addresses](contracts/live-addresses.md) — Deployed contract addresses
 - [System IDs & ABIs](contracts/ids-and-abis.md) — All 55 system IDs and ABI reference
 
 ### Player API
@@ -56,8 +56,4 @@ This documentation covers the smart contract architecture, chain configuration, 
 |----------|-----|
 | Game | [kamigotchi.io](https://kamigotchi.io) |
 | Block Explorer | [scan.initia.xyz/yominet-1](https://scan.initia.xyz/yominet-1) |
-| World Contract (Testnet) | [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7) |
-
----
-
-> **Note:** Items marked with ⚠️ TBD require verification from the Asphodel team. If you encounter discrepancies, please reach out to the team for clarification.
+| World Contract | [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7) |

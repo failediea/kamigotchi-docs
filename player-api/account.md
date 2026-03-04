@@ -129,7 +129,7 @@ await tx.wait();
 ### Notes
 
 - Message length limits are ⚠️ TBD — verify with Asphodel team.
-- Messages are on-chain and public — they cost gas (minimal on Yominet).
+- Messages are on-chain and public — they cost gas (minimal on Yominet, flat 0.005 gwei).
 
 ---
 

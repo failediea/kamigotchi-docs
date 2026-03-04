@@ -6,28 +6,17 @@ Kamigotchi is deployed on **Yominet**, an Initia L2 rollup built on the OP Stack
 
 ## Network Details
 
-### Testnet
-
 | Parameter | Value |
 |-----------|-------|
-| **Chain Name** | Yominet Testnet |
+| **Chain Name** | Yominet |
 | **Chain ID (EVM)** | `428962654539583` |
 | **RPC URL** | `https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz` |
+| **WebSocket RPC** | `wss://jsonrpc-ws-yominet-1.anvil.asia-southeast.initia.xyz` |
+| **REST API** | `https://rest-yominet-1.anvil.asia-southeast.initia.xyz` |
 | **Block Explorer** | [scan.initia.xyz/yominet-1](https://scan.initia.xyz/yominet-1) |
 | **Gas Price** | Flat `0.005 gwei` |
 | **Native Token** | $ETH (bridged) |
 | **Currency Symbol** | ETH |
-
-### Mainnet
-
-| Parameter | Value |
-|-----------|-------|
-| **Chain Name** | Yominet Mainnet |
-| **Chain ID (EVM)** | `4471190363524365` ⚠️ TBD — verify with Asphodel team |
-| **RPC URL** | ⚠️ TBD — verify with Asphodel team |
-| **Block Explorer** | ⚠️ TBD — verify with Asphodel team |
-| **Gas Price** | Flat `0.005 gwei` |
-| **Native Token** | $ETH (bridged) |
 
 ---
 
@@ -37,7 +26,7 @@ Kamigotchi is deployed on **Yominet**, an Initia L2 rollup built on the OP Stack
 
 1. Open MetaMask → Settings → Networks → Add Network
 2. Fill in:
-   - **Network Name:** Yominet Testnet
+   - **Network Name:** Yominet
    - **RPC URL:** `https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz`
    - **Chain ID:** `428962654539583`
    - **Currency Symbol:** ETH
@@ -49,14 +38,14 @@ Kamigotchi is deployed on **Yominet**, an Initia L2 rollup built on the OP Stack
 ```javascript
 import { ethers } from "ethers";
 
-const YOMINET_TESTNET = {
+const YOMINET = {
   chainId: 428962654539583n,
-  name: "Yominet Testnet",
+  name: "Yominet",
 };
 
 const provider = new ethers.JsonRpcProvider(
   "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz",
-  YOMINET_TESTNET
+  YOMINET
 );
 ```
 
@@ -66,7 +55,6 @@ const provider = new ethers.JsonRpcProvider(
 |--------|-----------|
 | MetaMask | ✅ |
 | Rabby | ✅ |
-| WalletConnect | ⚠️ TBD |
 
 ---
 
@@ -89,10 +77,9 @@ Yominet uses a **flat gas price** of `0.005 gwei`. This is extremely low compare
 
 $ONYX is the in-game ERC-20 token used for premium operations.
 
-| Network | Contract Address |
-|---------|-----------------|
-| Testnet | [`0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4`](https://scan.initia.xyz/yominet-1/address/0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4) |
-| Mainnet | [`0x9D9c32921575Fd98e67E27C0189ED4b750Cb17C5`](https://scan.initia.xyz/yominet-1/address/0x9D9c32921575Fd98e67E27C0189ED4b750Cb17C5) |
+| Contract Address |
+|-----------------|
+| [`0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4`](https://scan.initia.xyz/yominet-1/address/0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4) |
 
 ### $ONYX Uses
 
@@ -106,11 +93,10 @@ $ONYX is the in-game ERC-20 token used for premium operations.
 
 ## Bridging
 
-To get $ETH on Yominet for gas, use one of these bridges:
+To get $ETH on Yominet for gas:
 
 | Bridge | URL | Notes |
 |--------|-----|-------|
-| Initia Bridge | ⚠️ TBD — verify URL with Asphodel team | Official Initia bridge |
 | gas.zip | [gas.zip](https://gas.zip) | Multi-chain gas bridge |
 
 ---

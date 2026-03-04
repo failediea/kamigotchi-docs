@@ -6,21 +6,11 @@ All core Kamigotchi contracts deployed on Yominet.
 
 ## Core Contracts
 
-### Testnet
-
 | Contract | Address | Explorer |
 |----------|---------|----------|
 | **World** | `0x2729174c265dbBd8416C6449E0E813E88f43D0E7` | [View](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7) |
 | **Kami721 (NFT)** | `0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677` | [View](https://scan.initia.xyz/yominet-1/address/0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677) |
 | **ONYX Token** | `0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4` | [View](https://scan.initia.xyz/yominet-1/address/0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4) |
-
-### Mainnet
-
-| Contract | Address |
-|----------|---------|
-| **World** | ⚠️ TBD — verify with Asphodel team |
-| **Kami721 (NFT)** | ⚠️ TBD — verify with Asphodel team |
-| **ONYX Token** | `0x9D9c32921575Fd98e67E27C0189ED4b750Cb17C5` |
 
 ---
 
@@ -65,10 +55,9 @@ The MUD framework allows systems to be **upgraded** by deploying new contracts a
 
 The in-game currency token. Standard ERC-20 interface.
 
-| Network | Address |
-|---------|---------|
-| Testnet | `0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4` |
-| Mainnet | `0x9D9c32921575Fd98e67E27C0189ED4b750Cb17C5` |
+| Address |
+|---------|
+| [`0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4`](https://scan.initia.xyz/yominet-1/address/0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4) |
 
 ```javascript
 const ONYX_ABI = [
@@ -91,10 +80,9 @@ const balance = await onyx.balanceOf(walletAddress);
 
 The Kami NFT contract. Standard ERC-721 interface with game-specific extensions.
 
-| Network | Address |
-|---------|---------|
-| Testnet | `0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677` |
-| Mainnet | ⚠️ TBD — verify with Asphodel team |
+| Address |
+|---------|
+| [`0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677`](https://scan.initia.xyz/yominet-1/address/0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677) |
 
 ```javascript
 const KAMI721_ABI = [

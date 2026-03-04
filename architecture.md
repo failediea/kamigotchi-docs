@@ -31,7 +31,7 @@ The **World** contract is the root of the entire game. It:
 - Maintains a registry of all **Systems** (logic contracts)
 - Routes `execute()` calls to the appropriate system
 - Manages access control and ownership
-- Address: [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7) (testnet)
+- Address: [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7)
 
 ### Systems
 
