@@ -16,10 +16,11 @@ This documentation covers the smart contract architecture, chain configuration, 
 ### Contracts
 
 - [Live Addresses](contracts/live-addresses.md) — Deployed contract addresses
-- [System IDs & ABIs](contracts/ids-and-abis.md) — All 55 system IDs and ABI reference
+- [System IDs & ABIs](contracts/ids-and-abis.md) — All 58 system IDs and ABI reference
 
 ### Player API
 
+- [Entity Discovery](player-api/entity-discovery.md) — How to find and derive entity IDs for gameplay
 - [Overview & Setup](player-api/overview.md) — SDK setup, wallet model, and calling conventions
 - [Echo](player-api/echo.md) — Force-emit Kami and Room data
 - [Kami (Pets)](player-api/kami.md) — Level, name, sacrifice, items, equipment, skills
@@ -34,6 +35,10 @@ This documentation covers the smart contract architecture, chain configuration, 
 - [Goals & Scavenge](player-api/goals-and-scavenge.md) — Community goals, scavenge claims
 - [Gacha / Minting](player-api/minting.md) — Mint, reveal, reroll Kamis; buy tickets
 - [Portal (ERC721 / ERC20)](player-api/portal.md) — Deposit/withdraw NFTs and tokens
+
+### References
+
+- [Game Data Reference](references/game-data.md) — Lookup tables for items, rooms, nodes, skills, and quests
 
 ---
 

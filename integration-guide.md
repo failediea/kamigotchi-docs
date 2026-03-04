@@ -199,13 +199,16 @@ console.log("Kami data:", kamiData);
 ```javascript
 const KAMI721_ADDRESS = "0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677";
 
+// The ERC-721 token ID is also the tokenIndex for the stake system
+const tokenIndex = tokenId; // For Kami721, token ID === token index
+
 // Approve NFT transfer
 const kami721 = new ethers.Contract(
   KAMI721_ADDRESS,
   ["function approve(address to, uint256 tokenId)"],
   ownerSigner
 );
-await (await kami721.approve(WORLD_ADDRESS, tokenId)).wait();
+await (await kami721.approve(WORLD_ADDRESS, tokenIndex)).wait();
 
 // Stake into game
 const STAKE_ABI = ["function executeTyped(uint32 tokenIndex) returns (bytes)"];
@@ -215,9 +218,21 @@ const stakeSystem = await getSystem(
   ownerSigner
 );
 
-await (await stakeSystem.executeTyped(tokenId)).wait();
+await (await stakeSystem.executeTyped(tokenIndex)).wait();
 console.log("Kami NFT staked into game!");
 ```
+
+> **Note:** For Kami721 NFTs, the ERC-721 `tokenId` from the NFT contract IS the `tokenIndex` parameter passed to the stake system. They are the same value. The account must be in room 12 (Scrap Confluence / Bridge) to stake.
+
+---
+
+## What's Next
+
+Now that you've registered, set up wallets, and can call systems — you'll need to work with **entity IDs** for real gameplay. Entity IDs are how Kamigotchi identifies everything: your account, your Kamis, active harvests, trades, and quests.
+
+👉 **[Entity Discovery](player-api/entity-discovery.md)** — Learn how to derive and find all the entity IDs you need, with a complete helper library.
+
+👉 **[Game Data Reference](references/game-data.md)** — Lookup tables for item indices, room indices, skill trees, quest chains, and harvest node data.
 
 ---
 

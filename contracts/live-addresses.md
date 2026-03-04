@@ -104,6 +104,6 @@ const kami721 = new ethers.Contract(
 
 ## Related Pages
 
-- [System IDs & ABIs](ids-and-abis.md) — All 55 system identifiers
+- [System IDs & ABIs](ids-and-abis.md) — All 58 system identifiers
 - [Chain Configuration](../chain-configuration.md) — Network details
 - [Architecture Overview](../architecture.md) — How contracts interact
