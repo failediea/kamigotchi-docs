@@ -128,9 +128,9 @@ console.log("Kamis rerolled!");
 
 ### Notes
 
-- Rerolling may consume additional resources (tickets, items, or ONYX) — ⚠️ TBD.
+- Rerolling consumes 1 Reroll Ticket (item index 11) per Kami. The selected Kamis are deposited into the gacha pool and new ones are drawn.
 - **Destructive** — the original Kami's traits are replaced permanently.
-- May require a subsequent `pet.reveal()` call — ⚠️ TBD.
+- Requires a subsequent `pet.reveal()` call — rerolling creates commit entities that must be revealed (same as initial mint).
 
 ---
 
@@ -152,7 +152,7 @@ Buy gacha tickets (public sale).
 
 ### Description
 
-Purchases gacha tickets from the public sale. Tickets are required for `pet.mint()`. Cost per ticket is ⚠️ TBD — may require $ETH or $ONYX.
+Purchases gacha tickets from the public sale. Tickets are required for `pet.mint()`. Cost is paid in ETH (item index 103) — production price is 100 mETH (0.1 ETH) per ticket, configured via `MINT_PRICE_PUBLIC`.
 
 ### Code Example
 
@@ -169,7 +169,7 @@ console.log("Gacha tickets purchased!");
 
 ### Notes
 
-- Ticket price and currency are ⚠️ TBD — verify with Asphodel team.
+- Public ticket price: 100 mETH (0.1 ETH) per ticket, paid in ETH (item index 103). Max per account: 222 (configured via `MINT_MAX_PUBLIC`). Global cap: 3,000 total mints (`MINT_MAX_TOTAL`).
 - Public sale may have per-wallet limits or total supply caps.
 - May require token approval (if paying with ERC-20).
 
@@ -189,7 +189,7 @@ Buy gacha tickets (whitelist sale).
 
 | Name | Type | Description |
 |------|------|-------------|
-| ⚠️ TBD | — | Likely includes a Merkle proof or signature for whitelist verification |
+| *(none)* | — | No additional parameters — whitelist status is checked via an on-chain `MINT_WHITELISTED` flag on the account |
 
 ### Description
 
@@ -200,8 +200,8 @@ Purchases gacha tickets during a whitelist/presale phase. Only eligible wallets 
 ```javascript
 import { getSystem } from "./kamigotchi.js";
 
-// ⚠️ TBD — exact ABI and parameters depend on whitelist implementation
-const ABI = ["function executeTyped() returns (bytes)"];
+// Whitelist buy — calls buyWL() with no parameters
+const ABI = ["function buyWL() external"];
 const system = await getSystem("system.buy.gacha.ticket", ABI, operatorSigner);
 
 const tx = await system.executeTyped();
@@ -211,7 +211,7 @@ console.log("Whitelist gacha tickets purchased!");
 
 ### Notes
 
-- ⚠️ The whitelist mechanism (Merkle proof, signature, etc.) needs verification from the Asphodel team.
+- Whitelist is flag-based: admins set a `MINT_WHITELISTED` flag on eligible accounts. No Merkle proof or signature needed — the contract checks the flag directly. Price: 50 mETH (0.05 ETH) per ticket (`MINT_PRICE_WL`). Max 1 whitelist mint per account (`MINT_MAX_WL`).
 - Whitelist sales typically have limited availability windows.
 
 ---

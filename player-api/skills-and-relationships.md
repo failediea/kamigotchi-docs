@@ -43,7 +43,7 @@ console.log("Skill upgraded!");
 ### Notes
 
 - Reverts if the Kami has no available skill points.
-- Skill indices and descriptions are ⚠️ TBD — verify with Asphodel team.
+- Skill indices, names, costs, max levels, and tree tiers are defined in the skill registry (loaded from CSV at deployment). Each skill has a cost in skill points, a max level, and belongs to a tree with a tier. Skills are currently only for Kamis (`for_` = `"KAMI"`).
 - Skill levels may have caps.
 
 ---
@@ -83,7 +83,7 @@ console.log("Skills reset — skill points returned!");
 
 ### Notes
 
-- Respec restrictions (cooldown, cost) are ⚠️ TBD — verify with Asphodel team.
+- Standard respec (`SkillRespecSystem`) requires consuming 1 Respec Potion (item index 11403). The Kami must be in `"RESTING"` state. ONYX-based respec (`KamiOnyxRespecSystem`) costs 10,000 $ONYX and bypasses the potion requirement (currently disabled: "Onyx Features are temporarily disabled").
 - For ONYX-based respec (bypasses restrictions), see [Kami — onyx.respec()](kami.md#onyxrespec).
 
 ---
@@ -132,7 +132,7 @@ console.log("NPC relationship advanced!");
 ### Notes
 
 - Advancing may require specific items, quest completions, or other prerequisites.
-- NPC indices and relationship states are ⚠️ TBD — verify with Asphodel team.
+- NPC indices and relationship flags are defined in the relationship registry. Relationships use a dual-key system `(npcIndex, relIndex)`. Advancement is controlled by whitelist/blacklist arrays on each registry entry — having a blacklisted flag prevents advancement, while having a whitelisted flag (or empty whitelist) allows it. The NPC and player must be in the same room.
 - The `stateIndex` must be the **next valid state** — skipping states will revert.
 - Not all NPCs support relationship advancement.
 
@@ -155,25 +155,28 @@ Earn Skill Points
 
 ### Skill Categories
 
-⚠️ TBD — exact skill tree and categories need verification from the Asphodel team. Expected categories include:
-
-- **Harvesting skills** — Improve resource yields
-- **Combat skills** — Increase combat effectiveness
-- **Utility skills** — Various passive bonuses
+Skills are organized into trees (stored as the `TypeComponent` on the registry entry). Each tree has tiers (0–7), and advancing to higher tiers requires investing enough skill points in the tree. The tier point requirements (from config `KAMI_TREE_REQ`) are: Tier 0 = 0, Tier 1 = 5, Tier 2 = 15, Tier 3 = 25, Tier 4 = 40, Tier 5 = 55, Tier 6 = 75, Tier 7 = 95 points. Each skill point invested also increments a tree-specific bonus (`SKILL_TREE_{treeName}`) by the skill's cost. Concrete tree names and skill lists are loaded from CSV data at deployment — query the skill registry on-chain for current values.
 
 ---
 
 ## NPC Relationship States
 
-⚠️ TBD — exact state names and transitions need verification. Expected pattern:
+Relationships are flag-based, not linear states. Each NPC has a set of relationship flags (identified by `relIndex`) that accounts can obtain. Flags have whitelist/blacklist constraints that create branching paths. For example, NPC 1 (Mina) has 10 flags with this structure:
 
-| State | Benefits |
-|-------|----------|
-| Stranger | Default — basic interactions only |
-| Acquaintance | Unlock basic quests |
-| Friend | Better merchant prices |
-| Ally | Exclusive items and quests |
-| ⚠️ TBD | Additional states may exist |
+| relIndex | Name | Whitelist (requires one of) | Blacklist (blocked by) |
+|----------|------|---------------------------|----------------------|
+| 1 | mina 1 | *(none — open)* | *(none)* |
+| 2 | mina 2 | 1 | *(none)* |
+| 3 | mina 3 | 2 | *(none)* |
+| 4 | mina 4 | 3 | *(none)* |
+| 5 | mina 5 | 4 | *(none)* |
+| 6 | mina 6 | 3 | 8 |
+| 7 | mina 7 | 6 | 8 |
+| 8 | mina 8 | 3 | 6 |
+| 9 | mina 9 | 8 | 6 |
+| 10 | mina 10 | 5, 7, or 9 | *(none)* |
+
+This creates branching paths (flags 6–7 vs 8–9 are mutually exclusive). Other NPC relationships are set via registry — query on-chain for current values.
 
 ---
 

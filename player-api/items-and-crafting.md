@@ -89,7 +89,7 @@ console.log("Items crafted!");
 ### Notes
 
 - Reverts if you lack the required ingredients.
-- Recipe list and ingredient requirements are ⚠️ TBD — verify with Asphodel team.
+- Recipes are defined in the recipe registry (loaded from CSV at deployment). Each recipe has: input item indices + amounts, output item index + amount, XP output, and stamina cost. Some recipes also have tool requirements. Set via registry — query on-chain for current recipe list and ingredient requirements.
 - Crafting multiple at once is more gas-efficient than individual calls.
 
 ---

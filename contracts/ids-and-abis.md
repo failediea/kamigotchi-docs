@@ -140,7 +140,7 @@ Kamigotchi has **55 registered systems** in the World contract. Each system is i
 
 | System ID | Description | Wallet | Page |
 |-----------|-------------|--------|------|
-| `system.auction.buy` | Buy from auction | Operator | ⚠️ TBD |
+| `system.auction.buy` | Buy from auction | Owner | `function executeTyped(uint32 itemIndex, uint32 amt)` |
 
 ---
 
@@ -211,14 +211,14 @@ const GETTER_ABI = [
 ];
 
 // Resolve GetterSystem address first, then call
-const getterAddr = await getSystemAddress("system.getter"); // ⚠️ TBD — verify system ID
+const getterAddr = await getSystemAddress("system.getter"); // ID = keccak256("system.getter")
 const getter = new ethers.Contract(getterAddr, GETTER_ABI, provider);
 
 const kamiData = await getter.getKami(kamiEntityId);
 const accountData = await getter.getAccount(accountEntityId);
 ```
 
-> **Note:** ⚠️ The exact GetterSystem ID and full return type signatures need verification from the Asphodel team.
+> **Note:** The GetterSystem ID is `keccak256("system.getter")`. `getKami(uint256)` returns a `KamiShape` struct: `(uint256 id, uint32 index, string name, string mediaURI, KamiStats stats, KamiTraits traits, string[] affinities, uint256 account, uint256 level, uint256 xp, uint32 room, string state)` where `KamiStats = (Stat health, Stat power, Stat harmony, Stat violence)` and `KamiTraits = (uint32 face, uint32 hand, uint32 body, uint32 background, uint32 color)`. `getAccount(uint256)` returns an `AccountShape` struct: `(uint32 index, string name, int32 currStamina, uint32 room)`. There is also `getKamiByIndex(uint32)` which looks up by index.
 
 ---
 

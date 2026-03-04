@@ -45,7 +45,7 @@ console.log("Items purchased from merchant!");
 ### Notes
 
 - `itemIndices` and `amts` arrays must have matching lengths.
-- Merchant inventories and pricing are ⚠️ TBD — verify with Asphodel team.
+- Merchant inventories and pricing are defined in the listing registry (loaded from CSV at deployment). Each listing links an NPC to an item with a currency and base value. Buy pricing can be `FIXED` (static) or `GDA` (Gradual Dutch Auction — price decays over time). Sell pricing can be `FIXED` or `SCALED`. Listings may also have requirements (e.g., relationship flags, item ownership). Set via registry — query on-chain for current merchant inventories.
 - Merchants may have limited stock or require specific currencies.
 - The player must be in the same room as the merchant — move with [account.move()](account.md#move) first.
 
@@ -133,7 +133,7 @@ await tx.wait();
 console.log("Auction item purchased!");
 ```
 
-> **Note:** ⚠️ Auction system details (pricing model, listing mechanism) are TBD — verify with Asphodel team.
+> **Note:** Auctions use a Gradual Dutch Auction (GDA) pricing model. Each auction is created with: a sale item index, a payment item index, a target price, a time period, a decay rate, an emission rate, a max supply, and a start timestamp. The price decays over time until purchased. The `AuctionBuySystem` ABI is `executeTyped(uint32 itemIndex, uint32 amt)` — it calculates the current GDA price, deducts the payment currency, and credits the purchased item. Auction parameters are set via registry — query on-chain for current auctions.
 
 ---
 

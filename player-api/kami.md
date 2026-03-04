@@ -40,7 +40,7 @@ console.log("Kami leveled up!");
 ### Notes
 
 - Reverts with `"Insufficient XP"` if the Kami doesn't have enough XP for the next level.
-- XP thresholds per level are ⚠️ TBD — verify with Asphodel team.
+- XP thresholds are calculated dynamically: `cost = BASE * MULT^(level-1)`. Production values: BASE = 40 XP (level 1→2), MULT = 1.259 (i.e. each level costs ~25.9% more than the previous). For example: level 1→2 costs 40 XP, level 2→3 costs ~50 XP, level 5→6 costs ~100 XP, and so on.
 
 ---
 
@@ -79,7 +79,7 @@ await tx.wait();
 
 ### Notes
 
-- Name length limits and character restrictions are ⚠️ TBD — verify with Asphodel team.
+- Name must be 1–16 characters (bytes). Names must be unique across all Kamis. Costs 1 Holy Dust (item index 11011) and the Kami must be in room 11.
 - See also: [onyx.rename()](#onyxrename) for premium rename.
 
 ---
@@ -193,7 +193,7 @@ await tx.wait();
 ### Notes
 
 - Each Kami has limited equipment slots. Equipping to a full slot will revert.
-- Equipment slot types are ⚠️ TBD — verify with Asphodel team.
+- Equipment slot types use the format `"{EntityType}_{SlotName}_Slot"` — e.g., `"Kami_Pet_Slot"`, `"Kami_Hat_Slot"`, `"Account_Badge_Slot"`. Slots are defined per-item in the item registry's `For` field. Each entity has a default capacity of 1 equipped item, expandable via the `EQUIP_CAPACITY_SHIFT` bonus.
 
 ---
 
@@ -226,13 +226,13 @@ import { getSystem } from "./kamigotchi.js";
 const ABI = ["function executeTyped(uint256 kamiID, string slotType) returns (bytes)"];
 const system = await getSystem("system.kami.unequip", ABI, operatorSigner);
 
-const tx = await system.executeTyped(kamiEntityId, "head"); // ⚠️ TBD — verify slot names
+const tx = await system.executeTyped(kamiEntityId, "Kami_Pet_Slot"); // slot string from item registry
 await tx.wait();
 ```
 
 ### Notes
 
-- Valid slot type strings are ⚠️ TBD — verify with Asphodel team (e.g., `"head"`, `"body"`, `"weapon"`).
+- Valid slot type strings follow the format `"{EntityType}_{SlotName}_Slot"` — e.g., `"Kami_Pet_Slot"`, `"Kami_Hat_Slot"`, `"Account_Badge_Slot"`. The slot value is defined on each equipment item in the registry's `For` field.
 
 ---
 
@@ -415,7 +415,7 @@ await tx.wait();
 
 ### Notes
 
-- ONYX cost per rename is ⚠️ TBD — verify with Asphodel team.
+- ONYX cost per rename is 5,000 $ONYX (item index 100). Same name validation as `name()`: 1–16 characters, must be unique, Kami must be in room 11.
 - Requires $ONYX approval to the system contract prior to calling.
 
 ---
@@ -438,7 +438,7 @@ Revive a dead Kami using $ONYX.
 
 ### Description
 
-Revives a Kami that has died (health reached 0). Costs $ONYX. The Kami is restored with ⚠️ TBD stats (likely partial health).
+Revives a Kami that has died (health reached 0). Costs 33 $ONYX shards (item index 100). The Kami's state is set from `"DEAD"` to `"RESTING"` and health is restored to 33.
 
 ### Code Example
 
@@ -456,7 +456,7 @@ console.log("Kami revived!");
 
 ### Notes
 
-- ONYX cost is ⚠️ TBD — verify with Asphodel team.
+- ONYX cost is 33 shards per revive. Health is restored to 33.
 - Requires $ONYX approval to the system contract.
 
 ---

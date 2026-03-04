@@ -39,8 +39,8 @@ console.log("Quest accepted!");
 
 ### Notes
 
-- Players may have a limit on the number of active quests — ⚠️ TBD.
-- Quest indices are defined in game data — ⚠️ verify quest list with Asphodel team.
+- There is no hard limit on active quests in the contract — each quest is accepted individually and tracked as a unique entity per `(questIndex, accountID)` pair. Repeatable quests can only have 0 or 1 active instance.
+- Quest indices, names, objectives, requirements, and rewards are defined in the quest registry (loaded from CSV at deployment). Quests can be one-time or repeatable (daily quests have a 64,800-second / 18-hour repeat cooldown). Each quest has requirements (checked on accept), objectives (checked on complete), and rewards (distributed on complete). Set via registry — query on-chain for current quest list.
 
 ---
 

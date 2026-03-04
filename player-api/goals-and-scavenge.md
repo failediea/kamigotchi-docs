@@ -42,7 +42,7 @@ console.log("Contributed", contributionAmount, "to goal", goalIndex);
 
 ### Notes
 
-- Contribution type (items, currency, etc.) depends on the goal — ⚠️ TBD.
+- Contribution type is determined by the goal's objective entity — each objective has a `TypeComponent` (e.g., item type) and an `IndexComponent` (e.g., item index). When contributing, the matching resource is decremented from the player's account. Contributions are capped at the goal's target value. Goals also support tiered rewards (bronze/silver/gold based on contribution cutoffs) and proportional rewards.
 - Your contribution amount is tracked for proportional reward distribution.
 - Goals may have time limits or minimum contribution thresholds.
 
@@ -124,7 +124,7 @@ console.log("Scavenge points claimed!");
 
 ### Notes
 
-- Scavenge bar mechanics and reward types are ⚠️ TBD — verify with Asphodel team.
+- Scavenge bars are point-based reward systems. Points accumulate during harvesting and are spent in increments of `tierCost` (set per scavenge bar in the registry's `ValueComponent`). Each tier's worth of points produces one reward roll from the bar's reward entries (which may include droptable rewards). Points are not fully consumed — the remainder (modulo tierCost) is kept. Scavenge bars are keyed by `(field, index)` — for example, `("NODE", nodeIndex)` ties them to harvesting nodes, inheriting the node's affinity.
 - Scavenge bars may be room-specific or account-wide.
 
 ---

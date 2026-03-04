@@ -174,7 +174,7 @@ console.log("Harvest liquidated!");
 ### Notes
 
 - **Gas limit of 7,500,000 is required** — the liquidation logic is computationally expensive.
-- Liquidation conditions and rewards distribution are ⚠️ TBD — verify with Asphodel team.
+- Liquidation requires: both Kamis must be on the same node, the attacker must be in `"HARVESTING"` state, healthy, and off cooldown, and the target's harvest must be active. The attacker's Violence stat must meet the threshold (`LibKill.isLiquidatableBy`). On success: the victim's harvest bounty is split — a portion goes to the victim as "salvage" (based on their Power), the rest becomes "spoils" for the attacker (based on attacker's Power). The attacker takes health "recoil" damage from the kill (based on strain and karma). The victim's Kami dies (state → `"DEAD"`) and their harvest stops. The attacker's cooldown is reset.
 - This is a PvP action — use wisely!
 
 ---

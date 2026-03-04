@@ -299,7 +299,7 @@ console.log("ONYX deposited into game world!");
 
 #### Notes
 
-- The `itemIndex` maps an in-game item to a specific ERC-20 contract — ⚠️ TBD mapping.
+- The `itemIndex` maps an in-game item to a specific ERC-20 contract. The mapping is stored in the `TokenPortalSystem` contract's local storage (`itemAddrs` and `itemScales` mappings), initialized from the item registry. Items must be of type `"ERC20"`. The primary token is ONYX (item index 100). The conversion scale and token address are set per item via `setItem()` or `initItem()` admin calls. Set via registry — query the `TokenPortalSystem` contract for current item→ERC-20 mappings.
 - Requires ERC-20 `approve()` before depositing.
 
 ---

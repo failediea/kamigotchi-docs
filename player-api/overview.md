@@ -188,7 +188,7 @@ const GETTER_ABI = [
   "function getAccount(uint256 accountId) view returns (tuple)",
 ];
 
-const getterAddr = await getSystemAddress("system.getter"); // ⚠️ TBD — verify system ID
+const getterAddr = await getSystemAddress("system.getter"); // ID = keccak256("system.getter")
 const getter = new ethers.Contract(getterAddr, GETTER_ABI, provider);
 
 // Read without spending gas
