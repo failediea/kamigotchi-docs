@@ -43,6 +43,7 @@ console.log("Friend request sent!");
 - Uses the target's **owner wallet address**, not operator address.
 - Cannot send a request to an account that has blocked you.
 - Duplicate requests to the same account will revert.
+- Common reverts: `"Friend: already friends"`, `"Friend: already pending"`, `"Friend: blocked"`.
 
 ---
 

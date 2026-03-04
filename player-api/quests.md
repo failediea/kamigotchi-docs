@@ -41,6 +41,7 @@ console.log("Quest accepted!");
 
 - There is no hard limit on active quests in the contract — each quest is accepted individually and tracked as a unique entity per `(questIndex, accountID)` pair. Repeatable quests can only have 0 or 1 active instance.
 - Quest indices, names, objectives, requirements, and rewards are defined in the quest registry (loaded from CSV at deployment). Quests can be one-time or repeatable (daily quests have a 64,800-second / 18-hour repeat cooldown). Each quest has requirements (checked on accept), objectives (checked on complete), and rewards (distributed on complete). Set via registry — query on-chain for current quest list.
+- Common reverts: `"Quest: not available"` (requirements not met), `"Quest: already active"` (duplicate accept), `"Quest: cooldown"` (repeatable quest not ready).
 
 ---
 
@@ -82,6 +83,7 @@ console.log("Quest completed! Rewards claimed.");
 - The `id` parameter is the **entity ID** of the active quest (not the quest index used in `accept()`).
 - Quest rewards (items, XP, etc.) are automatically added to the player's inventory/account.
 - Quest completion conditions are checked on-chain — no way to cheat!
+- Common reverts: `"Quest: objectives not met"` (conditions incomplete), `"Quest: not active"` (already completed or dropped).
 
 ---
 

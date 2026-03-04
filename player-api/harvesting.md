@@ -382,9 +382,16 @@ See the [Harvest Nodes table](../references/game-data.md#harvest-nodes) for per-
 
 ---
 
+## Feeding During Harvest
+
+There is no dedicated `harvest.feed()` system. To heal a Kami while it is harvesting, use the [kami.item.use()](kami.md#kamiitemuse) system (`system.kami.use.item`) with a healing item (e.g., food). This restores the Kami's health without interrupting the active harvest. Monitor your Kami's health via `getKami()` and feed before it reaches zero to avoid liquidation.
+
+---
+
 ## Related Pages
 
 - [Kami](kami.md) — Kami stats that affect harvest performance
 - [Account — move()](account.md#move) — Move to the room with harvest nodes
 - [Echo](echo.md) — Force-emit room data to see harvest nodes
 - [Items & Crafting](items-and-crafting.md) — Items earned from harvesting
+- [Goals & Scavenge](goals-and-scavenge.md) — Scavenge bars tied to harvest nodes

@@ -262,6 +262,7 @@ function execute(bytes memory arguments) returns (bytes)
 ```javascript
 const ACCEPT_ABI = [
   "function executeTyped(uint256 offerID, uint32 kamiIndex) returns (bytes)",
+  "function executeTyped(uint256 offerID, uint32[] kamiIndices) returns (bytes)",
   "function execute(bytes) returns (bytes)",
 ];
 const acceptSystem = await getSystem("system.kamimarket.acceptoffer", ACCEPT_ABI, operatorSigner);
@@ -515,6 +516,7 @@ main().catch(console.error);
 
 - [Entity Discovery](entity-discovery.md) — How to find order entity IDs
 - [Portal (ERC721 / ERC20)](portal.md) — Staking and unstaking Kami NFTs
+- [Gacha / Minting](minting.md) — Minting new Kamis (Newbie Vendor is the alternative first-Kami path)
 - [Trading](trading.md) — Player-to-player item trades
 - [Game Data Reference](../references/game-data.md) — WETH address, fee config, cooldown values
 - [System IDs & ABIs](../contracts/ids-and-abis.md) — Complete system reference

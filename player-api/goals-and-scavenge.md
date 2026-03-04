@@ -124,7 +124,11 @@ console.log("Scavenge points claimed!");
 
 ### Notes
 
-- Scavenge bars are point-based reward systems. Points accumulate during harvesting and are spent in increments of `tierCost` (set per scavenge bar in the registry's `ValueComponent`). Each tier's worth of points produces one reward roll from the bar's reward entries (which may include droptable rewards). Points are not fully consumed — the remainder (modulo tierCost) is kept. Scavenge bars are keyed by `(field, index)` — for example, `("NODE", nodeIndex)` ties them to harvesting nodes, inheriting the node's affinity.
+- Scavenge bars are point-based reward systems:
+  - **Points accumulate** during harvesting and are spent in increments of `tierCost` (set per bar in the registry's `ValueComponent`)
+  - **Each tier's worth** of points produces one reward roll from the bar's reward entries (which may include droptable rewards)
+  - **Remainder is kept** — points are not fully consumed; the leftover (modulo tierCost) carries over
+  - **Keyed by `(field, index)`** — for example, `("NODE", nodeIndex)` ties bars to harvesting nodes, inheriting the node's affinity
 - Scavenge bars may be room-specific or account-wide.
 
 ---

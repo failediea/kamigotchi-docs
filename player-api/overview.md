@@ -238,7 +238,7 @@ Common revert reasons:
 | `"Account: no account detected"` | Account not yet registered — call `system.account.register` first |
 | `"Account: Operator not found"` | Operator wallet not set or calling from wrong wallet |
 | `"PetLevel: need more experience"` | Kami doesn't have enough XP to level up |
-| `"PetName: name too short"` / `"PetName: name too long"` | Name must be 3–12 characters |
+| `"PetName: name too short"` / `"PetName: name too long"` | Name must be 1–16 bytes |
 
 ---
 

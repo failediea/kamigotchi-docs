@@ -1,6 +1,6 @@
 # Kamigotchi Technical Documentation
 
-Welcome to the **Kamigotchi** developer documentation. Kamigotchi is a fully on-chain game built on the [MUD Entity Component System](https://mud.dev/) framework, deployed on **Yominet** — an Initia L2 rollup
+Welcome to the **Kamigotchi** developer documentation. Kamigotchi is a fully on-chain game built on the [MUD Entity Component System](https://mud.dev/) framework, deployed on **Yominet** — an Initia L2 rollup.
 This documentation covers the smart contract architecture, chain configuration, and the complete Player API for integrating with Kamigotchi.
 
 ---
@@ -21,8 +21,8 @@ This documentation covers the smart contract architecture, chain configuration, 
 
 ### Player API
 
-- [Entity Discovery](player-api/entity-discovery.md) — How to find and derive entity IDs for gameplay
 - [Overview & Setup](player-api/overview.md) — SDK setup, wallet model, and calling conventions
+- [Entity Discovery](player-api/entity-discovery.md) — How to find and derive entity IDs for gameplay
 - [Echo](player-api/echo.md) — Force-emit Kami and Room data
 - [Kami](player-api/kami.md) — Level, name, sacrifice, items, equipment, skills
 - [Account](player-api/account.md) — Register, move, settings, chat

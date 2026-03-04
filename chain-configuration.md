@@ -160,7 +160,10 @@ $MUSU is the **primary in-game currency** (item index 1). It is **not** an ERC-2
 
 ### Earning $MUSU
 
-- Harvesting at resource nodes
+- Harvesting at resource nodes (primary source)
+- Quest rewards
+- Selling items to NPC merchants
+- Player-to-player trading
 
 ### $MUSU Uses
 

@@ -45,7 +45,7 @@ console.log("Items purchased from merchant!");
 ### Notes
 
 - `itemIndices` and `amts` arrays must have matching lengths.
-- Merchant inventories and pricing are defined in the listing registry (loaded from CSV at deployment). Each listing links an NPC to an item with a currency and base value. Buy pricing can be `FIXED` (static) or `GDA` (Gradual Dutch Auction — price decays over time). Sell pricing can be `FIXED` or `SCALED`. Listings may also have requirements (e.g., relationship flags, item ownership). Set via registry — query on-chain for current merchant inventories.
+- Merchant inventories and pricing are defined in the listing registry (loaded from CSV at deployment). Each listing links an NPC to an item with a currency and base value. Buy pricing can be `FIXED` (static) or `GDA` (Gradual Dutch Auction — price decays over time). Sell pricing can be `FIXED` or `SCALED` (price scales with quantity sold — higher volumes yield lower per-unit prices). Listings may also have requirements (e.g., relationship flags, item ownership). Set via registry — query on-chain for current merchant inventories.
 - Merchants may have limited stock or require specific currencies.
 - The player must be in the same room as the merchant — move with [account.move()](account.md#move) first.
 

@@ -62,6 +62,8 @@ const levelSystemAddr = await getSystemAddress("system.kami.level");
 console.log("KamiLevelSystem:", levelSystemAddr);
 ```
 
+> **Note:** Token contracts (WETH, ONYX, Kami721) have **fixed addresses** listed in the table above — they do not need dynamic resolution. Only system contracts require the resolver pattern shown here.
+
 > For the full resolver with legacy fallback support, see the [Integration Guide](../integration-guide.md).
 
 ### Why Dynamic Resolution?

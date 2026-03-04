@@ -453,7 +453,7 @@ Withdraw ERC-20 tokens from the game world.
 
 #### Description
 
-Initiates a withdrawal of ERC-20 tokens from the game world back to the owner's wallet. Withdrawals may have a **pending period** before they can be claimed.
+Initiates a withdrawal of ERC-20 tokens from the game world back to the owner's wallet. Withdrawals have a **pending period** (configured per token via the `TOKEN_PORTAL_WITHDRAW_DELAY` config) before they can be claimed with `ERC20.claim()`. During the pending period, you can cancel the withdrawal with `ERC20.cancel()` to return the tokens to your in-game inventory.
 
 #### Code Example
 
@@ -556,7 +556,7 @@ console.log("Withdrawal cancelled — tokens returned to game inventory.");
     │                                     │
     │◀──────────── kami.unstake() ─────── │  (Game Entity → NFT)
     │                                     │
-    │── kami.batch.transfer() ──────────▶  │  (Transfer in-game)
+    │── kami.batch.transfer() ──────────▶  │  (NFT wallet-to-wallet transfer)
 ```
 
 ### ERC-20 (Tokens)

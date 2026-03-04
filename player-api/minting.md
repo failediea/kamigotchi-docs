@@ -252,11 +252,11 @@ console.log("Whitelist gacha tickets purchased!");
   buyWL()                                │
          │                               ▼
          ▼                         Commit IDs generated
-  Gacha Tickets                          │
+  Gacha Tickets ──── mint() ──────▶      │
   in Inventory                           ▼
-         │                         reveal(commitIDs)
-         │                               │
-         └──────────────────▶             ▼
+                                   reveal(commitIDs)
+                                         │
+                                         ▼
                                    Kamis Revealed!
                                          │
                                          ├── Keep → Play!

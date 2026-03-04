@@ -63,7 +63,7 @@ Name or rename a Kami.
 
 ### Description
 
-Rename a Kami. Does not cost ONYX, but consumes 1 Holy Dust (item 11011). The Kami must be in Room 11 (Temple by the Waterfall). For ONYX-based renaming, see [onyx.rename()](#onyxrename).
+Rename a Kami. **Costs 1 Holy Dust** (item index 11011) — the item is consumed from your inventory. The Kami must be in Room 11 (Temple by the Waterfall). For ONYX-based renaming, see [onyx.rename()](#onyxrename).
 
 ### Code Example
 
@@ -251,9 +251,9 @@ await tx.wait();
 
 ---
 
-## item.use()
+## kami.item.use()
 
-Use an item on a Kami (e.g., feed).
+Use an item on a Kami (e.g., feed, heal).
 
 | Property | Value |
 |----------|-------|
@@ -335,7 +335,7 @@ Upgrade a Kami's skill.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `kamiID` | `uint256` | Entity ID of the Kami (contract parameter is `holderID`) |
+| `holderID` | `uint256` | Entity ID of the Kami (or Account for account skills) |
 | `skillIndex` | `uint32` | Index of the skill to upgrade |
 
 ### Description
@@ -349,7 +349,7 @@ Upgrades the specified skill on a Kami. Requires the Kami to have available skil
 ```javascript
 import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
-const ABI = ["function executeTyped(uint256 kamiID, uint32 skillIndex) returns (bytes)"];
+const ABI = ["function executeTyped(uint256 holderID, uint32 skillIndex) returns (bytes)"];
 const system = await getSystem("system.skill.upgrade", ABI, operatorSigner);
 
 const tx = await system.executeTyped(kamiEntityId, skillIndex);

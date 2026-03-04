@@ -130,6 +130,8 @@ Kamigotchi has **67 documented player-facing systems** in the World contract. Ea
 | `system.kami721.transfer` | Transfer Kami NFT | Owner | [Portal](../player-api/portal.md) |
 | `system.Kami721.IsInWorld` | Check if Kami is in-world (view) | N/A | [Portal](../player-api/portal.md) |
 | `system.Kami721.Metadata` | Get Kami token URI metadata (view) | N/A | [Portal](../player-api/portal.md) |
+
+> **Note:** `system.Kami721.IsInWorld` and `system.Kami721.Metadata` use **PascalCase** — this differs from all other system IDs which use lowercase dot notation. These IDs must be passed exactly as shown (case-sensitive) when hashing with `keccak256`.
 | `system.erc20.portal` | ERC20 deposit/withdraw | Owner | [Portal](../player-api/portal.md) |
 
 ### NPC / Relationship Systems

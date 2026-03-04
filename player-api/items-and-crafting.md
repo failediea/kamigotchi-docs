@@ -94,9 +94,9 @@ console.log("Items crafted!");
 
 ---
 
-## item.use()
+## account.item.use()
 
-Use an item from inventory.
+Use an item from inventory (account-level).
 
 | Property | Value |
 |----------|-------|
@@ -131,7 +131,7 @@ await tx.wait();
 
 ### Notes
 
-- This applies the item to the **account** (not a specific Kami). For Kami-specific item usage, see [Kami — item.use()](kami.md#itemuse).
+- This applies the item to the **account** (not a specific Kami). For Kami-specific item usage, see [Kami — kami.item.use()](kami.md#kamiitemuse).
 - Item effects are defined on-chain per item type.
 
 ---
@@ -228,7 +228,7 @@ console.log("Droptable items revealed!");
 ## Related Pages
 
 - [Kami — equipment](kami.md#equipmentequip) — Equipping items on Kamis
-- [Kami — item.use()](kami.md#itemuse) — Using items on specific Kamis
+- [Kami — kami.item.use()](kami.md#kamiitemuse) — Using items on specific Kamis
 - [Trading](trading.md) — Trading items with other players
 - [Merchant Listings](listings.md) — Buying/selling items from NPCs
 - [Harvesting](harvesting.md) — Earning items via harvesting

@@ -193,7 +193,7 @@ Trades incur MUSU fees at multiple stages:
 
 - **Creation fee:** A flat MUSU fee (`TRADE_CREATION_FEE` config) is deducted from the maker's inventory when creating a trade.
 - **Delivery fee:** If the maker is **not** in the designated Trade Room (room 66), an additional flat MUSU fee (`TRADE_DELIVERY_FEE` config) is deducted on creation. Being in the Trade Room waives this fee.
-- **Trade tax:** On both execution and completion, a percentage-based tax is applied to MUSU amounts exchanged. The rate is configured via `TRADE_TAX_RATE` as `[precision, numerator]` — tax = `amount × numerator / 10^precision`. Only MUSU (item index 1) is taxed; non-MUSU items pass through untaxed. The tax is deducted from the received amounts.
+- **Trade tax:** On both execution and completion, a percentage-based tax is applied to MUSU amounts exchanged. The rate is configured via `TRADE_TAX_RATE` as `[precision, numerator]` — tax = `amount × numerator / 10^precision`. Only MUSU (item index 1, see [Entity Discovery — Key Constants](entity-discovery.md#key-constants)) is taxed; non-MUSU items pass through untaxed. The tax is deducted from the received amounts.
 
 > **Tip:** To avoid the delivery fee, move to room 66 (the Trade Room) before creating trades.
 
