@@ -116,6 +116,39 @@ These can appear across multiple systems:
 
 ---
 
+## Troubleshooting FAQ
+
+### "My transaction is pending forever"
+
+Yominet uses flat gas pricing. If a transaction is stuck, check the nonce — you may have a nonce gap. You can replace a stuck transaction by submitting a new one with the same nonce and a higher priority fee.
+
+### "I get 'execution reverted' with no message"
+
+This usually means the system address was not resolved correctly, or you are using the wrong ABI. Double-check your system resolution logic (see [Resolving System Addresses](../contracts/ids-and-abis.md#resolving-system-addresses)) and verify the `executeTyped` signature matches the system you are calling.
+
+### "My Kami died during harvesting"
+
+Your Kami's health reached 0. You have two options to revive it:
+
+1. **ONYX revive:** Call `system.kami.onyx.revive` — costs 33 ONYX, restores health to 33.
+2. **Revive item:** Use a revive consumable (Red Ribbon Gummy, Djed Pillar, or Pale Potion) via `system.kami.use.item`.
+
+If you have neither ONYX nor a revive item, you need to acquire ONYX (via harvesting on another Kami, trading, or the ERC20 portal) or craft/buy a revive item.
+
+### "Newbie Vendor says 'account too old'"
+
+The Newbie Vendor has a **24-hour window** from account registration. You must buy within 24 hours of calling `system.account.register`. If you missed the window, use gacha minting instead — see [Minting](../player-api/minting.md).
+
+### "Which room should my Kami harvest in?"
+
+Room 1 (Misty Riverside) has a harvest node at index 1, and most rooms have nodes. Higher-level nodes may have better yields. Check [Game Data — Harvest Nodes](game-data.md) for the full list of rooms and node indices.
+
+### "How do I know when to collect my harvest?"
+
+You can query the harvest entity's on-chain components to check accumulated rewards, or simply collect periodically with `system.harvest.collect`. Uncollected rewards accumulate — there is no expiration or penalty for waiting.
+
+---
+
 ## See Also
 
 - [Overview — Error Handling](../player-api/overview.md#error-handling) — How to catch and parse revert reasons

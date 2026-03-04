@@ -249,6 +249,7 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.erc20.portal` | `deposit` / `withdraw` / `claim` / `cancel` | `deposit(uint32, uint256)` / `withdraw(uint32, uint256) returns (uint256)` / `claim(uint256)` / `cancel(uint256)` |
 | `system.kami721.transfer` | `batchTransfer` / `batchTransferToMany` | `batchTransfer(uint256[], address)` / `batchTransferToMany(uint256[], address[])` |
 | `system.getter` | `getKami` / `getAccount` / `getKamiByIndex` | View functions — see [Getter System](#getter-system) below |
+| `system.kami.sacrifice.commit` | `executeTyped` | `executeTyped(uint32 kamiIndex) returns (uint256)` — Takes uint32 kamiIndex (ERC721 token index), not uint256 entity ID |
 | `system.kami.sacrifice.reveal` | `executeTypedBatch` | `executeTypedBatch(uint256[] commitIDs)` |
 | `system.harvest.stop` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
 | `system.harvest.collect` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |

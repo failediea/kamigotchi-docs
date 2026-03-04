@@ -282,6 +282,13 @@ const kamiData = await getter.getKami(kamiId);
 const accountData = await getter.getAccount(accountId);
 ```
 
+### Reading Game State — Practical Tips
+
+- **Check if a Kami is alive:** `kamiData.state === "RESTING"` means alive and idle. Other states: `"HARVESTING"` (busy but alive), `"DEAD"` (needs revive).
+- **Check stamina:** `accountData.currStamina` (int32) — decreases per room move. Regenerates over time on-chain.
+- **Check room:** `accountData.room` for the account's current room, `kamiData.room` for a Kami's room (both uint32 room index).
+- **Inventory queries:** The getter system does not include inventory data. For inventory queries, use the `InventoryComponent` directly — see [Entity Discovery](entity-discovery.md) for deriving inventory entity IDs.
+
 ---
 
 ## Full Helper Module
@@ -368,6 +375,71 @@ import {
 ```
 
 Most API snippets assume these exports are already in scope.
+
+---
+
+## Quick Reference
+
+A dense cheat sheet for common bot operations. All snippets assume the [helper module](#full-helper-module) is imported.
+
+### Derive Entity IDs
+
+```javascript
+const accountId  = BigInt(ownerAddress);                                                          // account
+const kamiId     = BigInt(ethers.keccak256(ethers.solidityPacked(["string","uint32"], ["kami.id", kamiIndex])));  // kami
+const harvestId  = BigInt(ethers.keccak256(ethers.solidityPacked(["string","uint256"], ["harvest", kamiId])));    // harvest
+const inventoryId = BigInt(ethers.keccak256(ethers.solidityPacked(["string","uint256","uint32"], ["inventory.instance", accountId, itemIndex]))); // inventory
+```
+
+See [Entity Discovery](entity-discovery.md) for the full list.
+
+### Read Game State
+
+```javascript
+const getter = new ethers.Contract(await getSystemAddress("system.getter"), GETTER_ABI, provider);
+const kami    = await getter.getKami(kamiId);       // .stats.health, .room, .state, .level, .xp
+const account = await getter.getAccount(accountId); // .currStamina, .room, .name
+```
+
+### Check If Kami Is Alive
+
+```javascript
+const kami = await getter.getKami(kamiId);
+const alive = kami.state === "RESTING" || kami.state === "HARVESTING";
+// "DEAD" → needs revive via system.kami.onyx.revive (costs 33 ONYX)
+```
+
+### Check Stamina
+
+```javascript
+const account = await getter.getAccount(accountId);
+console.log("Stamina:", account.currStamina.toString());
+// Each room move costs stamina (on-chain config ACCOUNT_STAMINA index 2)
+```
+
+### Check Inventory
+
+```javascript
+// Derive the inventory entity for a specific item, then read its ValueComponent
+const invId = BigInt(ethers.keccak256(
+  ethers.solidityPacked(["string","uint256","uint32"], ["inventory.instance", accountId, itemIndex])
+));
+const balance = await valueComponent.get(invId); // returns 0 if entity doesn't exist
+```
+
+### Common Bot Loop
+
+```
+loop:
+  kami   = getter.getKami(kamiId)
+  if kami.state == "DEAD"       → revive or swap Kami
+  if kami.health < threshold    → use healing item (system.kami.use.item)
+  if account.room != targetRoom → move (system.account.move, gasLimit: 1_200_000)
+  if kami.state == "RESTING"    → start harvest (system.harvest.start, kamiId, nodeIndex, 0, 0)
+  wait N minutes
+  collect rewards               → system.harvest.collect(harvestId)
+  repeat
+```
 
 ---
 

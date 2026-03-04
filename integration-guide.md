@@ -461,94 +461,183 @@ Now that you've registered, set up wallets, and can call systems — you'll need
 
 ## Complete Example Script
 
+A single copy-paste-ready script that takes a fresh wallet through the entire first-run flow: connect, register, buy a Kami, move to a harvest room, start harvesting, wait, and collect.
+
 ```javascript
-// complete-example.js
+// complete-example.js — Full first-run bot script (ethers v6, ESM)
+//
+// Prerequisites:
+//   npm init -y && npm install ethers && npm pkg set type=module
+//   export OWNER_PRIVATE_KEY=0x...
+//   export OPERATOR_PRIVATE_KEY=0x...
+//   node complete-example.js
+
 import { ethers } from "ethers";
 
-// --- Config ---
+// ============================================================
+// Configuration
+// ============================================================
+
 const RPC_URL = "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz";
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
+const CHAIN = { chainId: 428962654539583, name: "Yominet" };
 
-// --- Setup ---
-const provider = new ethers.JsonRpcProvider(RPC_URL, {
-  chainId: 428962654539583,
-  name: "Yominet",
-});
+// How long to harvest before collecting (in seconds).
+// 120 s is enough to accumulate a small reward for demonstration.
+const HARVEST_WAIT_SECONDS = 120;
+
+// ============================================================
+// Environment helpers
+// ============================================================
 
 function mustEnv(name) {
   const value = process.env[name];
   if (!value || !value.startsWith("0x")) {
-    throw new Error(`Missing ${name}. Set it before running this script.`);
+    throw new Error(
+      `Missing or invalid ${name}. Export it before running:\n  export ${name}=0xYOUR_KEY`
+    );
   }
   return value;
 }
 
+// ============================================================
+// Provider & wallets
+// ============================================================
+
+const provider = new ethers.JsonRpcProvider(RPC_URL, CHAIN);
 const ownerSigner = new ethers.Wallet(mustEnv("OWNER_PRIVATE_KEY"), provider);
 const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"), provider);
+
+// ============================================================
+// System resolver (inlined — no external helper import)
+// ============================================================
 
 const world = new ethers.Contract(
   WORLD_ADDRESS,
   [
     "function systems() view returns (address)",
-    "function systems(uint256) view returns (address)", // legacy worlds
+    "function systems(uint256) view returns (address)",
   ],
   provider
 );
+
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
 ];
 
-const cache = new Map();
-async function sys(id, abi, signer) {
-  if (!cache.has(id)) {
-    const hash = ethers.keccak256(ethers.toUtf8Bytes(id));
-    let addr = ethers.ZeroAddress;
-    try {
-      addr = await world["systems(uint256)"](hash);
-    } catch (_) {}
+const systemCache = new Map();
 
-    if (addr === ethers.ZeroAddress) {
-      const systemsComponentAddr = await world["systems()"]();
-      const systemsComponent = new ethers.Contract(
-        systemsComponentAddr,
-        SYSTEMS_COMPONENT_ABI,
-        provider
-      );
-      const entities = await systemsComponent.getEntitiesWithValue(hash);
-      if (entities.length === 0) throw new Error(`System not found: ${id}`);
-      addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
+async function getSystemAddress(systemId) {
+  if (systemCache.has(systemId)) return systemCache.get(systemId);
+
+  const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
+
+  // Try legacy path first (systems(uint256) -> address)
+  try {
+    const legacyAddr = await world["systems(uint256)"](hash);
+    if (legacyAddr !== ethers.ZeroAddress) {
+      systemCache.set(systemId, legacyAddr);
+      return legacyAddr;
     }
+  } catch (_) {}
 
-    cache.set(id, addr);
+  // Current Yominet path: World.systems() -> SystemsComponent
+  const scAddr = await world["systems()"]();
+  const sc = new ethers.Contract(scAddr, SYSTEMS_COMPONENT_ABI, provider);
+  const entities = await sc.getEntitiesWithValue(hash);
+  if (entities.length === 0) {
+    throw new Error(`System "${systemId}" not found in registry`);
   }
-  return new ethers.Contract(cache.get(id), abi, signer);
+  const addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
+  systemCache.set(systemId, addr);
+  return addr;
 }
 
-// --- Main ---
+async function getSystem(systemId, abi, signer) {
+  const address = await getSystemAddress(systemId);
+  return new ethers.Contract(address, abi, signer);
+}
+
+// ============================================================
+// Entity ID helpers
+// ============================================================
+
+/** Kami entity ID: keccak256(abi.encodePacked("kami.id", uint32(kamiTokenIndex))) */
+function getKamiEntityId(kamiTokenIndex) {
+  return BigInt(
+    ethers.keccak256(
+      ethers.solidityPacked(["string", "uint32"], ["kami.id", kamiTokenIndex])
+    )
+  );
+}
+
+/** Harvest entity ID: keccak256(abi.encodePacked("harvest", uint256(kamiEntityId))) */
+function getHarvestEntityId(kamiEntityId) {
+  return BigInt(
+    ethers.keccak256(
+      ethers.solidityPacked(["string", "uint256"], ["harvest", kamiEntityId])
+    )
+  );
+}
+
+// ============================================================
+// Main flow
+// ============================================================
+
 async function main() {
-  console.log("Owner:", ownerSigner.address);
+  // ----------------------------------------------------------
+  // 1. Connect and check balances
+  // ----------------------------------------------------------
+  const blockNumber = await provider.getBlockNumber();
+  console.log(`Connected to Yominet (block ${blockNumber})`);
+  console.log("Owner:   ", ownerSigner.address);
   console.log("Operator:", operatorSigner.address);
 
-  // 1. Register
-  const reg = await sys(
+  const [ownerBal, operatorBal] = await Promise.all([
+    provider.getBalance(ownerSigner.address),
+    provider.getBalance(operatorSigner.address),
+  ]);
+  console.log("Owner balance:   ", ethers.formatEther(ownerBal), "ETH");
+  console.log("Operator balance:", ethers.formatEther(operatorBal), "ETH");
+
+  if (ownerBal === 0n) throw new Error("Owner wallet has no ETH. Bridge funds first.");
+  if (operatorBal === 0n) throw new Error("Operator wallet has no ETH. Send gas funds first.");
+
+  // ----------------------------------------------------------
+  // 2. Register account (skip if already registered)
+  // ----------------------------------------------------------
+  const registerSystem = await getSystem(
     "system.account.register",
-    ["function executeTyped(address, string) returns (bytes)"],
+    ["function executeTyped(address operatorAddress, string name) returns (bytes)"],
     ownerSigner
   );
-  await (await reg.executeTyped(operatorSigner.address, "MyAccount")).wait();
-  console.log("✅ Registered");
 
-  // 2. Move to room 1
-  const move = await sys(
-    "system.account.move",
-    ["function executeTyped(uint32) returns (bytes)"],
-    operatorSigner
-  );
-  await (await move.executeTyped(1, { gasLimit: 1_200_000 })).wait();
-  console.log("✅ Moved to room 1");
+  try {
+    const regTx = await registerSystem.executeTyped(
+      operatorSigner.address,
+      "MyBotAccount"
+    );
+    await regTx.wait();
+    console.log("Account registered.");
+  } catch (err) {
+    // If the account is already registered the contract reverts.
+    // Detect this and continue gracefully.
+    const reason = err.reason || err.message || "";
+    if (
+      reason.includes("already") ||
+      reason.includes("registered") ||
+      reason.includes("exists")
+    ) {
+      console.log("Account already registered — skipping.");
+    } else {
+      throw err;
+    }
+  }
 
-  // 3. Buy first Kami from Newbie Vendor (owner wallet, native ETH)
-  const vendor = await sys(
+  // ----------------------------------------------------------
+  // 3. Buy first Kami from Newbie Vendor
+  // ----------------------------------------------------------
+  const vendorSystem = await getSystem(
     "system.newbievendor.buy",
     [
       "function executeTyped(uint32 kamiIndex) payable returns (bytes)",
@@ -556,43 +645,174 @@ async function main() {
     ],
     ownerSigner
   );
-  const price = await vendor.calcPrice();
-  // Probe display slots to find a valid index
-  let kamiIndex = null;
-  for (const candidate of [0, 1, 2]) {
-    try {
-      await vendor.executeTyped.staticCall(candidate, { value: price });
-      kamiIndex = candidate;
-      break;
-    } catch (_) {}
+
+  let kamiTokenIndex = null;
+
+  try {
+    // Check the current TWAP-derived price (view call, no gas)
+    const price = await vendorSystem.calcPrice();
+    console.log("Vendor price:", ethers.formatEther(price), "ETH");
+
+    // Preflight probe: find a currently valid display-slot index
+    let validSlot = null;
+    for (const candidate of [0, 1, 2]) {
+      try {
+        await vendorSystem.executeTyped.staticCall(candidate, { value: price });
+        validSlot = candidate;
+        break;
+      } catch (_) {}
+    }
+
+    if (validSlot === null) {
+      throw new Error(
+        "No valid vendor slot found. The vendor display may need refreshing."
+      );
+    }
+
+    console.log("Selected vendor slot:", validSlot);
+    const buyTx = await vendorSystem.executeTyped(validSlot, { value: price });
+    const buyReceipt = await buyTx.wait();
+    console.log("Kami purchased from Newbie Vendor. Tx:", buyReceipt.hash);
+
+    // Determine the kamiTokenIndex from the purchase.
+    // The vendor system returns abi.encode(uint32 kamiTokenIndex) in its return data.
+    // We can also look it up via the getter. Use the getter approach since it works
+    // regardless of return-data availability.
+  } catch (err) {
+    const reason = err.reason || err.message || "";
+    if (
+      reason.includes("already") ||
+      reason.includes("limit") ||
+      reason.includes("one per")
+    ) {
+      console.log("Vendor purchase skipped (already bought or limit reached).");
+    } else {
+      throw err;
+    }
   }
-  if (kamiIndex === null) throw new Error("No valid vendor index found");
-  await (await vendor.executeTyped(kamiIndex, { value: price })).wait();
-  console.log("✅ Purchased Kami from vendor (index:", kamiIndex, ")");
 
-  // 4. Derive the Kami entity ID
-  // After purchase, query account's Kami list or parse tx events to get kamiTokenIndex.
-  // Entity ID formula: keccak256(abi.encodePacked("kami.id", uint32(kamiTokenIndex)))
-  // For this example, assume kamiTokenIndex is known:
-  // const kamiEntityId = BigInt(ethers.keccak256(
-  //   ethers.solidityPacked(["string", "uint32"], ["kami.id", kamiTokenIndex])
-  // ));
+  // ----------------------------------------------------------
+  // 4. Discover the Kami's token index and entity ID
+  // ----------------------------------------------------------
+  // Use the getter to find our Kami. After a vendor buy (or any acquisition),
+  // the Kami's account field matches our owner address cast to uint256.
+  const GETTER_ABI = [
+    "function getKamiByIndex(uint32 index) view returns (tuple(uint256 id, uint32 index, string name, string mediaURI, tuple(tuple(int32 base, int32 shift, int32 boost, int32 sync) health, tuple(int32 base, int32 shift, int32 boost, int32 sync) power, tuple(int32 base, int32 shift, int32 boost, int32 sync) harmony, tuple(int32 base, int32 shift, int32 boost, int32 sync) violence) stats, tuple(uint32 face, uint32 hand, uint32 body, uint32 background, uint32 color) traits, string[] affinities, uint256 account, uint256 level, uint256 xp, uint32 room, string state))",
+    "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
+  ];
+  const getterAddr = await getSystemAddress("system.getter");
+  const getter = new ethers.Contract(getterAddr, GETTER_ABI, provider);
 
-  // 5. Start harvesting (operator wallet)
-  // Node index == room index. We're in room 1, so nodeIndex = 1.
-  // Requires a valid kamiEntityId — uncomment below once you have it:
-  // const harvest = await sys(
-  //   "system.harvest.start",
-  //   ["function executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)"],
-  //   operatorSigner
-  // );
-  // await (await harvest.executeTyped(kamiEntityId, 1, 0, 0)).wait();
-  // console.log("✅ Harvesting started in room 1");
+  // Account entity ID = uint256(uint160(ownerAddress))
+  const accountEntityId = BigInt(ownerSigner.address);
 
-  console.log("🎮 Integration complete — register, move, and first Kami acquired!");
+  // If we don't already know the token index, scan a range to find our Kami.
+  // Vendor-bought Kamis typically have low indices. Scan up to 10000 as a safe range.
+  if (kamiTokenIndex === null) {
+    console.log("Scanning for Kami owned by this account...");
+    for (let idx = 0; idx < 10000; idx++) {
+      try {
+        const kami = await getter.getKamiByIndex(idx);
+        if (kami.account === accountEntityId) {
+          kamiTokenIndex = idx;
+          console.log("Found Kami: tokenIndex =", idx, "| name =", kami.name);
+          break;
+        }
+      } catch (_) {
+        // Index doesn't exist yet — stop scanning
+        break;
+      }
+    }
+  }
+
+  if (kamiTokenIndex === null) {
+    throw new Error(
+      "No Kami found for this account. Buy one from the Newbie Vendor or Marketplace first."
+    );
+  }
+
+  const kamiEntityId = getKamiEntityId(kamiTokenIndex);
+  console.log("Kami entity ID:", kamiEntityId.toString());
+
+  // ----------------------------------------------------------
+  // 5. Move to a harvest room (Room 1 — Misty Riverside has a node)
+  // ----------------------------------------------------------
+  // New accounts start in Room 1 after registration, but if we've moved
+  // before, make sure we're there now.
+  const accountData = await getter.getAccount(accountEntityId);
+  const currentRoom = accountData.room;
+
+  if (currentRoom !== 1) {
+    const moveSystem = await getSystem(
+      "system.account.move",
+      ["function executeTyped(uint32 roomIndex) returns (bytes)"],
+      operatorSigner
+    );
+    const moveTx = await moveSystem.executeTyped(1, { gasLimit: 1_200_000 });
+    await moveTx.wait();
+    console.log("Moved to Room 1.");
+  } else {
+    console.log("Already in Room 1.");
+  }
+
+  // ----------------------------------------------------------
+  // 6. Start harvesting
+  // ----------------------------------------------------------
+  // harvest.start params:
+  //   kamiID    — entity ID of the Kami
+  //   nodeIndex — harvest node index (node index matches room index; Room 1 = node 1)
+  //   taxerID   — 0 for player-initiated harvests
+  //   taxAmt    — 0 for player-initiated harvests
+  const harvestStartSystem = await getSystem(
+    "system.harvest.start",
+    [
+      "function executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)",
+    ],
+    operatorSigner
+  );
+
+  try {
+    const startTx = await harvestStartSystem.executeTyped(kamiEntityId, 1, 0, 0);
+    await startTx.wait();
+    console.log("Harvesting started on node 1.");
+  } catch (err) {
+    const reason = err.reason || err.message || "";
+    if (reason.includes("already") || reason.includes("harvesting")) {
+      console.log("Kami is already harvesting — skipping start.");
+    } else {
+      throw err;
+    }
+  }
+
+  // ----------------------------------------------------------
+  // 7. Wait for rewards to accumulate
+  // ----------------------------------------------------------
+  console.log(`Waiting ${HARVEST_WAIT_SECONDS}s for rewards to accumulate...`);
+  await new Promise((resolve) => setTimeout(resolve, HARVEST_WAIT_SECONDS * 1000));
+
+  // ----------------------------------------------------------
+  // 8. Collect harvest rewards
+  // ----------------------------------------------------------
+  // Harvest entity ID is deterministic: keccak256("harvest", kamiEntityId)
+  const harvestEntityId = getHarvestEntityId(kamiEntityId);
+
+  const collectSystem = await getSystem(
+    "system.harvest.collect",
+    ["function executeTyped(uint256 id) returns (bytes)"],
+    operatorSigner
+  );
+
+  const collectTx = await collectSystem.executeTyped(harvestEntityId);
+  await collectTx.wait();
+  console.log("Rewards collected! Harvest ID:", harvestEntityId.toString());
+
+  console.log("Done. Your bot is registered, has a Kami, and is harvesting on Yominet.");
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error("Fatal error:", err.reason || err.message || err);
+  process.exit(1);
+});
 ```
 
 ---
