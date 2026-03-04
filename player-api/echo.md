@@ -22,7 +22,7 @@ Triggers the World to re-emit all Kami entity data associated with the caller's 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ECHO_KAMIS_ABI = ["function executeTyped() returns (bytes)"];
 const echoKamis = await getSystem(
@@ -62,7 +62,7 @@ Triggers the World to re-emit Room data for the caller's current room. Includes 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ECHO_ROOM_ABI = ["function executeTyped() returns (bytes)"];
 const echoRoom = await getSystem(

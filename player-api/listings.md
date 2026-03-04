@@ -29,7 +29,7 @@ Purchases items from an NPC merchant's inventory. The cost is deducted from the 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 merchantIndex, uint32[] itemIndices, uint32[] amts) returns (bytes)",
@@ -76,7 +76,7 @@ Sells items from the player's inventory to an NPC merchant. The merchant pays th
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 merchantIndex, uint32[] itemIndices, uint32[] amts) returns (bytes)",
@@ -121,7 +121,7 @@ Buy items from the auction house.
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 itemIndex, uint32 amt) returns (bytes)",

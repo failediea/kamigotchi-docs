@@ -30,7 +30,7 @@ This is typically the first function a new player calls.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = [
@@ -77,7 +77,7 @@ Moves the player's account to the specified room. Rooms contain harvest nodes, N
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint32 roomIndex) returns (bytes)"];
 const system = await getSystem("system.account.move", ABI, operatorSigner);
@@ -129,7 +129,7 @@ Sends a text message visible to all players in the same room. Messages are emitt
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(string message) returns (bytes)"];
 const system = await getSystem("system.chat", ABI, operatorSigner);
@@ -169,7 +169,7 @@ Updates the player's profile bio. Visible to other players when inspecting the a
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(string bio) returns (bytes)"];
 const system = await getSystem("system.account.set.bio", ABI, operatorSigner);
@@ -203,7 +203,7 @@ Sets the player's profile picture to the visual of a Kami they own.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID) returns (bytes)"];
 const system = await getSystem("system.account.set.pfp", ABI, operatorSigner);
@@ -237,7 +237,7 @@ Changes the player's display name. Must be called from the owner wallet.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = ["function executeTyped(string name) returns (bytes)"];
@@ -272,7 +272,7 @@ Changes the delegated operator wallet. The previous operator wallet will no long
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = ["function executeTyped(address operatorAddress) returns (bytes)"];

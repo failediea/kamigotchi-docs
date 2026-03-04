@@ -335,8 +335,28 @@ const vendorSystem = await getSystem("system.newbievendor.buy", VENDOR_ABI, owne
 const price = await vendorSystem.calcPrice();
 console.log("Vendor price:", ethers.formatEther(price), "ETH");
 
-// Buy a Kami from the vendor
-const kamiIndex = Number(process.env.NEWBIE_VENDOR_KAMI_INDEX ?? 0);
+// Resolve a valid vendor index from candidate indices before sending a paid tx
+const candidates = (process.env.NEWBIE_VENDOR_CANDIDATES ?? "0,1,2")
+  .split(",")
+  .map((v) => Number(v.trim()))
+  .filter((v) => Number.isInteger(v));
+
+let kamiIndex = null;
+for (const candidate of candidates) {
+  try {
+    await vendorSystem.executeTyped.staticCall(candidate, { value: price });
+    kamiIndex = candidate;
+    break;
+  } catch (_) {}
+}
+
+if (kamiIndex === null) {
+  throw new Error(
+    "No valid vendor index found. Refresh display and set NEWBIE_VENDOR_CANDIDATES."
+  );
+}
+
+console.log("Selected vendor index:", kamiIndex);
 const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
 await tx.wait();
 console.log("First Kami purchased from the Newbie Vendor!");
@@ -344,9 +364,10 @@ console.log("First Kami purchased from the Newbie Vendor!");
 
 ### Choosing `kamiIndex`
 
-1. Read the current 3 displayed indices from your indexer/front-end feed.
-2. Set `NEWBIE_VENDOR_KAMI_INDEX` to one of those indices.
-3. If the tx reverts with `NewbieVendor: kami not on display`, refresh display data and retry.
+1. Read candidate indices from your UI/indexer feed (or start with defaults `0,1,2`).
+2. Set `NEWBIE_VENDOR_CANDIDATES` (comma-separated), for example `12,37,44` or `0,1,2`.
+3. The snippet runs `executeTyped.staticCall` over candidates and picks the first currently valid index.
+4. If no candidate passes, refresh vendor display data and retry.
 
 > **Tip:** Use `calcPrice()` (a view function, no gas) to check the current vendor price before buying. Excess ETH is refunded automatically.
 
@@ -387,12 +408,6 @@ function mustEnv(name) {
   return value;
 }
 
-// Seller uses operator wallet to list
-const sellerOperator = new ethers.Wallet(mustEnv("SELLER_OPERATOR_KEY"), provider);
-
-// Buyer uses owner wallet to buy (payable)
-const buyerOwner = new ethers.Wallet(mustEnv("BUYER_OWNER_KEY"), provider);
-
 // Helper to resolve system contracts
 const world = new ethers.Contract(
   WORLD_ADDRESS,
@@ -428,24 +443,34 @@ async function sys(id, abi, signer) {
 }
 
 async function main() {
-  // --- Seller lists Kami #42 for 0.1 ETH ---
   const price = ethers.parseEther("0.1");
-  const listSys = await sys(
-    "system.kamimarket.list",
-    ["function executeTyped(uint32, uint256, uint256) returns (bytes)"],
-    sellerOperator
-  );
-  const listTx = await listSys.executeTyped(42, price, 0);
-  const listReceipt = await listTx.wait();
-  console.log("✅ Kami #42 listed for 0.1 ETH. Tx:", listReceipt.hash);
+  const mode = process.env.MARKET_MODE ?? "list";
 
-  // Listing IDs are non-deterministic.
-  // Resolve from confirmed indexer/event output keyed by listReceipt.hash.
-  // Then set LISTING_ID and rerun to execute the buy step.
-  if (!process.env.LISTING_ID) {
-    console.log("Set LISTING_ID from indexer/event output and rerun for buy.");
+  if (mode === "list") {
+    const sellerOperator = new ethers.Wallet(mustEnv("SELLER_OPERATOR_KEY"), provider);
+
+    // --- Seller lists Kami #42 for 0.1 ETH ---
+    const listSys = await sys(
+      "system.kamimarket.list",
+      ["function executeTyped(uint32, uint256, uint256) returns (bytes)"],
+      sellerOperator
+    );
+    const listTx = await listSys.executeTyped(42, price, 0);
+    const listReceipt = await listTx.wait();
+    console.log("✅ Kami #42 listed for 0.1 ETH. Tx:", listReceipt.hash);
+    console.log("Resolve LISTING_ID from confirmed indexer/event output, then rerun with:");
+    console.log("MARKET_MODE=buy LISTING_ID=<value>");
     return;
   }
+
+  if (mode !== "buy") {
+    throw new Error("MARKET_MODE must be 'list' or 'buy'");
+  }
+
+  if (!process.env.LISTING_ID) {
+    throw new Error("Missing LISTING_ID for MARKET_MODE=buy");
+  }
+  const buyerOwner = new ethers.Wallet(mustEnv("BUYER_OWNER_KEY"), provider);
   const listingId = BigInt(process.env.LISTING_ID);
 
   // --- Buyer buys the listing ---
@@ -464,6 +489,7 @@ async function main() {
 main().catch(console.error);
 ```
 
+> **Run modes:** use `MARKET_MODE=list` to create a listing and capture its tx hash, then `MARKET_MODE=buy LISTING_ID=<id>` to purchase.  
 > **Why `LISTING_ID` is externalized:** listing IDs come from `world.getUniqueEntityId()` and are non-deterministic. `staticCall` can drift from mined state under concurrency.
 
 ---

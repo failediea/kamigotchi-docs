@@ -27,7 +27,7 @@ Sends a friend request to another player by their owner wallet address. The targ
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(address targetAddr) returns (bytes)"];
 const system = await getSystem("system.friend.request", ABI, operatorSigner);
@@ -69,7 +69,7 @@ Accepts an incoming friend request. Both accounts become friends, enabling featu
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 requestID) returns (bytes)"];
 const system = await getSystem("system.friend.accept", ABI, operatorSigner);
@@ -110,7 +110,7 @@ A multipurpose function that handles three scenarios based on the entity's curre
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 entityID) returns (bytes)"];
 const system = await getSystem("system.friend.cancel", ABI, operatorSigner);
@@ -151,7 +151,7 @@ Blocks another player. Blocked accounts cannot send friend requests to the block
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(address targetAddr) returns (bytes)"];
 const system = await getSystem("system.friend.block", ABI, operatorSigner);

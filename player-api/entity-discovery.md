@@ -103,9 +103,23 @@ const [preflightCommitIds] = ethers.AbiCoder.defaultAbiCoder().decode(
 const mintTx = await mintSystem.executeTyped(1);
 const mintReceipt = await mintTx.wait();
 
-// Production: resolve final commit IDs from confirmed tx events/indexer.
-// const commitIds = await getCommitIdsFromIndexer(mintReceipt.hash);
-const commitIds = preflightCommitIds;
+async function resolveCommitIds(mintTxHash, fallbackIds) {
+  // Expected indexer response: { "commitIds": ["123", "456"] }
+  const indexerBaseUrl = process.env.KAMIGOTCHI_INDEXER_URL;
+  if (!indexerBaseUrl) return fallbackIds;
+
+  const url = `${indexerBaseUrl}/gacha/commits?mintTxHash=${mintTxHash}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch commit IDs from indexer (${res.status})`);
+
+  const payload = await res.json();
+  if (!Array.isArray(payload.commitIds) || payload.commitIds.length === 0) {
+    throw new Error("Indexer response missing commitIds");
+  }
+  return payload.commitIds.map((v) => BigInt(v));
+}
+
+const commitIds = await resolveCommitIds(mintReceipt.hash, preflightCommitIds);
 
 // Step 2: Reveal (must wait ~1 block for randomness)
 const revealSystem = await getSystem(
@@ -119,7 +133,7 @@ const revealReceipt = await revealTx.wait();
 // The return value contains the Kami entity IDs
 ```
 
-> **Note:** `staticCall` is preflight only and can drift if state changes between simulation and tx inclusion. For production bots, treat confirmed tx events/indexer data as the source of truth for commit IDs.
+> **Note:** `staticCall` is preflight only and can drift if state changes between simulation and tx inclusion. For production bots, resolve commit IDs from confirmed tx data (for example an indexer endpoint keyed by `mintTxHash`) before reveal retries.
 
 ### After Staking a Kami721 NFT
 

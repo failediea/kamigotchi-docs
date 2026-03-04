@@ -183,14 +183,37 @@ const vendorSystem = await getSystem("system.newbievendor.buy", VENDOR_ABI, owne
 const price = await vendorSystem.calcPrice();
 console.log("Vendor price:", ethers.formatEther(price), "ETH");
 
-// Buy one of the 3 currently displayed Kamis
-const kamiIndex = Number(process.env.NEWBIE_VENDOR_KAMI_INDEX ?? 0);
+// Determine the currently valid index:
+// - If your UI/indexer provides candidates, pass them in NEWBIE_VENDOR_CANDIDATES (comma-separated)
+// - Otherwise probe default slot indices [0, 1, 2]
+const candidates = (process.env.NEWBIE_VENDOR_CANDIDATES ?? "0,1,2")
+  .split(",")
+  .map((v) => Number(v.trim()))
+  .filter((v) => Number.isInteger(v));
+
+let kamiIndex = null;
+for (const candidate of candidates) {
+  try {
+    // Preflight check to avoid spending gas on an invalid display index
+    await vendorSystem.executeTyped.staticCall(candidate, { value: price });
+    kamiIndex = candidate;
+    break;
+  } catch (_) {}
+}
+
+if (kamiIndex === null) {
+  throw new Error(
+    "No valid vendor index found. Refresh vendor display, update NEWBIE_VENDOR_CANDIDATES, and retry."
+  );
+}
+
+console.log("Selected vendor index:", kamiIndex);
 const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
 await tx.wait();
 console.log("First Kami purchased from the Newbie Vendor!");
 ```
 
-> **Selecting `kamiIndex`:** use one of the three indices currently shown by your UI/indexer feed. If you get `NewbieVendor: kami not on display`, refresh the current display and retry.
+> **Selecting `kamiIndex`:** this flow uses a concrete preflight probe (`executeTyped.staticCall`) to find a currently valid index from your candidate list before sending a paid tx.
 
 > **Restrictions:** One purchase per account, only within 24 hours of registration. Minimum price 0.005 ETH. The purchased Kami is soulbound for 3 days (cannot be listed or unstaked). See [KamiSwap — Marketplace](player-api/marketplace.md) for full details.
 
@@ -230,10 +253,24 @@ const mintTx = await mintSystem.executeTyped(mintAmount, { gasLimit: 7_000_000 }
 const mintReceipt = await mintTx.wait();
 console.log("Mint committed!");
 
-// Production recommendation: resolve final commit IDs from indexer/events by tx hash.
-// const commitIdArray = await getCommitIdsFromIndexer(mintReceipt.hash);
-const commitIdArray = preflightCommitIds;
-console.log("Preflight Commit IDs:", commitIdArray, "Mint tx:", mintReceipt.hash);
+async function resolveCommitIds(mintTxHash, fallbackIds) {
+  // Expected indexer response: { "commitIds": ["123", "456"] }
+  const indexerBaseUrl = process.env.KAMIGOTCHI_INDEXER_URL;
+  if (!indexerBaseUrl) return fallbackIds;
+
+  const url = `${indexerBaseUrl}/gacha/commits?mintTxHash=${mintTxHash}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch commit IDs from indexer (${res.status})`);
+
+  const payload = await res.json();
+  if (!Array.isArray(payload.commitIds) || payload.commitIds.length === 0) {
+    throw new Error("Indexer response missing commitIds");
+  }
+  return payload.commitIds.map((v) => BigInt(v));
+}
+
+const commitIdArray = await resolveCommitIds(mintReceipt.hash, preflightCommitIds);
+console.log("Commit IDs:", commitIdArray, "Mint tx:", mintReceipt.hash);
 
 // 3. Reveal — determines the Kami's traits (species, stats, rarity)
 // Note: there may be a minimum block delay between mint and reveal

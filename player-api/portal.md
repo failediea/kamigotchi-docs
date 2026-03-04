@@ -30,7 +30,7 @@ Stakes a Kami NFT from the owner's wallet into the game world. The NFT is transf
 
 ```javascript
 import { ethers } from "ethers";
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const KAMI721_ADDRESS = "0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677";
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
@@ -84,7 +84,7 @@ Withdraws a Kami from the game world back to the owner's wallet as an ERC-721 NF
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = ["function executeTyped(uint32 tokenIndex) returns (bytes)"];
@@ -123,7 +123,7 @@ Batch stake multiple Kami NFTs.
 
 ```javascript
 import { ethers } from "ethers";
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const KAMI721_ADDRESS = "0x5d4376b62fa8ac16dfabe6a9861e11c33a48c677";
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
@@ -165,7 +165,7 @@ Batch unstake multiple Kamis.
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Batch unstake — uses executeBatch(), NOT executeTyped
 const ABI = ["function executeBatch(uint32[] tokenIndices)"];
@@ -197,7 +197,7 @@ Batch transfer Kamis to a single address.
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // batchTransfer() is a named function, NOT executeTyped
 const ABI = [
@@ -234,7 +234,7 @@ Batch transfer Kamis to multiple addresses (1:1 mapping).
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // batchTransferToMany() is a named function, NOT executeTyped
 const ABI = [
@@ -278,7 +278,7 @@ Deposits ERC-20 tokens from the owner's wallet into the game world as in-game it
 
 ```javascript
 import { ethers } from "ethers";
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ONYX_ADDRESS = "0x4BaDFb501Ab304fF11217C44702bb9E9732E7CF4";
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
@@ -306,9 +306,15 @@ console.log("ONYX deposited into game world!");
 
 ```javascript
 // Funding gacha: deposit in-game ETH balance (item 103) via WETH
+import { ethers } from "ethers";
+import { getSystem, ownerSigner } from "./kamigotchi.js";
+
 const WETH_ADDRESS = "0xE1Ff7038eAAAF027031688E1535a055B2Bac2546";
+const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
 const wethItemIndex = 103;
 const gachaBudget = ethers.parseEther("0.2");
+const portalAbi = ["function deposit(uint32 itemIndex, uint256 itemAmt)"];
+const portalSystem = await getSystem("system.erc20.portal", portalAbi, ownerSigner);
 
 const weth = new ethers.Contract(
   WETH_ADDRESS,
@@ -316,7 +322,7 @@ const weth = new ethers.Contract(
   ownerSigner
 );
 await (await weth.approve(WORLD_ADDRESS, gachaBudget)).wait();
-await (await system.deposit(wethItemIndex, gachaBudget)).wait();
+await (await portalSystem.deposit(wethItemIndex, gachaBudget)).wait();
 console.log("In-game ETH (item 103) funded for gacha tickets");
 ```
 
@@ -353,7 +359,7 @@ Initiates a withdrawal of ERC-20 tokens from the game world back to the owner's 
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // withdraw() is a named function, NOT executeTyped
 const ABI = [
@@ -391,7 +397,7 @@ Claims a pending ERC-20 withdrawal after the required waiting period has elapsed
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // claim() is a named function, NOT executeTyped
 const ABI = ["function claim(uint256 receiptID)"];
@@ -427,7 +433,7 @@ Cancels a pending withdrawal. The tokens are returned to the player's in-game in
 #### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // cancel() is a named function, NOT executeTyped
 const ABI = ["function cancel(uint256 receiptID)"];

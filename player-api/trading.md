@@ -33,7 +33,7 @@ If `targetID` is non-zero, only that specific account can execute the trade. If 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32[] buyIndices, uint256[] buyAmts, uint32[] sellIndices, uint256[] sellAmts, uint256 targetID) returns (bytes)",
@@ -83,7 +83,7 @@ Called by the **taker** (not the maker) to accept a pending trade. The taker's i
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 tradeID) returns (bytes)"];
 const system = await getSystem("system.trade.execute", ABI, ownerSigner);
@@ -129,7 +129,7 @@ The trade entity is resolved.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 tradeID) returns (bytes)"];
 const system = await getSystem("system.trade.complete", ABI, ownerSigner);
@@ -169,7 +169,7 @@ Cancels a trade and **returns the escrowed items** to the maker's inventory. Onl
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 tradeID) returns (bytes)"];
 const system = await getSystem("system.trade.cancel", ABI, ownerSigner);

@@ -28,7 +28,7 @@ Permanently destroys items from the player's inventory. Useful for clearing unwa
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32[] indices, uint256[] amts) returns (bytes)",
@@ -73,7 +73,7 @@ Crafts items using a predefined recipe. The required ingredients are consumed fr
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 recipeIndex, uint256 amount) returns (bytes)",
@@ -118,7 +118,7 @@ Uses a consumable item from the account's inventory. Effects vary by item type (
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 itemIndex, uint256 amt) returns (bytes)",
@@ -161,7 +161,7 @@ Transfers items from the caller's inventory to another player's account. Both pl
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32[] indices, uint256[] amts, uint256 targetID) returns (bytes)",
@@ -206,7 +206,7 @@ Reveals items from pending droptable results. Droptables generate randomized loo
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256[] ids) returns (bytes)"];
 const system = await getSystem("system.droptable.item.reveal", ABI, operatorSigner);

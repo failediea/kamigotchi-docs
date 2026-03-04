@@ -34,7 +34,7 @@ For batching multiple Kamis to the same node, use `executeBatched()` (see below)
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)",
@@ -91,7 +91,7 @@ For batch stopping, use `executeBatched()` (see below).
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 id) returns (bytes)",
@@ -142,7 +142,7 @@ For batch collecting, use `executeBatched()` (see below).
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 id) returns (bytes)",
@@ -192,7 +192,7 @@ Uses your Kami to liquidate another player's harvest. This is a competitive PvP 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 victimHarvID, uint256 killerID) returns (bytes)",

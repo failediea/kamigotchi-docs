@@ -29,7 +29,7 @@ After minting, call `reveal()` to reveal the Kamis.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 amount) returns (bytes)"];
 const system = await getSystem("system.kami.gacha.mint", ABI, ownerSigner);
@@ -76,7 +76,7 @@ Reveals the traits (species, stats, rarity) of Kamis from previous mint commits.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // reveal() is a named function, NOT executeTyped
 const ABI = ["function reveal(uint256[] rawCommitIDs) external returns (uint256[])"];
@@ -119,7 +119,7 @@ Rerolls one or more Kamis, re-randomizing their traits. The original Kami is rep
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // reroll() is a named function, NOT executeTyped
 const ABI = ["function reroll(uint256[] kamiIDs) external returns (uint256[])"];
@@ -174,7 +174,7 @@ Purchases gacha tickets from the public sale. Tickets are required for minting. 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // buyPublic() is a named function, NOT executeTyped
 const ABI = ["function buyPublic(uint256 amount)"];
@@ -215,7 +215,7 @@ Purchases gacha tickets during a whitelist/presale phase. Only eligible wallets 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // buyWL() is a named function with no parameters
 const ABI = ["function buyWL() external"];

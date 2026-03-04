@@ -28,7 +28,7 @@ Upgrades a specific skill on a Kami. Skills provide passive or active bonuses du
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 kamiID, uint32 skillIndex) returns (bytes)",
@@ -71,7 +71,7 @@ Resets all skill investments on a Kami or Account, returning all skill points fo
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 targetID) returns (bytes)"];
 const system = await getSystem("system.skill.respec", ABI, operatorSigner);
@@ -124,7 +124,7 @@ Advances the player's relationship with an NPC to the next level. NPCs have mult
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 npcIndex, uint32 relIndex) returns (bytes)",

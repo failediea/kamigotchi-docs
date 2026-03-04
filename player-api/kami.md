@@ -27,7 +27,7 @@ Levels up the specified Kami if it has accumulated enough XP. XP is earned from 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID) returns (bytes)"];
 const system = await getSystem("system.kami.level", ABI, operatorSigner);
@@ -68,7 +68,7 @@ Rename a Kami. Does not cost ONYX, but consumes 1 Holy Dust (item 11011). The Ka
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID, string name) returns (bytes)"];
 const system = await getSystem("system.kami.name", ABI, operatorSigner);
@@ -107,7 +107,7 @@ Commits a Kami to the sacrifice process. The Kami is consumed, and a commit ID i
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint32 kamiIndex) returns (uint256)"];
 const system = await getSystem("system.kami.sacrifice.commit", ABI, operatorSigner);
@@ -144,7 +144,7 @@ Reveals the loot/petpet generated from a sacrifice commit. For batch reveals, us
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 commitID)",
@@ -192,7 +192,7 @@ Equips an item from the player's inventory onto the specified Kami. The item is 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID, uint32 itemIndex) returns (uint256)"];
 const system = await getSystem("system.kami.equip", ABI, operatorSigner);
@@ -236,7 +236,7 @@ Removes the item from the specified slot and returns it to inventory.
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID, string slotType) returns (uint32)"];
 const system = await getSystem("system.kami.unequip", ABI, operatorSigner);
@@ -275,7 +275,7 @@ Uses a consumable item on a Kami. Common use cases include feeding (restoring he
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID, uint32 itemIndex) returns (bytes)"];
 const system = await getSystem("system.kami.use.item", ABI, operatorSigner);
@@ -310,7 +310,7 @@ Casts a combat item at an enemy Kami. Used in PvP or PvE scenarios to apply debu
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 targetID, uint32 itemIndex) returns (bytes)"];
 const system = await getSystem("system.kami.cast.item", ABI, operatorSigner);
@@ -347,7 +347,7 @@ Upgrades the specified skill on a Kami. Requires the Kami to have available skil
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID, uint32 skillIndex) returns (bytes)"];
 const system = await getSystem("system.skill.upgrade", ABI, operatorSigner);
@@ -383,7 +383,7 @@ Resets all skill points on a Kami, allowing them to be redistributed. Consumes 1
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 kamiID) returns (bytes)"];
 const system = await getSystem("system.skill.respec", ABI, operatorSigner);
@@ -422,7 +422,7 @@ Premium rename operation that costs $ONYX. Use the free `name()` function for th
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = ["function executeTyped(uint256 kamiID, string name) returns (bytes)"];
@@ -464,7 +464,7 @@ Revives a Kami that has died (health reached 0). Costs 33 $ONYX shards (item ind
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 id) returns (bytes)"];
 const system = await getSystem("system.kami.onyx.revive", ABI, operatorSigner);
@@ -506,7 +506,7 @@ Resets all skill points on a Kami via $ONYX payment. Differs from the free `skil
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 // Must use OWNER wallet
 const ABI = ["function executeTyped(uint256 kamiID) returns (bytes)"];
@@ -549,7 +549,7 @@ Transfers one or more in-world Kamis to another player's account. Unlike NFT tra
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 kamiIndex, address toAddress) returns (bytes)",

@@ -28,7 +28,7 @@ Contributes resources toward a community goal. Goals are collective objectives t
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint32 goalIndex, uint256 amt) returns (bytes)",
@@ -71,7 +71,7 @@ Claims the player's share of rewards from a completed community goal. The reward
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint32 goalIndex) returns (bytes)"];
 const system = await getSystem("system.goal.claim", ABI, operatorSigner);
@@ -112,7 +112,7 @@ Claims accumulated scavenge points from a scavenge bar. Scavenging is a passive 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 scavBarID) returns (bytes)"];
 const system = await getSystem("system.scavenge.claim", ABI, operatorSigner);

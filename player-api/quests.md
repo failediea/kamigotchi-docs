@@ -27,7 +27,7 @@ Accepts a quest from the available quest list. The quest is added to the player'
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint32 index) returns (bytes)"];
 const system = await getSystem("system.quest.accept", ABI, operatorSigner);
@@ -67,7 +67,7 @@ Completes an active quest and claims its rewards. The quest's completion conditi
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 id) returns (bytes)"];
 const system = await getSystem("system.quest.complete", ABI, operatorSigner);
@@ -108,7 +108,7 @@ Drops (abandons) an active quest. The quest is removed from the player's active 
 ### Code Example
 
 ```javascript
-import { getSystem } from "./kamigotchi.js";
+import { getSystem, ownerSigner, operatorSigner } from "./kamigotchi.js";
 
 const ABI = ["function executeTyped(uint256 id) returns (bytes)"];
 const system = await getSystem("system.quest.drop", ABI, operatorSigner);

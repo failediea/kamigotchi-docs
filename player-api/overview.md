@@ -296,6 +296,17 @@ export const provider = new ethers.JsonRpcProvider(RPC_URL, {
   name: "Yominet",
 });
 
+function mustEnv(name) {
+  const value = process.env[name];
+  if (!value || !value.startsWith("0x")) {
+    throw new Error(`Missing ${name}. Set it in your shell before running.`);
+  }
+  return value;
+}
+
+export const ownerSigner = new ethers.Wallet(mustEnv("OWNER_PRIVATE_KEY"), provider);
+export const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"), provider);
+
 const WORLD_ABI = [
   "function systems() view returns (address)",
   "function systems(uint256) view returns (address)", // legacy worlds
@@ -344,8 +355,15 @@ export async function getSystem(systemId, abi, signer) {
 All code examples in this documentation import from this module:
 
 ```javascript
-import { getSystem, provider } from "./kamigotchi.js";
+import {
+  getSystem,
+  provider,
+  ownerSigner,
+  operatorSigner,
+} from "./kamigotchi.js";
 ```
+
+Most API snippets assume these exports are already in scope.
 
 ---
 
