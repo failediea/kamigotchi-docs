@@ -265,9 +265,11 @@ async function getCachedSystem(systemId, abi, signer) {
 Use the **GetterSystem** for read-only queries (no gas cost):
 
 ```javascript
+// Full ABI with struct fields — required for ethers.js to decode named return values.
+// See contracts/ids-and-abis.md → Getter System for the complete reference.
 const GETTER_ABI = [
-  "function getKami(uint256 kamiId) view returns (tuple)",
-  "function getAccount(uint256 accountId) view returns (tuple)",
+  "function getKami(uint256 kamiId) view returns (tuple(uint256 id, uint32 index, string name, string mediaURI, tuple(tuple(int32 base, int32 shift, int32 boost, int32 sync) health, tuple(int32 base, int32 shift, int32 boost, int32 sync) power, tuple(int32 base, int32 shift, int32 boost, int32 sync) harmony, tuple(int32 base, int32 shift, int32 boost, int32 sync) violence) stats, tuple(uint32 face, uint32 hand, uint32 body, uint32 background, uint32 color) traits, string[] affinities, uint256 account, uint256 level, uint256 xp, uint32 room, string state))",
+  "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
 ];
 
 const getterAddr = await getSystemAddress("system.getter"); // ID = keccak256("system.getter")

@@ -102,7 +102,7 @@ Sacrifice a Kami to receive loot.
 
 ### Description
 
-Commits a Kami to the sacrifice process. The Kami is consumed, and a commit ID is generated. Use `sacrificeReveal()` to reveal the resulting loot/petpet.
+Commits a Kami to the sacrifice process. The Kami is consumed, and a commit ID is generated. Use `sacrificeReveal()` to reveal the resulting loot.
 
 ### Code Example
 
