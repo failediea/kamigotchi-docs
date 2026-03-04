@@ -33,7 +33,9 @@ There is also an **admin-only** registry system (`system.kamimarket.registry`) f
 | Contract | Address | Description |
 |----------|---------|-------------|
 | **WETH** | `0xE1Ff7038eAAAF027031688E1535a055B2Bac2546` | Bridged ETH via LayerZero — also the native gas token |
-| **KamiMarketVault** | *(from `KAMI_MARKET_VAULT` config)* | Holds WETH approvals for offer settlement |
+| **KamiMarketVault** | *(resolve from World config — see below)* | Holds WETH approvals for offer settlement |
+
+> **Finding the KamiMarketVault address:** The vault address is set dynamically via `KAMI_MARKET_VAULT` in the World contract's `ConfigComponent`. Query `LibConfig.getAddress(components, "KAMI_MARKET_VAULT")` on-chain, or read the `ConfigComponent` for the `KAMI_MARKET_VAULT` key to resolve it. The admin registry system (`system.kamimarket.registry`) sets this value at deployment.
 
 ### Fee Structure
 

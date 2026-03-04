@@ -44,6 +44,7 @@ console.log("Mint committed! Use reveal() to reveal your Kamis.");
 
 ### Notes
 
+- **Maximum 5 Kamis per mint transaction** — the contract enforces `require(amount <= 5)`. For larger mints, split across multiple transactions.
 - **Gas scales with mint amount**: base 4M + 3M per Kami.
 - Requires sufficient gacha tickets — buy with `buyPublic()` or `buyWL()`.
 - Returns commit IDs needed for `reveal()`.
@@ -138,6 +139,18 @@ console.log("Kamis rerolled!");
 
 ---
 
+## Buy Gacha Tickets
+
+### Prerequisites
+
+> **⚠️ This system does NOT accept native ETH.** You must first deposit ETH into the game via `system.erc20.portal` (see [Portal](portal.md)). Tickets are paid from your **in-game ETH balance** (item index 103).
+>
+> If you haven't deposited ETH yet, your `buyPublic()` / `buyWL()` calls will revert with an insufficient balance error.
+
+> **⚠️ This system does not support the generic `execute(bytes)` entry point.** Calling `GachaBuyTicketSystem.execute(bytes)` will always revert with `"not implemented"`. Use `buyPublic()` or `buyWL()` directly.
+
+---
+
 ## Buy Gacha Tickets (Public)
 
 Buy gacha tickets (public sale).
@@ -174,9 +187,8 @@ console.log("Gacha tickets purchased!");
 
 ### Notes
 
-- Public ticket price: 100 mETH (0.1 ETH) per ticket, paid in ETH (item index 103). Max per account: 222 (configured via `MINT_MAX_PUBLIC`). Global cap: 3,000 total mints (`MINT_MAX_TOTAL`).
-- Public sale may have per-wallet limits or total supply caps.
-- May require token approval (if paying with ERC-20).
+- Public ticket price: 100 mETH (0.1 ETH) per ticket, paid from in-game ETH balance (item index 103). Max per account: 222 (configured via `MINT_MAX_PUBLIC`). Global cap: 3,000 total mints (`MINT_MAX_TOTAL`).
+- **Requires deposited ETH** — deposit via `system.erc20.portal` first (see [Portal](portal.md)).
 
 ---
 

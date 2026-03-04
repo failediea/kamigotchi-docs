@@ -62,8 +62,8 @@ Kamigotchi uses two wallets per player:
 
 | Wallet | Purpose | Used For |
 |--------|---------|----------|
-| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, all `onyx.*` (except `onyx.revive`), ERC721 stake/unstake, ERC20 portal, trade, item transfer, auction buy, gacha tickets, gacha mint/reroll |
-| **Operator** | Delegated session wallet | Everything else — move, chat, harvest, quest, craft, `set.pfp`, `set.bio`, `onyx.revive`, etc. |
+| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, all `onyx.*` (except `onyx.revive`), ERC721 stake/unstake, ERC20 portal, trade, item transfer, `kamimarket.buy`, `newbievendor.buy`, `auction.buy`, gacha tickets, gacha mint/reroll |
+| **Operator** | Delegated session wallet | move, chat, harvest, quest, craft, `set.pfp`, `set.bio`, `onyx.revive`, `kamimarket.list`, `kamimarket.offer`, `kamimarket.acceptoffer`, `kamimarket.cancel`, `kami.send`, etc. |
 
 > **Note:** The operator wallet is set during `register()` and can be changed with `set.operator()`. In the official client, Privy manages the operator wallet as an embedded wallet.
 
@@ -77,6 +77,45 @@ Each function in this documentation includes a **Wallet** badge:
 
 - 🔐 **Owner** — Must be called from the owner wallet
 - 🎮 **Operator** — Can be called from the operator wallet
+
+---
+
+## Payment Methods
+
+Kamigotchi uses two distinct payment mechanisms depending on the system:
+
+### Native ETH (`msg.value`)
+
+Some systems accept payment as native ETH sent directly with the transaction (i.e., via `msg.value`). These are `payable` functions:
+
+| System | Usage |
+|--------|-------|
+| `system.newbievendor.buy` | Buy first Kami from the Newbie Vendor at TWAP price |
+| `system.kamimarket.buy` | Purchase Kami listing(s) from the marketplace |
+
+```javascript
+// Example: payable call with msg.value
+const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
+```
+
+### In-Game ETH Balance (Item 103)
+
+Certain systems use an **in-game ETH balance** (tracked as item index `103`) rather than `msg.value`. This balance is deposited into the game via `system.erc20.portal`:
+
+| System | Usage |
+|--------|-------|
+| `system.buy.gacha.ticket` | Buy gacha tickets — debits from in-game ETH balance (NOT `msg.value`) |
+| `system.kamimarket.offer` | WETH offer amount — requires WETH approval to KamiMarketVault |
+
+To fund your in-game ETH balance, deposit WETH via the ERC20 portal:
+
+```javascript
+// 1. Approve WETH spend to the World contract
+// 2. Deposit WETH as item 103
+await portalSystem.deposit(103, depositAmount);
+```
+
+> **Key distinction:** If a system is `payable`, you send native ETH. If it deducts from inventory item 103, you must deposit WETH via the ERC20 portal first. Check each system's documentation for which method it uses.
 
 ---
 
@@ -251,7 +290,7 @@ import { getSystem, provider } from "./kamigotchi.js";
 | Page | Systems Covered |
 |------|----------------|
 | [Echo](echo.md) | `system.echo.kamis`, `system.echo.room` |
-| [Kami](kami.md) | Level, name, sacrifice, equip, items, skills, ONYX |
+| [Kami](kami.md) | Level, name, sacrifice, equip, items, skills, ONYX, send |
 | [Account](account.md) | Register, move, settings, chat |
 | [Harvesting](harvesting.md) | Start, stop, collect, liquidate |
 | [Quests](quests.md) | Accept, complete, drop |

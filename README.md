@@ -16,7 +16,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 ### Contracts
 
 - [Live Addresses](contracts/live-addresses.md) — Deployed contract addresses
-- [System IDs & ABIs](contracts/ids-and-abis.md) — All 64 system IDs and ABI reference
+- [System IDs & ABIs](contracts/ids-and-abis.md) — All 65 system IDs and ABI reference
 
 ### Player API
 
@@ -40,6 +40,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 ### References
 
 - [Game Data Reference](references/game-data.md) — Lookup tables for items, rooms, nodes, skills, and quests
+- [Common Errors](references/common-errors.md) — Common revert reasons by system
 
 ---
 

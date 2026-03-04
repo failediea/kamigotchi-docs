@@ -1,6 +1,6 @@
 # System IDs & ABI References
 
-Kamigotchi has **64 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
+Kamigotchi has **65 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
 
 ---
 
@@ -46,6 +46,7 @@ Kamigotchi has **64 documented player-facing systems** in the World contract. Ea
 | `system.kami.onyx.rename` | Rename Kami via ONYX | Owner | [Kami](../player-api/kami.md) |
 | `system.kami.onyx.revive` | Revive dead Kami via ONYX | Operator | [Kami](../player-api/kami.md) |
 | `system.kami.onyx.respec` | Respec Kami via ONYX | Owner | [Kami](../player-api/kami.md) |
+| `system.kami.send` | Send in-world Kami(s) to another player | Operator | [Kami](../player-api/kami.md) |
 
 ### Skill Systems
 
@@ -231,6 +232,7 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32, uint256, uint256)` / `executeTypedCollection(uint256, uint32, uint256)` |
 | `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256, uint32)` / `executeTyped(uint256, uint32[])` |
 | `system.newbievendor.buy` | `executeTyped` / `calcPrice` | `executeTyped(uint32) payable` / `calcPrice() view returns (uint256)` |
+| `system.kami.send` | `executeTyped` (overloaded) | `executeTyped(uint32, address)` / `executeTyped(uint32[], address)` |
 
 > When integrating, always check the actual Solidity source for the correct function name if `executeTyped()` reverts with "not implemented".
 

@@ -63,7 +63,7 @@ Name or rename a Kami.
 
 ### Description
 
-Sets or updates the Kami's display name. Free to call (no ONYX cost). For ONYX-based renaming, see [onyx.rename()](#onyxrename).
+Rename a Kami. Does not cost ONYX, but consumes 1 Holy Dust (item 11011). The Kami must be in Room 11 (Temple by the Waterfall). For ONYX-based renaming, see [onyx.rename()](#onyxrename).
 
 ### Code Example
 
@@ -161,6 +161,10 @@ console.log("Sacrifice loot revealed!");
 const txBatch = await system.executeTypedBatch([commitId1, commitId2]);
 await txBatch.wait();
 ```
+
+### Notes
+
+- **Pity system:** The sacrifice system tracks a per-account pity counter. Every **20 sacrifices**, the reveal is guaranteed to come from the **uncommon pity droptable** instead of the normal table. Every **100 sacrifices**, the reveal is guaranteed to come from the **rare pity droptable**. Rare pity takes precedence over uncommon pity (i.e., sacrifice #100 gives a rare, not an uncommon). The pity counter increments on each `sacrificeCommit()` and the appropriate droptable is selected at commit time.
 
 ---
 
@@ -374,7 +378,7 @@ Reset all skills on a Kami (respec).
 
 ### Description
 
-Resets all skill points on a Kami, allowing them to be redistributed. May have a cooldown or cost.
+Resets all skill points on a Kami, allowing them to be redistributed. Consumes 1 Respec Potion (item index 11403) from the account's inventory. The Kami must be in `"RESTING"` state.
 
 ### Code Example
 
@@ -451,7 +455,7 @@ Revive a dead Kami using $ONYX.
 |------|------|-------------|
 | `kamiIndex` | `uint256` | Index of the dead Kami in account's Kami list |
 
-> **Note:** Internally interpreted as a uint32 Kami index. Pass the Kami's numeric index, not its entity ID.
+> **Note:** Pass the Kami's ERC721 token index (e.g., 42) as a uint256. Despite the uint256 type, this is the token index, not an entity ID. The contract decodes it as a uint32 internally.
 
 ### Description
 
@@ -511,6 +515,67 @@ const system = await getSystem("system.kami.onyx.respec", ABI, ownerSigner);
 const tx = await system.executeTyped(kamiEntityId);
 await tx.wait();
 ```
+
+---
+
+## send()
+
+Send in-world (staked) Kamis to another player without unstaking.
+
+| Property | Value |
+|----------|-------|
+| **System ID** | `system.kami.send` |
+| **Wallet** | 🎮 Operator |
+| **Gas** | Default |
+
+### Parameters (single)
+
+| Name | Type | Description |
+|------|------|-------------|
+| `kamiIndex` | `uint32` | Token index of the Kami to send |
+| `toAddress` | `address` | **Operator wallet address** of the recipient |
+
+### Parameters (batch)
+
+| Name | Type | Description |
+|------|------|-------------|
+| `kamiIndices` | `uint32[]` | Array of Kami token indices to send |
+| `toAddress` | `address` | **Operator wallet address** of the recipient |
+
+### Description
+
+Transfers one or more in-world Kamis to another player's account. Unlike NFT transfers (`system.kami721.transfer`), this operates entirely within the game world — Kamis stay staked and playable. The recipient is identified by their **operator wallet address** (not their owner address). If a Kami is currently listed on the marketplace, its listing is automatically cancelled before transfer. A purchase cooldown is applied to the transferred Kami.
+
+### Code Example
+
+```javascript
+import { getSystem } from "./kamigotchi.js";
+
+const ABI = [
+  "function executeTyped(uint32 kamiIndex, address toAddress) returns (bytes)",
+  "function executeTyped(uint32[] kamiIndices, address toAddress) returns (bytes)",
+];
+const system = await getSystem("system.kami.send", ABI, operatorSigner);
+
+// Single send
+const tx = await system["executeTyped(uint32,address)"](kamiIndex, recipientOperatorAddress);
+await tx.wait();
+
+// Batch send
+const txBatch = await system["executeTyped(uint32[],address)"](
+  [kamiIndex1, kamiIndex2],
+  recipientOperatorAddress
+);
+await txBatch.wait();
+```
+
+### Notes
+
+- The `toAddress` parameter is the recipient's **operator address**, not their owner address. The system resolves the recipient's account via `LibAccount.getByOperator()`.
+- Cannot send to yourself — reverts with `"KamiSend: cannot send to self"`.
+- Kami must be in `RESTING` or `LISTED` state. Listed Kamis have their marketplace listings automatically cancelled.
+- A purchase cooldown (`KAMI_MARKET_PURCHASE_COOLDOWN`, default 1 hour) is applied to each transferred Kami.
+- Emits a `KAMI_SEND` event with sender account ID, target account ID, and kami index.
 
 ---
 

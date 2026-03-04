@@ -209,8 +209,26 @@ console.log("Harvest liquidated!");
 ### Notes
 
 - **Gas limit of 7,500,000 is required** — the liquidation logic is computationally expensive.
-- Liquidation requires: both Kamis must be on the same node, the attacker must be in `"HARVESTING"` state, healthy, and off cooldown, and the target's harvest must be active. The attacker's Violence stat must meet the threshold (`LibKill.isLiquidatableBy`). On success: the victim's harvest bounty is split — a portion goes to the victim as "salvage" (based on their Power), the rest becomes "spoils" for the attacker (based on attacker's Power). The attacker takes health "recoil" damage from the kill (based on strain and karma). The victim's Kami dies (state → `"DEAD"`) and their harvest stops. The attacker's cooldown is reset.
 - This is a PvP action — use wisely!
+
+#### Liquidation Requirements Checklist
+
+All of the following must be true or the transaction reverts:
+
+1. **Target harvest is active** — `victimHarvID` must be a valid, active harvest entity
+2. **Your Kami is harvesting** — `killerID` must be in `"HARVESTING"` state
+3. **Same node** — Your Kami must be actively harvesting on the **same harvest node** as the victim
+4. **Same room** — Your account must be in the same room as the harvest node
+5. **Healthy** — Your Kami must have health > 0 (synced at call time)
+6. **Off cooldown** — Your Kami's liquidation cooldown must have expired
+7. **Sufficient Violence** — Your Kami's Violence stat must meet the threshold to overpower the victim (`LibKill.isLiquidatableBy`). Reverts with `"kami lacks violence (weak)"` if insufficient
+
+#### On Success
+
+- The victim's harvest bounty is split — a portion goes to the victim as "salvage" (based on their Power), the rest becomes "spoils" for the attacker (based on attacker's Power)
+- The attacker takes health "recoil" damage from the kill (based on strain and karma)
+- The victim's Kami dies (state → `"DEAD"`) and their harvest stops
+- The attacker's liquidation cooldown is reset
 
 ---
 

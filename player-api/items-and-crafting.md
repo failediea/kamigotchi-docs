@@ -179,6 +179,7 @@ console.log("Items transferred!");
 - `indices` and `amts` arrays must have matching lengths.
 - The receiver's `targetID` is their entity ID (not wallet address).
 - Reverts if you don't have sufficient items.
+- **Transfer fee:** Each item type (index) transferred costs **15 MUSU**. The total fee is `indices.length × 15 MUSU`, deducted from the sender's inventory. For example, transferring 3 different item types costs 45 MUSU regardless of the amounts transferred.
 
 ---
 
@@ -189,7 +190,7 @@ Reveal items from a droptable.
 | Property | Value |
 |----------|-------|
 | **System ID** | `system.droptable.item.reveal` |
-| **Wallet** | 🎮 Operator |
+| **Wallet** | Any (permissionless) |
 | **Gas** | Default |
 
 ### Parameters

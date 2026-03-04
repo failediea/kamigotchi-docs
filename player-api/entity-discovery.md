@@ -35,7 +35,7 @@ const accountId = BigInt(ownerAddress);
 // => 1234...n (a large uint256)
 ```
 
-**How it works:** In [`LibAccount.sol`](https://github.com/kamigotchi), the `create()` function calls `addressToEntity(ownerAddr)`, which is defined as:
+**How it works:** In `LibAccount.sol`, the `create()` function calls `addressToEntity(ownerAddr)`, which is defined as:
 
 ```solidity
 function addressToEntity(address addr) pure returns (uint256) {
@@ -343,6 +343,89 @@ function getQuestRegistryEntityId(questIndex) {
 | **Node** | `keccak256("node", nodeIndex)` | ✅ Yes |
 | **Item (registry)** | `keccak256("registry.item", itemIndex)` | ✅ Yes |
 | **Quest (registry)** | `keccak256("registry.quest", questIndex)` | ✅ Yes |
+| **Scavenge Bar (registry)** | `keccak256("registry.scavenge", field, index)` | ✅ Yes |
+| **Scavenge Bar (instance)** | `keccak256("scavenge.instance", field, index, holderID)` | ✅ Yes |
+| **Friend Request** | `keccak256("friendship", sourceAccID, targetAccID)` | ✅ Yes |
+
+---
+
+## Scavenge Bar Entity IDs
+
+Scavenge bars (reward progress trackers attached to harvest nodes) have two entity types: a **registry** entry defining the bar's configuration, and an **instance** entry tracking a specific player's progress.
+
+```solidity
+// Solidity (from LibScavenge.sol)
+
+// Registry (shared bar definition)
+function genRegID(string memory field, uint32 index) internal pure returns (uint256) {
+    return uint256(keccak256(abi.encodePacked("registry.scavenge", field, index)));
+}
+
+// Instance (per-player progress)
+function genInstanceID(string memory field, uint32 index, uint256 holderID) internal pure returns (uint256) {
+    return uint256(keccak256(abi.encodePacked("scavenge.instance", field, index, holderID)));
+}
+```
+
+```javascript
+// JavaScript equivalents
+function getScavengeRegistryId(field, index) {
+  return BigInt(
+    ethers.keccak256(
+      ethers.solidityPacked(["string", "string", "uint32"], ["registry.scavenge", field, index])
+    )
+  );
+}
+
+function getScavengeInstanceId(field, index, holderEntityId) {
+  return BigInt(
+    ethers.keccak256(
+      ethers.solidityPacked(
+        ["string", "string", "uint32", "uint256"],
+        ["scavenge.instance", field, index, holderEntityId]
+      )
+    )
+  );
+}
+
+// Example: Scavenge bar for node index 5, for your account
+const regId = getScavengeRegistryId("NODE", 5);
+const instanceId = getScavengeInstanceId("NODE", 5, accountId);
+```
+
+The `field` parameter is typically `"NODE"` (uppercased) for harvest node scavenge bars.
+
+---
+
+## Friendship Entity IDs
+
+Friendship entities are **directional** — there is one entity from account A → B and another from B → A. Each entity tracks the relationship state (`REQUEST`, `FRIEND`, or `BLOCKED`).
+
+```solidity
+// Solidity (from LibFriend.sol)
+function genID(uint256 accID, uint256 targetID) internal pure returns (uint256) {
+    return uint256(keccak256(abi.encodePacked("friendship", accID, targetID)));
+}
+```
+
+```javascript
+// JavaScript equivalent
+function getFriendshipEntityId(sourceAccountId, targetAccountId) {
+  return BigInt(
+    ethers.keccak256(
+      ethers.solidityPacked(
+        ["string", "uint256", "uint256"],
+        ["friendship", sourceAccountId, targetAccountId]
+      )
+    )
+  );
+}
+
+// Example: Check if you sent a friend request to another player
+const friendshipId = getFriendshipEntityId(myAccountId, theirAccountId);
+```
+
+> **Note:** Friendships are bidirectional but stored as two separate entities. When A sends a friend request to B, only `friendship(A, B)` is created (state: `REQUEST`). When B accepts, `friendship(B, A)` is also created, and both are set to `FRIEND`.
 
 ---
 
@@ -437,6 +520,36 @@ export const EntityIds = {
     return BigInt(
       ethers.keccak256(
         ethers.solidityPacked(["string", "uint32"], ["registry.quest", questIndex])
+      )
+    );
+  },
+
+  scavengeRegistry(field, index) {
+    return BigInt(
+      ethers.keccak256(
+        ethers.solidityPacked(["string", "string", "uint32"], ["registry.scavenge", field, index])
+      )
+    );
+  },
+
+  scavengeInstance(field, index, holderEntityId) {
+    return BigInt(
+      ethers.keccak256(
+        ethers.solidityPacked(
+          ["string", "string", "uint32", "uint256"],
+          ["scavenge.instance", field, index, holderEntityId]
+        )
+      )
+    );
+  },
+
+  friendship(sourceAccountId, targetAccountId) {
+    return BigInt(
+      ethers.keccak256(
+        ethers.solidityPacked(
+          ["string", "uint256", "uint256"],
+          ["friendship", sourceAccountId, targetAccountId]
+        )
       )
     );
   },

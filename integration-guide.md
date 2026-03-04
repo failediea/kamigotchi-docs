@@ -136,10 +136,15 @@ console.log("First Kami purchased from the Newbie Vendor!");
 
 ### Option B: Gacha Minting
 
-The standard gacha flow is: **buy a gacha ticket → mint → reveal**.
+The standard gacha flow is: **deposit ETH → buy a gacha ticket → mint → reveal**.
+
+> **Important:** Gacha tickets are paid from your **in-game ETH balance** (item index 103), NOT native ETH. You must first deposit ETH via `system.erc20.portal` — see [Portal](player-api/portal.md).
 
 ```javascript
-// 1. Buy a gacha ticket (costs ETH — see minting docs for current price)
+// 0. Deposit ETH into the game first (see Portal docs for full example)
+// await portalSystem.deposit(103, ethers.parseEther("0.1"));
+
+// 1. Buy a gacha ticket (costs in-game ETH — see minting docs for current price)
 const BUY_ABI = ["function buyPublic(uint256 amount)"];
 const buySystem = await getSystem("system.buy.gacha.ticket", BUY_ABI, ownerSigner);
 
@@ -154,12 +159,20 @@ const mintTx = await mintSystem.executeTyped(1, { gasLimit: 7_000_000 });
 const mintReceipt = await mintTx.wait();
 console.log("Mint committed!");
 
+// 2b. Extract commit IDs from the mint transaction
+// The mint function returns ABI-encoded commit IDs. Use staticCall to decode:
+const commitIds = await mintSystem.executeTyped.staticCall(1, { gasLimit: 7_000_000 });
+// commitIds is the ABI-encoded uint256[] returned by the contract
+const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["uint256[]"], commitIds);
+const commitIdArray = decoded[0];
+console.log("Commit IDs:", commitIdArray);
+
 // 3. Reveal — determines the Kami's traits (species, stats, rarity)
 // Note: there may be a minimum block delay between mint and reveal
 const REVEAL_ABI = ["function reveal(uint256[] rawCommitIDs) external returns (uint256[])"];
 const revealSystem = await getSystem("system.kami.gacha.reveal", REVEAL_ABI, ownerSigner);
 
-const revealTx = await revealSystem.reveal([commitId]);
+const revealTx = await revealSystem.reveal(commitIdArray);
 await revealTx.wait();
 console.log("Kami revealed!");
 ```

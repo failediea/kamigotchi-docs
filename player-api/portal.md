@@ -54,6 +54,7 @@ console.log("Kami staked into game world!");
 
 #### Notes
 
+- **Prerequisite:** Your account must be in **Room 12 (Scrap Confluence)**. Call `account.move(12)` first.
 - **Requires NFT approval** before staking — approve the World contract as the operator.
 - Must use the **owner wallet** (the one that holds the NFT).
 - For batch staking, see `ERC721.kami.batch.stake()` below.
@@ -96,6 +97,7 @@ console.log("Kami withdrawn to wallet!");
 
 #### Notes
 
+- **Prerequisite:** Your account must be in **Room 12 (Scrap Confluence)**. Call `account.move(12)` first.
 - The Kami must not be actively harvesting or in any locked state.
 - Stop all harvests and remove equipment before unstaking.
 
