@@ -4,7 +4,7 @@ The gacha system lets players mint new Kamis using gacha tickets. Minting follow
 
 ---
 
-## pet.mint()
+## Mint
 
 Mint new Kamis using gacha tickets.
 
@@ -12,7 +12,7 @@ Mint new Kamis using gacha tickets.
 |----------|-------|
 | **System ID** | `system.kami.gacha.mint` |
 | **Wallet** | 🔐 Owner |
-| **Gas** | **4,000,000 + 3,000,000 per pet** |
+| **Gas** | **4,000,000 + 3,000,000 per Kami** |
 
 ### Parameters
 
@@ -24,7 +24,7 @@ Mint new Kamis using gacha tickets.
 
 Commits a mint request for one or more Kamis. Consumes gacha tickets from the player's inventory. This is the **commit** phase of the commit-reveal pattern — the Kami's traits are not determined yet.
 
-After minting, use `pet.reveal()` to reveal the Kamis.
+After minting, call `reveal()` to reveal the Kamis.
 
 ### Code Example
 
@@ -39,18 +39,18 @@ const gasLimit = 4_000_000 + 3_000_000 * mintAmount; // Scale with amount
 
 const tx = await system.executeTyped(mintAmount, { gasLimit });
 await tx.wait();
-console.log("Mint committed! Use pet.reveal() to reveal your Kamis.");
+console.log("Mint committed! Use reveal() to reveal your Kamis.");
 ```
 
 ### Notes
 
 - **Gas scales with mint amount**: base 4M + 3M per Kami.
-- Requires sufficient gacha tickets — buy with `tickets.buy.public()` or `tickets.buy.whitelist()`.
-- Returns commit IDs needed for `pet.reveal()`.
+- Requires sufficient gacha tickets — buy with `buyPublic()` or `buyWL()`.
+- Returns commit IDs needed for `reveal()`.
 
 ---
 
-## pet.reveal()
+## Reveal
 
 Reveal minted Kamis.
 
@@ -64,7 +64,7 @@ Reveal minted Kamis.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `rawCommitIDs` | `uint256[]` | Array of commit IDs from `pet.mint()` |
+| `rawCommitIDs` | `uint256[]` | Array of commit IDs from mint |
 
 ### Description
 
@@ -95,7 +95,7 @@ console.log("Kamis revealed!");
 
 ---
 
-## pet.reroll()
+## Reroll
 
 Reroll Kamis.
 
@@ -134,11 +134,11 @@ console.log("Kamis rerolled!");
 
 - Rerolling consumes 1 Reroll Ticket (item index 11) per Kami. The selected Kamis are deposited into the gacha pool and new ones are drawn.
 - **Destructive** — the original Kami's traits are replaced permanently.
-- Requires a subsequent `pet.reveal()` call — rerolling creates commit entities that must be revealed (same as initial mint).
+- Requires a subsequent `reveal()` call — rerolling creates commit entities that must be revealed (same as initial mint).
 
 ---
 
-## tickets.buy.public()
+## Buy Gacha Tickets (Public)
 
 Buy gacha tickets (public sale).
 
@@ -156,7 +156,7 @@ Buy gacha tickets (public sale).
 
 ### Description
 
-Purchases gacha tickets from the public sale. Tickets are required for `pet.mint()`. Cost is paid in ETH (item index 103) — production price is 100 mETH (0.1 ETH) per ticket, configured via `MINT_PRICE_PUBLIC`.
+Purchases gacha tickets from the public sale. Tickets are required for minting. Cost is paid in ETH (item index 103) — production price is 100 mETH (0.1 ETH) per ticket, configured via `MINT_PRICE_PUBLIC`.
 
 ### Code Example
 
@@ -180,7 +180,7 @@ console.log("Gacha tickets purchased!");
 
 ---
 
-## tickets.buy.whitelist()
+## Buy Gacha Tickets (Whitelist)
 
 Buy gacha tickets (whitelist sale).
 
@@ -224,20 +224,20 @@ console.log("Whitelist gacha tickets purchased!");
 ## Minting Lifecycle
 
 ```
-  tickets.buy.public()              pet.mint(amount)
-  tickets.buy.whitelist()                │
+  buyPublic()                       mint(amount)
+  buyWL()                                │
          │                               ▼
          ▼                         Commit IDs generated
   Gacha Tickets                          │
   in Inventory                           ▼
-         │                         pet.reveal(commitIDs)
+         │                         reveal(commitIDs)
          │                               │
          └──────────────────▶             ▼
                                    Kamis Revealed!
                                          │
                                          ├── Keep → Play!
                                          │
-                                         └── pet.reroll(kamiIDs)
+                                         └── reroll(kamiIDs)
                                                   │
                                                   ▼
                                              New traits!

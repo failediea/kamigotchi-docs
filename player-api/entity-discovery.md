@@ -552,7 +552,7 @@ function getEquipmentEntityId(holderEntityId, slot) {
   );
 }
 
-// Example: Check if a Kami has something in the Pet slot
+// Example: Check if a Kami has something in the Kami_Pet_Slot
 const equipId = getEquipmentEntityId(kamiEntityId, "Kami_Pet_Slot");
 ```
 

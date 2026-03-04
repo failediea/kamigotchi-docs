@@ -393,7 +393,7 @@ main().catch(console.error);
 | Most systems | Default | Let the provider estimate |
 | `account.move()` | 1,200,000 | Rooms with gates |
 | `harvest.liquidate()` | 7,500,000 | Complex PvP logic |
-| `pet.mint(n)` | 4M + 3M × n | Scales with mint count |
+| `gacha.mint(n)` | 4M + 3M × n | Scales with mint count |
 
 ---
 

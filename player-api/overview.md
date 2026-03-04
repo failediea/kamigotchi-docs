@@ -69,7 +69,7 @@ Kamigotchi uses two wallets per player:
 
 ### New Player Path
 
-After registering, new players need to acquire their first Kami before they can participate in gameplay. The primary path is **gacha minting**: buy a gacha ticket → call `pet.mint()` → call `pet.reveal()`. Alternatives include trading with other players or receiving a Kami721 NFT and staking it. See the [Integration Guide](../integration-guide.md#step-5-get-your-first-kami) for the full walkthrough.
+After registering, new players need to acquire their first Kami before they can participate in gameplay. The primary path is **gacha minting**: buy a gacha ticket → mint → reveal. Alternatives include buying from the Newbie Vendor, trading with other players, or receiving a Kami721 NFT and staking it. See the [Integration Guide](../integration-guide.md#step-5-get-your-first-kami) for the full walkthrough.
 
 ### Determining Which Wallet to Use
 
@@ -122,7 +122,7 @@ Most calls work with default gas estimation, but some systems require **hardcode
 |--------|-----------|--------|
 | `system.account.move` | 1,200,000 | Upper bound for rooms with gates |
 | `system.harvest.liquidate` | 7,500,000 | Complex liquidation logic |
-| `system.kami.gacha.mint` | 4,000,000 + 3,000,000/pet | Scales with mint amount |
+| `system.kami.gacha.mint` | 4,000,000 + 3,000,000/kami | Scales with mint amount |
 
 ```javascript
 // Example: setting gas limit explicitly
@@ -251,7 +251,7 @@ import { getSystem, provider } from "./kamigotchi.js";
 | Page | Systems Covered |
 |------|----------------|
 | [Echo](echo.md) | `system.echo.kamis`, `system.echo.room` |
-| [Kami (Pets)](kami.md) | Level, name, sacrifice, equip, items, skills, ONYX |
+| [Kami](kami.md) | Level, name, sacrifice, equip, items, skills, ONYX |
 | [Account](account.md) | Register, move, settings, chat |
 | [Harvesting](harvesting.md) | Start, stop, collect, liquidate |
 | [Quests](quests.md) | Accept, complete, drop |

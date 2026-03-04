@@ -1,6 +1,6 @@
-# Kami (Pets)
+# Kami
 
-Kamis are the core entities in Kamigotchi — your on-chain pets. This page covers leveling, naming, sacrificing, equipment, item usage, skill management, and ONYX-based premium operations.
+Kamis are the core entities in Kamigotchi. This page covers leveling, naming, sacrificing, equipment, item usage, skill management, and ONYX-based premium operations.
 
 ---
 
