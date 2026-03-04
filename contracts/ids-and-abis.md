@@ -1,6 +1,6 @@
 # System IDs & ABI References
 
-Kamigotchi has **55 registered systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup.
+Kamigotchi has **58 registered systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup.
 
 ---
 
@@ -209,10 +209,13 @@ const SYSTEM_ABI = [
 
 Most systems use `executeTyped(...)` as their typed entry point. However, some systems expose **custom function names** instead:
 
-| System | Entry Point | Signature |
+| System | Entry Points | Signatures |
 |--------|-------------|-----------|
-| `system.auction.buy` | `executeTyped` | `function executeTyped(uint32 itemIndex, uint32 amt) returns (bytes)` |
-| `system.kami.gacha.reveal` | `reveal` | `function reveal(uint256[] memory rawCommitIDs) external returns (uint256[])` |
+| `system.kami.gacha.reveal` | `reveal` | `reveal(uint256[] rawCommitIDs) returns (uint256[])` |
+| `system.kami.gacha.reroll` | `reroll` | `reroll(uint256[] kamiIDs) returns (uint256[])` |
+| `system.buy.gacha.ticket` | `buyPublic` / `buyWL` | `buyPublic(uint256 amount)` / `buyWL()` |
+| `system.erc20.portal` | `deposit` / `withdraw` / `claim` / `cancel` | `deposit(uint32, uint256)` / `withdraw(uint32, uint256) returns (uint256)` / `claim(uint256)` / `cancel(uint256)` |
+| `system.kami721.transfer` | `batchTransfer` / `batchTransferToMany` | `batchTransfer(uint256[], address)` / `batchTransferToMany(uint256[], address[])` |
 | `system.getter` | `getKami` / `getAccount` / `getKamiByIndex` | View functions — see [Getter System](#getter-system) below |
 
 > When integrating, always check the actual Solidity source for the correct function name if `executeTyped()` reverts with "not implemented".

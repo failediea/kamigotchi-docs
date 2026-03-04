@@ -42,7 +42,7 @@ Systems are stateless smart contracts that contain **game logic**. Each system:
 - Is identified by a human-readable **System ID** (e.g., `system.kami.level`)
 - Has its address resolved dynamically: `World.systems(keccak256("system.kami.level"))`
 
-Kamigotchi has **55 registered systems** — see [System IDs & ABIs](contracts/ids-and-abis.md) for the complete list.
+Kamigotchi has **58 registered systems** — see [System IDs & ABIs](contracts/ids-and-abis.md) for the complete list.
 
 ### Components
 
@@ -187,5 +187,5 @@ Each stat has:
 
 - [Chain Configuration](chain-configuration.md) — Network details
 - [Live Addresses](contracts/live-addresses.md) — Contract addresses
-- [System IDs & ABIs](contracts/ids-and-abis.md) — All 55 system identifiers
+- [System IDs & ABIs](contracts/ids-and-abis.md) — All 58 system identifiers
 - [Player API Overview](player-api/overview.md) — How to call systems

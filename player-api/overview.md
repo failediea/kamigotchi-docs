@@ -250,7 +250,7 @@ import { getSystem, provider } from "./kamigotchi.js";
 | [Kami (Pets)](kami.md) | Level, name, sacrifice, equip, items, skills, ONYX |
 | [Account](account.md) | Register, move, settings, chat |
 | [Harvesting](harvesting.md) | Start, stop, collect, liquidate |
-| [Quests](quests.md) | Accept, complete |
+| [Quests](quests.md) | Accept, complete, drop |
 | [Trading](trading.md) | Create, execute, complete, cancel |
 | [Social / Friends](social.md) | Request, accept, cancel, block |
 | [Items & Crafting](items-and-crafting.md) | Burn, craft, use, transfer, droptable |

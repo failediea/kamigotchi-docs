@@ -111,7 +111,7 @@ console.log("Account registered! Tx:", receipt.hash);
 ### Move to a Room
 
 ```javascript
-const MOVE_ABI = ["function executeTyped(uint256 roomIndex) returns (bytes)"];
+const MOVE_ABI = ["function executeTyped(uint32 roomIndex) returns (bytes)"];
 const moveSystem = await getSystem(
   "system.account.move",
   MOVE_ABI,
@@ -127,7 +127,7 @@ console.log("Moved to room 1");
 
 ```javascript
 const HARVEST_ABI = [
-  "function executeTyped(uint256[] kamiIDs, uint256 nodeIndex) returns (bytes)",
+  "function executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)",
 ];
 const harvestSystem = await getSystem(
   "system.harvest.start",
@@ -135,7 +135,7 @@ const harvestSystem = await getSystem(
   operatorSigner
 );
 
-const tx = await harvestSystem.executeTyped([myKamiId], harvestNodeIndex);
+const tx = await harvestSystem.executeTyped(myKamiId, harvestNodeIndex, 0, 0);
 await tx.wait();
 console.log("Harvesting started");
 ```
@@ -144,7 +144,7 @@ console.log("Harvesting started");
 
 ```javascript
 const COLLECT_ABI = [
-  "function executeTyped(uint256[] harvestIDs) returns (bytes)",
+  "function executeTyped(uint256 id) returns (bytes)",
 ];
 const collectSystem = await getSystem(
   "system.harvest.collect",
@@ -152,7 +152,7 @@ const collectSystem = await getSystem(
   operatorSigner
 );
 
-const tx = await collectSystem.executeTyped([harvestId]);
+const tx = await collectSystem.executeTyped(harvestId);
 await tx.wait();
 console.log("Rewards collected");
 ```
@@ -272,7 +272,7 @@ async function main() {
   // 2. Move to room 1
   const move = await sys(
     "system.account.move",
-    ["function executeTyped(uint256) returns (bytes)"],
+    ["function executeTyped(uint32) returns (bytes)"],
     operatorSigner
   );
   await (await move.executeTyped(1, { gasLimit: 1_200_000 })).wait();

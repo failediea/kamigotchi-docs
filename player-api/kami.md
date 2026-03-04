@@ -230,7 +230,7 @@ Removes the item from the specified slot and returns it to inventory.
 ```javascript
 import { getSystem } from "./kamigotchi.js";
 
-const ABI = ["function executeTyped(uint256 kamiID, string slotType) returns (bytes)"];
+const ABI = ["function executeTyped(uint256 kamiID, string slotType) returns (uint32)"];
 const system = await getSystem("system.kami.unequip", ABI, operatorSigner);
 
 const tx = await system.executeTyped(kamiEntityId, "Kami_Pet_Slot"); // slot string from item registry
@@ -392,6 +392,8 @@ await tx.wait();
 
 Rename a Kami using $ONYX.
 
+> **⚠️ Currently Disabled:** This system reverts with 'Onyx Features are temporarily disabled.' Calls will fail until re-enabled.
+
 | Property | Value |
 |----------|-------|
 | **System ID** | `system.kami.onyx.rename` |
@@ -443,7 +445,9 @@ Revive a dead Kami using $ONYX.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `kamiIndex` | `uint32` | Index of the dead Kami in account's Kami list |
+| `kamiIndex` | `uint256` | Index of the dead Kami in account's Kami list |
+
+> **Note:** Internally interpreted as a uint32 Kami index. Pass the Kami's numeric index, not its entity ID.
 
 ### Description
 
@@ -472,6 +476,8 @@ console.log("Kami revived!");
 ## onyx.respec()
 
 Respec a Kami's skills using $ONYX.
+
+> **⚠️ Currently Disabled:** This system reverts with 'Onyx Features are temporarily disabled.' Calls will fail until re-enabled.
 
 | Property | Value |
 |----------|-------|

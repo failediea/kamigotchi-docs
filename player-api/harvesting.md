@@ -38,7 +38,7 @@ import { getSystem } from "./kamigotchi.js";
 
 const ABI = [
   "function executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)",
-  "function executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt)",
+  "function executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes[])",
 ];
 const system = await getSystem("system.harvest.start", ABI, operatorSigner);
 

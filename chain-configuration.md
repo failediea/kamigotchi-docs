@@ -87,7 +87,7 @@ $ONYX is the in-game ERC-20 token used for premium operations.
 - `onyx.revive(kamiIndex)` — Revive a dead Kami
 - `onyx.respec(kamiID)` — Respec a Kami's skills
 
-> **Note:** All $ONYX operations require the **Owner wallet** (not operator).
+> **Note:** Most $ONYX operations require the **Owner wallet** — except `onyx.revive()`, which uses the **Operator wallet**.
 
 ---
 
