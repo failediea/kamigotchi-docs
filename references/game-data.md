@@ -681,6 +681,24 @@ Configuration values for the Kami marketplace.
 
 ---
 
+## VIP Score System
+
+Kamigotchi integrates with the **Initia VIP** system via `LibVIP` and a standalone `VipScore` contract. VIP scores are tracked per **epoch** (called "stage"), where each stage spans a configurable period (default: 2 weeks). When a player earns VIP-eligible rewards (e.g., harvest bounty), their score is incremented for the current stage. Stages are finalized automatically when the next stage begins. The `VipScore` contract maintains per-address scores per stage, with an allowlist for authorized callers.
+
+---
+
+## Faction Reputation
+
+Factions are named on-chain entities (with metadata: name, description, media URI) that NPCs and potentially players can belong to. Each entity can earn **reputation** with a faction via `LibFaction.incRep()` / `decRep()`. Reputation is stored as a `ScoreEntity` keyed by `(holderID, factionIndex)`, enabling leaderboard queries. Factions are identified by a `uint32` index with entity ID `keccak256("faction", index)`.
+
+---
+
+## GDA Pricing (VRGDA)
+
+`LibGDA` implements a **Variable Rate Gradual Dutch Auction** (discrete VRGDA) pricing model. It calculates the cost of purchasing a quantity of items given a target price, a per-period price decay rate, an emission rate, and the number previously sold. The formula computes a spot price that increases when purchases outpace the target rate and decays when demand is low. This is used for dynamic in-game pricing (e.g., gacha tickets, vendor items). Parameters are configured per auction instance via the `Params` struct (target price, period, decay, rate, quantity).
+
+---
+
 ## See Also
 
 - [Entity Discovery](../player-api/entity-discovery.md) — How to derive and discover entity IDs

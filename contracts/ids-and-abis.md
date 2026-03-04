@@ -1,6 +1,6 @@
 # System IDs & ABI References
 
-Kamigotchi has **65 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
+Kamigotchi has **67 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
 
 ---
 
@@ -128,6 +128,8 @@ Kamigotchi has **65 documented player-facing systems** in the World contract. Ea
 | `system.kami721.stake` | Stake Kami NFT into game | Owner | [Portal](../player-api/portal.md) |
 | `system.kami721.unstake` | Unstake Kami NFT from game | Owner | [Portal](../player-api/portal.md) |
 | `system.kami721.transfer` | Transfer Kami NFT | Owner | [Portal](../player-api/portal.md) |
+| `system.Kami721.IsInWorld` | Check if Kami is in-world (view) | N/A | [Portal](../player-api/portal.md) |
+| `system.Kami721.Metadata` | Get Kami token URI metadata (view) | N/A | [Portal](../player-api/portal.md) |
 | `system.erc20.portal` | ERC20 deposit/withdraw | Owner | [Portal](../player-api/portal.md) |
 
 ### NPC / Relationship Systems
@@ -247,9 +249,18 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.erc20.portal` | `deposit` / `withdraw` / `claim` / `cancel` | `deposit(uint32, uint256)` / `withdraw(uint32, uint256) returns (uint256)` / `claim(uint256)` / `cancel(uint256)` |
 | `system.kami721.transfer` | `batchTransfer` / `batchTransferToMany` | `batchTransfer(uint256[], address)` / `batchTransferToMany(uint256[], address[])` |
 | `system.getter` | `getKami` / `getAccount` / `getKamiByIndex` | View functions — see [Getter System](#getter-system) below |
+| `system.kami.sacrifice.reveal` | `executeTypedBatch` | `executeTypedBatch(uint256[] commitIDs)` |
+| `system.harvest.stop` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
+| `system.harvest.collect` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
+| `system.kami721.stake` | `executeBatch` | `executeBatch(uint32[] tokenIndices)` |
+| `system.kami721.unstake` | `executeBatch` | `executeBatch(uint32[] tokenIndices)` |
 | `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32, uint256, uint256)` / `executeTypedCollection(uint256, uint32, uint256)` |
 | `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256, uint32)` / `executeTyped(uint256, uint32[])` |
 | `system.newbievendor.buy` | `executeTyped` / `calcPrice` | `executeTyped(uint32) payable` / `calcPrice() view returns (uint256)` |
+| `system.Kami721.IsInWorld` | `isInWorld` | `isInWorld(uint256 petIndex) view returns (bool)` |
+| `system.Kami721.Metadata` | `tokenURI` | `tokenURI(uint256 petIndex) view returns (string)` |
+| `system.harvest.start` | `executeBatched` | `executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes[])` |
+| `system.kamimarket.buy` | `executeTyped` (payable, array) | `executeTyped(uint256[] listingIDs) payable returns (bytes)` |
 | `system.kami.send` | `executeTyped` (overloaded) | `executeTyped(uint32, address)` / `executeTyped(uint32[], address)` |
 
 > When integrating, always check the actual Solidity source for the correct function name if `executeTyped()` reverts with "not implemented".

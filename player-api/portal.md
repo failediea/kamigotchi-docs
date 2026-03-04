@@ -251,6 +251,105 @@ await tx.wait();
 
 ---
 
+### ERC721.kami.isInWorld()
+
+Check whether a Kami NFT is currently staked in the game world.
+
+| Property | Value |
+|----------|-------|
+| **System ID** | `system.Kami721.IsInWorld` |
+| **Wallet** | N/A (view function) |
+| **Gas** | None (read-only) |
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `petIndex` | `uint256` | The ERC-721 token index of the Kami |
+
+#### Description
+
+Returns `true` if the Kami identified by `petIndex` is currently staked in the game world, `false` otherwise. This is a view-only system -- it costs no gas and can be called by anyone. Internally it converts the `petIndex` to an entity ID via `LibKami.getByIndex` and checks world membership via `LibKami.isInWorld`.
+
+> **Important:** `execute()` and `executeTyped()` both revert on this system. Use the named `isInWorld()` function directly.
+
+#### Code Example
+
+```javascript
+import { ethers } from "ethers";
+import { getSystemAddress } from "./kamigotchi.js";
+
+const provider = new ethers.JsonRpcProvider(
+  "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz"
+);
+
+const ABI = ["function isInWorld(uint256 petIndex) view returns (bool)"];
+const addr = await getSystemAddress("system.Kami721.IsInWorld");
+const isInWorldSystem = new ethers.Contract(addr, ABI, provider);
+
+const staked = await isInWorldSystem.isInWorld(42); // petIndex, not entity ID
+console.log("Kami #42 in world:", staked); // true or false
+```
+
+#### Notes
+
+- **View only** -- no transaction or signer required; use a provider.
+- Takes the **petIndex** (ERC-721 token index), not the internal entity ID.
+- Useful for checking stake status before attempting portal operations.
+
+---
+
+### ERC721.kami.tokenURI()
+
+Retrieve the on-chain metadata URI for a Kami NFT.
+
+| Property | Value |
+|----------|-------|
+| **System ID** | `system.Kami721.Metadata` |
+| **Wallet** | N/A (view function) |
+| **Gas** | None (read-only) |
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `petIndex` | `uint256` | The ERC-721 token index of the Kami |
+
+#### Description
+
+Returns a base64-encoded JSON metadata string for the Kami identified by `petIndex`. The metadata is generated on-chain via `LibKami721.getJsonBase64`. This system is structured as upgradeable -- the metadata logic lives in a system contract rather than the NFT contract itself.
+
+> **Important:** `execute()` and `executeTyped()` both revert on this system. Use the named `tokenURI()` function directly.
+
+#### Code Example
+
+```javascript
+import { ethers } from "ethers";
+import { getSystemAddress } from "./kamigotchi.js";
+
+const provider = new ethers.JsonRpcProvider(
+  "https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz"
+);
+
+const ABI = ["function tokenURI(uint256 petIndex) view returns (string)"];
+const addr = await getSystemAddress("system.Kami721.Metadata");
+const metadataSystem = new ethers.Contract(addr, ABI, provider);
+
+const uri = await metadataSystem.tokenURI(42); // petIndex, not entity ID
+console.log("Metadata URI:", uri);
+// Returns a data URI: data:application/json;base64,...
+// Decode the base64 payload to get the JSON metadata object.
+```
+
+#### Notes
+
+- **View only** -- no transaction or signer required; use a provider.
+- Takes the **petIndex** (ERC-721 token index), not the internal entity ID.
+- Returns a `data:application/json;base64,...` URI. Decode the base64 portion to get the JSON metadata.
+- Metadata is generated on-chain and may change if the system contract is upgraded.
+
+---
+
 ## ERC20 — Token Portal
 
 ### ERC20.deposit()

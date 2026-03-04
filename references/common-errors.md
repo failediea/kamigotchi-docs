@@ -104,10 +104,15 @@ These can appear across multiple systems:
 
 | Revert Message | Cause |
 |----------------|-------|
-| `"Not owner"` | Called an Owner-only function from the operator wallet |
-| `"Not registered"` | No account registered for this wallet |
-| `"Insufficient XP"` | Kami doesn't have enough XP to level up |
-| `"Already harvesting"` | Kami is already assigned to a harvest node |
+| `"Account: no account detected"` | No account registered for the owner wallet (`LibAccount.getByOwner`) |
+| `"Account: Operator not found"` | No account registered for the operator wallet (`LibAccount.getByOperator`) |
+| `"kami not urs"` | Kami is not owned by the caller's account (`LibKami.verifyAccount`) |
+| `"kami not RESTING"` | Kami is not in `RESTING` state (e.g., already harvesting or dead) (`LibKami.verifyState`) |
+| `"kami on cooldown"` | Kami's action cooldown has not expired (`LibKami.verifyCooldown`) |
+| `"kami starving.."` | Kami's health is 0 — must be healed or revived (`LibKami.verifyHealthy`) |
+| `"kami too far"` | Kami is not in the same room as the account (`LibKami.verifyRoom`) |
+| `"PetLevel: need more experience"` | Kami doesn't have enough XP to level up (`KamiLevelSystem`) |
+| `"Account: insufficient stamina"` | Account doesn't have enough stamina for the action (`LibAccount.depleteStamina`) |
 
 ---
 

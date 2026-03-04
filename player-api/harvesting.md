@@ -66,6 +66,10 @@ console.log("Harvesting started for 3 Kamis");
 - Move to the room first with [account.move()](account.md#move) before starting a harvest.
 - **Batch variant:** `executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt)` starts harvests for multiple Kamis in one transaction.
 
+#### Tax System
+
+The `taxerID` and `taxAmt` parameters attach a **tax entity** to the harvest. Tax entities (`LibTax`) redirect a percentage of the harvest bounty to a recipient on collection. The tax rate is specified in **basis points** (1e4 precision) and is capped at **2000 (20%)**. Each tax entity stores an owner (the harvest ID), a recipient (`taxerID`), and the rate (`taxAmt`). For player-initiated harvests, pass `0, 0` — taxation is intended for system-level integrations (e.g., NPC or faction harvests). Multiple tax entities can be attached to the same harvest; all are deducted from the bounty on collect.
+
 ---
 
 ## harvest.stop()
@@ -116,6 +120,18 @@ console.log("Harvests stopped");
 
 - Stopping a harvest collects rewards automatically.
 - **Batch variant:** `executeBatched(uint256[] ids)` stops multiple harvests in one transaction — more gas-efficient than stopping one by one.
+- **Allow-failure variants:** `executeAllowFailure(bytes)` and `executeBatchedAllowFailure(uint256[] ids)` silently return `0` instead of reverting when a harvest fails validation (e.g., wrong state, on cooldown, unhealthy Kami). Useful for fire-and-forget batch operations.
+
+```javascript
+// Batch stop with allow-failure — skips invalid harvests instead of reverting
+const ABI_AF = [
+  "function executeBatchedAllowFailure(uint256[] ids) returns (bytes[])",
+];
+const system = await getSystem("system.harvest.stop", ABI_AF, operatorSigner);
+
+const tx = await system.executeBatchedAllowFailure([harvestId1, harvestId2, harvestId3]);
+await tx.wait();
+```
 
 ---
 
@@ -167,6 +183,18 @@ console.log("All rewards collected!");
 
 - Rewards accumulate over time — collecting early is fine but yields less.
 - **Batch variant:** `executeBatched(uint256[] ids)` collects from multiple harvests in one transaction — more gas-efficient.
+- **Allow-failure variants:** `executeAllowFailure(bytes)` and `executeBatchedAllowFailure(uint256[] ids)` silently return `0` instead of reverting when a harvest fails validation. Useful for collecting from many harvests where some may be in an invalid state.
+
+```javascript
+// Batch collect with allow-failure — skips invalid harvests instead of reverting
+const ABI_AF = [
+  "function executeBatchedAllowFailure(uint256[] ids) returns (bytes[])",
+];
+const system = await getSystem("system.harvest.collect", ABI_AF, operatorSigner);
+
+const tx = await system.executeBatchedAllowFailure([harvestId1, harvestId2, harvestId3]);
+await tx.wait();
+```
 
 ---
 
@@ -212,6 +240,22 @@ console.log("Harvest liquidated!");
 
 - **Gas limit of 7,500,000 is required** — the liquidation logic is computationally expensive.
 - This is a PvP action — use wisely!
+
+#### Kill Log & Economy
+
+On a successful liquidation, `LibKill` produces a **KillLog** with the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `bounty` | Total MUSU in the victim's harvest at time of kill |
+| `salvage` | MUSU returned to the victim's account (based on victim's Power stat) |
+| `spoils` | MUSU awarded to the attacker's harvest (based on attacker's Power stat) |
+| `strain` | Health cost component from the kill |
+| `karma` | Health damage to the attacker, calculated from `target.Violence - source.Harmony` scaled by affinity efficacy. If the attacker's Harmony exceeds the target's Violence, karma is zero |
+
+The attacker also receives 1 **Obol** (item 1015) per kill. The total health **recoil** to the attacker is derived from both strain and karma.
+
+**Animosity** determines whether a liquidation can succeed: it computes a health threshold from `Phi(ln(source.Violence / target.Harmony))` scaled by a configurable ratio and affinity efficacy. If the victim's current HP is above this threshold, the liquidation reverts.
 
 #### Liquidation Requirements Checklist
 

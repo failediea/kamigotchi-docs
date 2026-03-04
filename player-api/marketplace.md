@@ -49,6 +49,10 @@ The marketplace fee is configurable via the `KAMI_MARKET_FEE_RATE` config:
 
 After a Kami is purchased (via listing buy or offer acceptance), the Kami enters a **1-hour cooldown** (`KAMI_MARKET_PURCHASE_COOLDOWN` config, default 3600 seconds). During this cooldown, the Kami cannot be relisted or transferred.
 
+### Soulbound Lock
+
+Certain actions (e.g., Newbie Vendor purchase) apply a **soulbound lock** to a Kami via `LibSoulbound`. The lock stores an expiry timestamp (`block.timestamp + duration`). While soulbound, the Kami cannot be listed, have offers accepted, or be unstaked. The lock is checked with `LibSoulbound.verify()`, which reverts with `"kami is soulbound"` if the current time is before the expiry. The Newbie Vendor applies a 3-day soulbound lock.
+
 ---
 
 ## Entity ID Discovery

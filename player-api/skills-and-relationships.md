@@ -187,6 +187,17 @@ This creates branching paths (flags 6–7 vs 8–9 are mutually exclusive). Othe
 
 ---
 
+## Bonus System
+
+Skills, equipment, and items apply their effects through the **bonus system** (`LibBonus`). Bonuses come in two forms:
+
+- **Permanent bonuses** are tied to an entity (e.g., a skill instance or equipped item) via an anchor. They stack by level — upgrading a skill increments the bonus level, which acts as a multiplier on the base value.
+- **Temporary bonuses** are tied to a trigger type (end anchor) and are automatically cleared when that trigger fires. Trigger types include: `UPON_HARVEST_ACTION` (cleared on collect/feed/stop), `UPON_HARVEST_STOP` (cleared on stop or liquidation), `UPON_DEATH`, `UPON_LIQUIDATION`, `UPON_KILL_OR_KILLED`, and `TIMED`. Temporary bonuses do not stack — re-applying the same temporary bonus has no additional effect.
+
+Bonus values can be **negative** (e.g., debuffs). The system queries all active bonus instances for a given type and holder, sums their `value * level`, and returns the total modifier.
+
+---
+
 ## Related Pages
 
 - [Kami](kami.md) — Kami management and ONYX operations
