@@ -641,6 +641,43 @@ Kami have body and hand affinities. Nodes can have one or two affinities (e.g., 
 
 ---
 
+## Marketplace (KamiSwap)
+
+Configuration values for the Kami marketplace.
+
+### Contracts
+
+| Contract | Address | Description |
+|----------|---------|-------------|
+| **WETH** | `0xE1Ff7038eAAAF027031688E1535a055B2Bac2546` | Bridged ETH via LayerZero — same token used for gas on Yominet |
+| **KamiMarketVault** | *(from `KAMI_MARKET_VAULT` config)* | Holds WETH approvals for offer settlement |
+
+### Configuration
+
+| Config Key | Default | Description |
+|------------|---------|-------------|
+| `KAMI_MARKET_FEE_RATE` | *(admin-set)* | Fee rate as `[precision, numerator]` — fee = `price × numerator / 10^precision` |
+| `KAMI_MARKET_FEE_RECIPIENT` | *(admin-set)* | Treasury address that receives marketplace fees |
+| `KAMI_MARKET_PURCHASE_COOLDOWN` | `3600` (1 hour) | Cooldown in seconds after a Kami is purchased before it can be relisted |
+| `KAMI_MARKET_VAULT` | *(admin-set)* | KamiMarketVault contract address |
+| `KAMI_MARKET_ENABLED` | *(admin-set)* | Whether the marketplace is active |
+| `NEWBIE_VENDOR_ENABLED` | *(admin-set)* | Whether the Newbie Vendor is active |
+| `NEWBIE_VENDOR_MIN_PRICE` | `0.005 ETH` | Minimum price for the Newbie Vendor |
+| `NEWBIE_VENDOR_CYCLE` | *(admin-set)* | Duration in seconds for each display rotation cycle |
+
+### Currency Usage
+
+| Operation | Currency | Method |
+|-----------|----------|--------|
+| Buy a listing | ETH (native) | Sent via `msg.value` |
+| Make an offer | WETH (ERC-20) | Pre-approved to KamiMarketVault |
+| Accept an offer | WETH (ERC-20) | Pulled from buyer by vault |
+| Newbie Vendor purchase | ETH (native) | Sent via `msg.value` |
+
+> See [KamiSwap — Marketplace](../player-api/marketplace.md) for full system documentation.
+
+---
+
 ## See Also
 
 - [Entity Discovery](../player-api/entity-discovery.md) — How to derive and discover entity IDs

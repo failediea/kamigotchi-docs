@@ -1,6 +1,6 @@
 # System IDs & ABI References
 
-Kamigotchi has **58 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
+Kamigotchi has **64 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
 
 ---
 
@@ -143,6 +143,17 @@ Kamigotchi has **58 documented player-facing systems** in the World contract. Ea
 | `system.goal.claim` | Claim goal reward | Operator | [Goals](../player-api/goals-and-scavenge.md) |
 | `system.scavenge.claim` | Claim scavenge points | Operator | [Goals](../player-api/goals-and-scavenge.md) |
 
+### Marketplace Systems
+
+| System ID | Description | Wallet | Page |
+|-----------|-------------|--------|------|
+| `system.kamimarket.list` | List a Kami for sale (ETH) | Operator | [Marketplace](../player-api/marketplace.md) |
+| `system.kamimarket.buy` | Buy listed Kami(s) with ETH | Owner | [Marketplace](../player-api/marketplace.md) |
+| `system.kamimarket.offer` | Make a specific or collection offer (WETH) | Operator | [Marketplace](../player-api/marketplace.md) |
+| `system.kamimarket.acceptoffer` | Accept an offer (specific or collection) | Operator | [Marketplace](../player-api/marketplace.md) |
+| `system.kamimarket.cancel` | Cancel a listing or offer | Operator | [Marketplace](../player-api/marketplace.md) |
+| `system.newbievendor.buy` | Buy first Kami from Newbie Vendor | Owner | [Marketplace](../player-api/marketplace.md) |
+
 ### Auction Systems
 
 | System ID | Description | Wallet | Page |
@@ -217,6 +228,9 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.erc20.portal` | `deposit` / `withdraw` / `claim` / `cancel` | `deposit(uint32, uint256)` / `withdraw(uint32, uint256) returns (uint256)` / `claim(uint256)` / `cancel(uint256)` |
 | `system.kami721.transfer` | `batchTransfer` / `batchTransferToMany` | `batchTransfer(uint256[], address)` / `batchTransferToMany(uint256[], address[])` |
 | `system.getter` | `getKami` / `getAccount` / `getKamiByIndex` | View functions — see [Getter System](#getter-system) below |
+| `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32, uint256, uint256)` / `executeTypedCollection(uint256, uint32, uint256)` |
+| `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256, uint32)` / `executeTyped(uint256, uint32[])` |
+| `system.newbievendor.buy` | `executeTyped` / `calcPrice` | `executeTyped(uint32) payable` / `calcPrice() view returns (uint256)` |
 
 > When integrating, always check the actual Solidity source for the correct function name if `executeTyped()` reverts with "not implemented".
 

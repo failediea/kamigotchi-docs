@@ -109,11 +109,34 @@ console.log("Account registered! Tx:", receipt.hash);
 
 ## Step 5: Get Your First Kami
 
-After registering, you need at least one Kami to participate in gameplay (harvesting, quests, combat). There are three ways to acquire a Kami:
+After registering, you need at least one Kami to participate in gameplay (harvesting, quests, combat). There are four ways to acquire a Kami:
 
-### Option A: Gacha Minting (Primary Path)
+### Option A: Newbie Vendor (Recommended for New Players)
 
-The standard flow is: **buy a gacha ticket → mint → reveal**.
+The **Newbie Vendor** lets new accounts buy their first Kami at a fair TWAP-derived price. This is the simplest way to get started — one transaction, no reveal step.
+
+```javascript
+const VENDOR_ABI = [
+  "function executeTyped(uint32 kamiIndex) payable returns (bytes)",
+  "function calcPrice() view returns (uint256)",
+];
+const vendorSystem = await getSystem("system.newbievendor.buy", VENDOR_ABI, ownerSigner);
+
+// Check the current vendor price (view call — no gas)
+const price = await vendorSystem.calcPrice();
+console.log("Vendor price:", ethers.formatEther(price), "ETH");
+
+// Buy one of the 3 currently displayed Kamis
+const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
+await tx.wait();
+console.log("First Kami purchased from the Newbie Vendor!");
+```
+
+> **Restrictions:** One purchase per account, only within 24 hours of registration. Minimum price 0.005 ETH. The purchased Kami is soulbound for 3 days (cannot be listed or unstaked). See [KamiSwap — Marketplace](player-api/marketplace.md) for full details.
+
+### Option B: Gacha Minting
+
+The standard gacha flow is: **buy a gacha ticket → mint → reveal**.
 
 ```javascript
 // 1. Buy a gacha ticket (costs ETH — see minting docs for current price)
@@ -143,11 +166,11 @@ console.log("Kami revealed!");
 
 > **Pricing:** Public tickets cost 0.1 ETH each (`MINT_PRICE_PUBLIC`). Whitelist tickets cost 0.05 ETH (`MINT_PRICE_WL`). Max 222 public mints per account, 3,000 total globally. See [Gacha / Minting](player-api/minting.md) for full details.
 
-### Option B: Buy or Trade from Another Player
+### Option C: Buy from the Marketplace or Trade
 
-Use the in-game [Trading](player-api/trading.md) system to acquire a Kami from another player, or purchase one on a secondary NFT marketplace.
+Use the in-game [KamiSwap Marketplace](player-api/marketplace.md) to buy a Kami from another player's listing, or use the [Trading](player-api/trading.md) system for direct player-to-player trades.
 
-### Option C: Receive via ERC-721 Transfer + Stake
+### Option D: Receive via ERC-721 Transfer + Stake
 
 If someone sends you a Kami721 NFT directly (ERC-721 transfer), you'll need to **stake** it into the game before it becomes playable:
 

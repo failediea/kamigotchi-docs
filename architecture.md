@@ -42,7 +42,7 @@ Systems are stateless smart contracts that contain **game logic**. Each system:
 - Is identified by a human-readable **System ID** (e.g., `system.kami.level`)
 - Has its address resolved dynamically: `World.systems(keccak256("system.kami.level"))`
 
-Kamigotchi has **58 documented player-facing systems** — see [System IDs & ABIs](contracts/ids-and-abis.md) for the complete list. The World contract contains additional internal and admin systems not covered here.
+Kamigotchi has **64 documented player-facing systems** — see [System IDs & ABIs](contracts/ids-and-abis.md) for the complete list. The World contract contains additional internal and admin systems not covered here.
 
 ### Components
 
@@ -95,6 +95,8 @@ The player's primary wallet (MetaMask, Rabby, etc.). Used for:
 - ERC721 staking/unstaking
 - Trading (create, execute, complete, cancel)
 - Gacha ticket purchase and minting
+- `kamimarket.buy` — Buying Kami listings on the marketplace (sends ETH)
+- `newbievendor.buy` — Buying first Kami from the Newbie Vendor (sends ETH)
 
 ### Operator Wallet
 
@@ -106,6 +108,10 @@ A delegated wallet (typically managed by [Privy](https://privy.io)) for frequent
 - Crafting, questing
 - Setting profile picture (`set.pfp`)
 - Reviving Kami via ONYX (`onyx.revive`)
+- `kamimarket.list` — Listing a Kami for sale on the marketplace
+- `kamimarket.offer` — Making specific or collection offers (WETH)
+- `kamimarket.acceptoffer` — Accepting incoming offers
+- `kamimarket.cancel` — Cancelling listings or offers
 - All routine gameplay actions
 
 > **Note:** The operator wallet is set during registration and can be updated by the owner wallet via `set.operator()`. This separation means the owner's private key is rarely exposed to transaction signing.
@@ -212,5 +218,5 @@ Each stat has:
 
 - [Chain Configuration](chain-configuration.md) — Network details
 - [Live Addresses](contracts/live-addresses.md) — Contract addresses
-- [System IDs & ABIs](contracts/ids-and-abis.md) — All 58 system identifiers
+- [System IDs & ABIs](contracts/ids-and-abis.md) — All 64 system identifiers
 - [Player API Overview](player-api/overview.md) — How to call systems

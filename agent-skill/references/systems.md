@@ -13,7 +13,7 @@ Kamigotchi uses the MUD Entity Component System (ECS) framework on Yominet.
 
 All game actions are system calls to the World contract. The kami-api wraps these into REST endpoints.
 
-## System IDs (58 total)
+## System IDs (64 total)
 
 ### Account (7)
 | System ID | Description |
@@ -128,6 +128,16 @@ All game actions are system calls to the World contract. The kami-api wraps thes
 | System ID | Description |
 |-----------|-------------|
 | `system.relationship.advance` | Advance NPC relationship |
+
+### Marketplace (6)
+| System ID | Description |
+|-----------|-------------|
+| `system.kamimarket.list` | List a Kami for sale on the marketplace (ETH) |
+| `system.kamimarket.buy` | Buy listed Kami(s) with ETH (batch support) |
+| `system.kamimarket.offer` | Make a specific or collection offer (WETH) |
+| `system.kamimarket.acceptoffer` | Accept an incoming offer |
+| `system.kamimarket.cancel` | Cancel a listing or offer |
+| `system.newbievendor.buy` | Buy first Kami from the Newbie Vendor (one-time) |
 
 ### Auctions (1)
 | System ID | Description |

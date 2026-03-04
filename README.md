@@ -16,7 +16,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 ### Contracts
 
 - [Live Addresses](contracts/live-addresses.md) — Deployed contract addresses
-- [System IDs & ABIs](contracts/ids-and-abis.md) — All 58 system IDs and ABI reference
+- [System IDs & ABIs](contracts/ids-and-abis.md) — All 64 system IDs and ABI reference
 
 ### Player API
 
@@ -34,6 +34,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 - [Skills & Relationships](player-api/skills-and-relationships.md) — Skill upgrade/reset, NPC relationship advancement
 - [Goals & Scavenge](player-api/goals-and-scavenge.md) — Community goals, scavenge claims
 - [Gacha / Minting](player-api/minting.md) — Mint, reveal, reroll Kamis; buy tickets
+- [KamiSwap Marketplace](player-api/marketplace.md) — List, buy, offer, and trade Kamis on the in-game marketplace
 - [Portal (ERC721 / ERC20)](player-api/portal.md) — Deposit/withdraw NFTs and tokens
 
 ### References
