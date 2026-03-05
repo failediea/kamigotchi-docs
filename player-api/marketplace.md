@@ -1,6 +1,6 @@
 # KamiSwap — Kami Marketplace
 
-KamiSwap is Kamigotchi's native on-chain Kami marketplace. Players can list Kamis for sale, make offers on specific Kamis or the collection, and purchase Kamis — all without leaving the game. New players can also buy their first Kami from the **Newbie Vendor** at a fair TWAP-derived price.
+KamiSwap is Kamigotchi's native on-chain Kami marketplace. Players can list Kamis for sale, make offers on specific Kamis or the collection, and purchase Kamis — all without leaving the game. **New players should purchase their first Kami on KamiSwap.**
 
 ---
 
@@ -15,7 +15,6 @@ KamiSwap has **6 player-facing systems**:
 | `system.kamimarket.offer` | KamiMarketOfferSystem | Operator | Make a specific or collection offer (WETH) |
 | `system.kamimarket.acceptoffer` | KamiMarketAcceptOfferSystem | Operator | Accept an offer |
 | `system.kamimarket.cancel` | KamiMarketCancelSystem | Operator | Cancel a listing or offer |
-| `system.newbievendor.buy` | NewbieVendorBuySystem | Owner (payable) | Buy first Kami from the Newbie Vendor |
 
 There is also an **admin-only** registry system (`system.kamimarket.registry`) for configuring fees, vault, and enable/disable — not covered here.
 
@@ -26,7 +25,7 @@ There is also an **admin-only** registry system (`system.kamimarket.registry`) f
 - **Listings use ETH (native)** — buyer sends ETH directly
 - **Offers use WETH (ERC-20)** — buyer pre-approves WETH to the KamiMarketVault
 - **Ownership transfer stays staked** — Kami is reassigned via `IDOwnsKami` component (no unstake/restake needed)
-- **TWAP oracle** — every sale feeds into a time-weighted average price used by the Newbie Vendor
+- **TWAP oracle** — every sale feeds into a time-weighted average price used for pricing reference
 
 ### Important Addresses
 
@@ -66,7 +65,7 @@ After a Kami is purchased (via listing buy or offer acceptance), the Kami enters
 
 ### Soulbound Lock
 
-Certain actions (e.g., Newbie Vendor purchase) apply a **soulbound lock** to a Kami via `LibSoulbound`. The lock stores an expiry timestamp (`block.timestamp + duration`). While soulbound, the Kami cannot be listed, have offers accepted, or be unstaked. The lock is checked with `LibSoulbound.verify()`, which reverts with `"kami is soulbound"` if the current time is before the expiry. The Newbie Vendor applies a 3-day soulbound lock.
+Certain actions apply a **soulbound lock** to a Kami via `LibSoulbound`. The lock stores an expiry timestamp (`block.timestamp + duration`). While soulbound, the Kami cannot be listed, have offers accepted, or be unstaked. The lock is checked with `LibSoulbound.verify()`, which reverts with `"kami is soulbound"` if the current time is before the expiry.
 
 ---
 
@@ -356,77 +355,6 @@ console.log("Offer cancelled");
 
 ---
 
-## Newbie Vendor
-
-The **Newbie Vendor** is a special system that lets **new players buy their first Kami** at a fair market price. This is the recommended way for new players to get started.
-
-**System:** `system.newbievendor.buy`  
-**Wallet:** Owner (payable)
-
-### Rules
-
-- **One-time purchase** — each account can only buy from the vendor once (`NEWBIE_VENDOR_PURCHASED` flag)
-- **24-hour window** — only accounts created in the last 24 hours can use the vendor
-- **TWAP pricing** — price is derived from the marketplace TWAP oracle (time-weighted average of recent sales)
-- **Minimum price** — 0.005 ETH floor (`NEWBIE_VENDOR_MIN_PRICE` config)
-- **Soulbound for 3 days** — purchased Kami cannot be listed, unstaked, or have offers accepted for 3 days
-- **Display rotation** — admin stocks a pool of Kami indices; 3 are displayed at a time, cycling on a timer
-
-```solidity
-function executeTyped(uint32 kamiIndex) payable returns (bytes)
-// kamiIndex — index of one of the 3 currently displayed Kamis
-// msg.value — must be >= calcPrice() (TWAP-derived price)
-```
-
-```javascript
-const VENDOR_ABI = [
-  "function executeTyped(uint32 kamiIndex) payable returns (bytes)",
-  "function calcPrice() view returns (uint256)",
-];
-const vendorSystem = await getSystem("system.newbievendor.buy", VENDOR_ABI, ownerSigner);
-
-// Check the current price
-const price = await vendorSystem.calcPrice();
-console.log("Vendor price:", ethers.formatEther(price), "ETH");
-
-// Resolve a valid vendor index from candidate indices before sending a paid tx
-const candidates = (process.env.NEWBIE_VENDOR_CANDIDATES ?? "0,1,2")
-  .split(",")
-  .map((v) => Number(v.trim()))
-  .filter((v) => Number.isInteger(v));
-
-let kamiIndex = null;
-for (const candidate of candidates) {
-  try {
-    await vendorSystem.executeTyped.staticCall(candidate, { value: price });
-    kamiIndex = candidate;
-    break;
-  } catch (_) {}
-}
-
-if (kamiIndex === null) {
-  throw new Error(
-    "No valid vendor index found. Refresh display and set NEWBIE_VENDOR_CANDIDATES."
-  );
-}
-
-console.log("Selected vendor index:", kamiIndex);
-const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
-await tx.wait();
-console.log("First Kami purchased from the Newbie Vendor!");
-```
-
-### Choosing `kamiIndex`
-
-1. Read candidate indices from your UI/indexer feed (or start with defaults `0,1,2`).
-2. Set `NEWBIE_VENDOR_CANDIDATES` (comma-separated), for example `12,37,44` or `0,1,2`.
-3. The snippet runs `executeTyped.staticCall` over candidates and picks the first currently valid index.
-4. If no candidate passes, refresh vendor display data and retry.
-
-> **Tip:** Use `calcPrice()` (a view function, no gas) to check the current vendor price before buying. Excess ETH is refunded automatically.
-
----
-
 ## Non-Standard Entry Points
 
 The offer system uses **custom function names** instead of the standard `executeTyped()`:
@@ -565,7 +493,6 @@ main().catch(console.error);
 | Buy a listing | **ETH** (native) | `msg.value` — buyer sends ETH with the transaction |
 | Make an offer | **WETH** (ERC-20) | Approval-based — buyer approves WETH to the vault beforehand |
 | Accept an offer | **WETH** (ERC-20) | Vault pulls WETH from buyer and distributes to seller + treasury |
-| Newbie Vendor | **ETH** (native) | `msg.value` — buyer sends ETH with the transaction |
 
 > **Why the difference?** Listings are instant purchases (buyer initiates and pays in one tx), so native ETH works. Offers require the seller to accept later, so WETH's ERC-20 approval mechanism enables trustless settlement without escrow.
 
@@ -603,7 +530,7 @@ These systems are distinct from the KamiSwap P2P marketplace documented above.
 
 - [Entity Discovery](entity-discovery.md) — How to find order entity IDs
 - [Portal (ERC721 / ERC20)](portal.md) — Staking and unstaking Kami NFTs
-- [Gacha / Minting](minting.md) — Minting new Kamis (Newbie Vendor is the alternative first-Kami path)
+- [Gacha / Minting](minting.md) — Minting new Kamis via the gacha system
 - [Trading](trading.md) — Player-to-player item trades
 - [Game Data Reference](../references/game-data.md) — WETH address, fee config, cooldown values
 - [System IDs & ABIs](../contracts/ids-and-abis.md) — Complete system reference

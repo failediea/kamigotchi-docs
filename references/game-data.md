@@ -664,9 +664,6 @@ Configuration values for the Kami marketplace.
 | `KAMI_MARKET_PURCHASE_COOLDOWN` | `3600` (1 hour) | Cooldown in seconds after a Kami is purchased before it can be relisted |
 | `KAMI_MARKET_VAULT` | *(admin-set)* | KamiMarketVault contract address |
 | `KAMI_MARKET_ENABLED` | *(admin-set)* | Whether the marketplace is active |
-| `NEWBIE_VENDOR_ENABLED` | *(admin-set)* | Whether the Newbie Vendor is active |
-| `NEWBIE_VENDOR_MIN_PRICE` | `0.005 ETH` | Minimum price for the Newbie Vendor |
-| `NEWBIE_VENDOR_CYCLE` | *(admin-set)* | Duration in seconds for each display rotation cycle |
 
 ### Currency Usage
 
@@ -675,7 +672,7 @@ Configuration values for the Kami marketplace.
 | Buy a listing | ETH (native) | Sent via `msg.value` |
 | Make an offer | WETH (ERC-20) | Pre-approved to KamiMarketVault |
 | Accept an offer | WETH (ERC-20) | Pulled from buyer by vault |
-| Newbie Vendor purchase | ETH (native) | Sent via `msg.value` |
+| KamiSwap listing purchase | ETH (native) | Sent via `msg.value` |
 
 > See [KamiSwap — Marketplace](../player-api/marketplace.md) for full system documentation.
 

@@ -92,17 +92,6 @@ Quick reference for common Solidity revert messages across Kamigotchi systems. T
 
 ---
 
-## Newbie Vendor (`system.newbievendor.buy`)
-
-| Revert Message | Cause |
-|----------------|-------|
-| `"NewbieVendor: disabled"` | The Newbie Vendor is currently disabled by admin config |
-| `"NewbieVendor: already purchased"` | This account has already bought from the Newbie Vendor |
-| `"NewbieVendor: account too old"` | Account was created more than 24 hours ago |
-| `"NewbieVendor: insufficient ETH"` | `msg.value` is less than the current vendor price |
-| `"NewbieVendor: pool empty"` | No Kamis are currently available in the vendor pool |
-| `"NewbieVendor: kami not on display"` | The requested Kami index is not in the current display pool |
-
 ---
 
 ## Kami Send (`system.kami.send`)
@@ -159,9 +148,9 @@ Your Kami's health reached 0. You have two options to revive it:
 
 If you have neither ONYX nor a revive item, you need to acquire ONYX (via harvesting on another Kami, trading, or the ERC20 portal) or craft/buy a revive item.
 
-### "Newbie Vendor says 'account too old'"
+### "How do I get my first Kami?"
 
-The Newbie Vendor has a **24-hour window** from account registration. You must buy within 24 hours of calling `system.account.register`. If you missed the window, use gacha minting instead — see [Minting](../player-api/minting.md).
+Purchase a Kami on the **KamiSwap** marketplace, or mint one via the gacha system — see [Minting](../player-api/minting.md) and [KamiSwap](../player-api/marketplace.md).
 
 ### "Which room should my Kami harvest in?"
 

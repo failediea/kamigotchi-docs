@@ -33,12 +33,12 @@ Two options:
 | Action | Cost | Currency |
 |--------|------|----------|
 | Gas (thousands of txs) | ~0.001 ETH | Native ETH |
-| Newbie Vendor (first Kami) | 0.005-0.05 ETH | Native ETH (msg.value) |
+| KamiSwap (first Kami) | Variable | Native ETH (msg.value) |
 | Gacha ticket (public) | $MUSU (GDA pricing) | In-game $MUSU (item 1, earned via harvesting) |
 | Marketplace listing | Variable | Native ETH (msg.value) |
 | Marketplace offer | Variable | WETH (approval-based) |
 
-**Recommended starting budget:** 0.2-0.5 ETH bridged to Yominet.
+**Recommended starting budget:** 0.01 ETH bridged to Yominet.
 
 > **Note:** You only need to fund your **Owner wallet**. The Operator wallet is automatically assigned by Privy when you register an account in-game. For programmatic integrations where you manage the Operator wallet yourself, you'll need to fund it separately for gas.
 
@@ -193,54 +193,11 @@ console.log("Account registered! Tx:", receipt.hash);
 
 After registering, you need at least one Kami to participate in gameplay (harvesting, quests, combat). There are four ways to acquire a Kami:
 
-### Option A: Newbie Vendor (Recommended for New Players)
+### Option A: KamiSwap Marketplace (Recommended for New Players)
 
-The **Newbie Vendor** lets new accounts buy their first Kami at a fair TWAP-derived price. This is the simplest way to get started — one transaction, no reveal step.
+The **KamiSwap** marketplace lets players buy Kamis listed by other players. This is the simplest way to get your first Kami — browse available listings and purchase one with native ETH.
 
-```javascript
-const VENDOR_ABI = [
-  "function executeTyped(uint32 kamiIndex) payable returns (bytes)",
-  "function calcPrice() view returns (uint256)",
-];
-const vendorSystem = await getSystem("system.newbievendor.buy", VENDOR_ABI, ownerSigner);
-
-// Check the current vendor price (view call — no gas)
-const price = await vendorSystem.calcPrice();
-console.log("Vendor price:", ethers.formatEther(price), "ETH");
-
-// Determine the currently valid index:
-// - If your UI/indexer provides candidates, pass them in NEWBIE_VENDOR_CANDIDATES (comma-separated)
-// - Otherwise probe default slot indices [0, 1, 2]
-const candidates = (process.env.NEWBIE_VENDOR_CANDIDATES ?? "0,1,2")
-  .split(",")
-  .map((v) => Number(v.trim()))
-  .filter((v) => Number.isInteger(v));
-
-let kamiIndex = null;
-for (const candidate of candidates) {
-  try {
-    // Preflight check to avoid spending gas on an invalid display index
-    await vendorSystem.executeTyped.staticCall(candidate, { value: price });
-    kamiIndex = candidate;
-    break;
-  } catch (_) {}
-}
-
-if (kamiIndex === null) {
-  throw new Error(
-    "No valid vendor index found. Refresh vendor display, update NEWBIE_VENDOR_CANDIDATES, and retry."
-  );
-}
-
-console.log("Selected vendor index:", kamiIndex);
-const tx = await vendorSystem.executeTyped(kamiIndex, { value: price });
-await tx.wait();
-console.log("First Kami purchased from the Newbie Vendor!");
-```
-
-> **Selecting `kamiIndex`:** this flow uses a concrete preflight probe (`executeTyped.staticCall`) to find a currently valid index from your candidate list before sending a paid tx.
-
-> **Restrictions:** One purchase per account, only within 24 hours of registration. Minimum price 0.005 ETH. The purchased Kami is soulbound for 3 days (cannot be listed or unstaked). See [KamiSwap — Marketplace](player-api/marketplace.md) for full details.
+See [KamiSwap — Marketplace](player-api/marketplace.md) for full details on browsing listings, buying, and making offers.
 
 > **Finding your Kami after purchase:** Use `IDOwnsKamiComponent` to list your Kamis, or scan `getKamiByIndex()` (as shown in the [Complete Example](#complete-example-script) below). See [Entity Discovery — Enumerating Your Kamis](player-api/entity-discovery.md#enumerating-your-kamis) for the component-based approach.
 
@@ -632,61 +589,24 @@ async function main() {
   }
 
   // ----------------------------------------------------------
-  // 3. Buy first Kami from Newbie Vendor
+  // 3. Acquire first Kami via KamiSwap Marketplace
   // ----------------------------------------------------------
-  const vendorSystem = await getSystem(
-    "system.newbievendor.buy",
-    [
-      "function executeTyped(uint32 kamiIndex) payable returns (bytes)",
-      "function calcPrice() view returns (uint256)",
-    ],
-    ownerSigner
-  );
+  // To get your first Kami, purchase one from the KamiSwap marketplace.
+  // See the KamiSwap documentation for browsing listings and buying:
+  // player-api/marketplace.md
+  //
+  // Example: buying a listing by ID (you'll need to discover listing IDs
+  // from the marketplace — see the marketplace docs for querying listings)
+  //
+  // const buySystem = await getSystem(
+  //   "system.kamimarket.buy",
+  //   ["function executeTyped(uint256[] memory listingIDs) payable returns (bytes)"],
+  //   ownerSigner
+  // );
+  // const buyTx = await buySystem.executeTyped([listingId], { value: listingPrice });
+  // await buyTx.wait();
 
   let kamiTokenIndex = null;
-
-  try {
-    // Check the current TWAP-derived price (view call, no gas)
-    const price = await vendorSystem.calcPrice();
-    console.log("Vendor price:", ethers.formatEther(price), "ETH");
-
-    // Preflight probe: find a currently valid display-slot index
-    let validSlot = null;
-    for (const candidate of [0, 1, 2]) {
-      try {
-        await vendorSystem.executeTyped.staticCall(candidate, { value: price });
-        validSlot = candidate;
-        break;
-      } catch (_) {}
-    }
-
-    if (validSlot === null) {
-      throw new Error(
-        "No valid vendor slot found. The vendor display may need refreshing."
-      );
-    }
-
-    console.log("Selected vendor slot:", validSlot);
-    const buyTx = await vendorSystem.executeTyped(validSlot, { value: price });
-    const buyReceipt = await buyTx.wait();
-    console.log("Kami purchased from Newbie Vendor. Tx:", buyReceipt.hash);
-
-    // Determine the kamiTokenIndex from the purchase.
-    // The vendor system returns abi.encode(uint32 kamiTokenIndex) in its return data.
-    // We can also look it up via the getter. Use the getter approach since it works
-    // regardless of return-data availability.
-  } catch (err) {
-    const reason = err.reason || err.message || "";
-    if (
-      reason.includes("already") ||
-      reason.includes("limit") ||
-      reason.includes("one per")
-    ) {
-      console.log("Vendor purchase skipped (already bought or limit reached).");
-    } else {
-      throw err;
-    }
-  }
 
   // ----------------------------------------------------------
   // 4. Discover the Kami's token index and entity ID
@@ -727,7 +647,7 @@ async function main() {
 
   if (kamiTokenIndex === null) {
     throw new Error(
-      "No Kami found for this account. Buy one from the Newbie Vendor or Marketplace first."
+      "No Kami found for this account. Buy one from KamiSwap or mint via Gacha first."
     );
   }
 

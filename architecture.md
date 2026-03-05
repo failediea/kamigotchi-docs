@@ -98,7 +98,7 @@ The player's primary wallet (MetaMask, Rabby, etc.). Used for:
 - Trading (create, execute, complete, cancel)
 - Gacha ticket purchase and minting
 - `kamimarket.buy` — Buying Kami listings on the marketplace (sends ETH)
-- `newbievendor.buy` — Buying first Kami from the Newbie Vendor (sends ETH)
+- `kamimarket.buy` — Buying a Kami from KamiSwap marketplace (sends ETH)
 
 ### Operator Wallet
 

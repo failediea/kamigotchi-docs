@@ -110,14 +110,14 @@ Kamigotchi uses two wallets per player:
 
 | Wallet | Purpose | Used For |
 |--------|---------|----------|
-| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, `onyx.rename` (currently disabled)/`onyx.respec` (currently disabled), ERC721 stake/unstake, ERC20 portal, trade, item transfer, `kamimarket.buy`, `newbievendor.buy`, `auction.buy`, gacha tickets, gacha mint/reroll |
+| **Owner** | Primary wallet, holds NFTs | `register`, `set.name`, `set.operator`, `onyx.rename` (currently disabled)/`onyx.respec` (currently disabled), ERC721 stake/unstake, ERC20 portal, trade, item transfer, `kamimarket.buy`, `auction.buy`, gacha tickets, gacha mint/reroll |
 | **Operator** | Delegated session wallet | move, chat, harvest, quest, craft, `set.pfp`, `set.bio`, `onyx.revive`, `kamimarket.list`, `kamimarket.offer`, `kamimarket.acceptoffer`, `kamimarket.cancel`, `kami.send`, etc. |
 
 > **Note:** The operator wallet is set during `register()` and can be changed with `set.operator()`. In the official client, Privy manages the operator wallet as an embedded wallet.
 
 ### New Player Path
 
-After registering, new players need to acquire their first Kami before they can participate in gameplay. The recommended first path is **Newbie Vendor** (one transaction, no reveal). Gacha is the main alternative path — buy tickets with $MUSU via the auction system. See the [Integration Guide](../integration-guide.md#step-5-get-your-first-kami) for the full walkthrough.
+After registering, new players need to acquire their first Kami before they can participate in gameplay. The recommended first path is purchasing a Kami on **KamiSwap** marketplace. Gacha is the main alternative path — buy tickets with $MUSU via the auction system. See the [Integration Guide](../integration-guide.md#step-5-get-your-first-kami) for the full walkthrough.
 
 ### Determining Which Wallet to Use
 
@@ -138,7 +138,7 @@ Some systems accept payment as native ETH sent directly with the transaction (i.
 
 | System | Usage |
 |--------|-------|
-| `system.newbievendor.buy` | Buy first Kami from the Newbie Vendor at TWAP price |
+| `system.kamimarket.buy` | Buy a Kami from the KamiSwap marketplace |
 | `system.kamimarket.buy` | Purchase Kami listing(s) from the marketplace |
 
 ```javascript

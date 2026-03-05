@@ -169,7 +169,7 @@ console.log("State:", kamiData.state);      // "RESTING", "HARVESTING", "DEAD", 
 
 To list all Kamis owned by your account, use the **`component.id.kami.owns`** component on-chain, or call `getKami()` with known entity IDs. The `LibAccount.getKamis(accID)` function returns all Kami entity IDs owned by an account — this can be queried through the component directly.
 
-### After Newbie Vendor or Marketplace Purchase
+### After KamiSwap or Gacha Purchase
 
 After buying a Kami, you need its token index to derive the entity ID. Use the `component.id.kami.owns` component to find all Kamis owned by your account:
 

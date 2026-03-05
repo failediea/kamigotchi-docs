@@ -157,7 +157,7 @@ Kamigotchi has **67 documented player-facing systems** in the World contract. Ea
 | `system.kamimarket.offer` | Make a specific or collection offer (WETH) | Operator | [Marketplace](../player-api/marketplace.md) |
 | `system.kamimarket.acceptoffer` | Accept an offer (specific or collection) | Operator | [Marketplace](../player-api/marketplace.md) |
 | `system.kamimarket.cancel` | Cancel a listing or offer | Operator | [Marketplace](../player-api/marketplace.md) |
-| `system.newbievendor.buy` | Buy first Kami from Newbie Vendor | Owner | [Marketplace](../player-api/marketplace.md) |
+| `system.kamimarket.buy` | Buy a Kami from KamiSwap marketplace | Owner | [Marketplace](../player-api/marketplace.md) |
 
 ### Auction Systems
 
@@ -259,7 +259,6 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.kami721.unstake` | `executeBatch` | `executeBatch(uint32[] tokenIndices)` |
 | `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32, uint256, uint256)` / `executeTypedCollection(uint256, uint32, uint256)` |
 | `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256, uint32)` / `executeTyped(uint256, uint32[])` |
-| `system.newbievendor.buy` | `executeTyped` / `calcPrice` | `executeTyped(uint32) payable` / `calcPrice() view returns (uint256)` |
 | `system.Kami721.IsInWorld` | `isInWorld` | `isInWorld(uint256 petIndex) view returns (bool)` |
 | `system.Kami721.Metadata` | `tokenURI` | `tokenURI(uint256 petIndex) view returns (string)` |
 | `system.harvest.start` | `executeBatched` | `executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes[])` |

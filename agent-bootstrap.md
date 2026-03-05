@@ -33,7 +33,7 @@ Two options to bridge ETH to your Owner wallet:
 
 **Recommended amounts:**
 - 0.01 ETH for gas
-- Additional budget for Kami acquisition: 0.005+ ETH for the Newbie Vendor, or $MUSU for gacha tickets (purchased via auction)
+- Additional budget for Kami acquisition: purchase a Kami on KamiSwap marketplace (variable ETH cost), or earn $MUSU for gacha tickets (purchased via auction)
 
 If you need to generate a fresh Owner wallet:
 

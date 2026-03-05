@@ -101,7 +101,7 @@ console.log("Kami withdrawn to wallet!");
 - **Prerequisite:** Your account must be in **Room 12 (Scrap Confluence)**. Call `account.move(12)` first.
 - The Kami must not be actively harvesting or in any locked state.
 - Stop all harvests and remove equipment before unstaking.
-- Soulbound Kamis cannot be unstaked. The soulbound period (e.g., 3 days after Newbie Vendor purchase) must expire first.
+- Soulbound Kamis cannot be unstaked. The soulbound period must expire first.
 
 ---
 

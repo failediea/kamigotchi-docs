@@ -72,7 +72,7 @@ The Kamigotchi client includes a built-in bridge powered by the Initia bridge.
 
 1. Open the Kamigotchi client
 2. Go to **Settings > Bridge**
-3. Select the amount of ETH to bridge from Ethereum mainnet
+3. Select the amount of ETH to bridge from Arbitrum, Base, or Ethereum
 4. Confirm the transaction in your wallet
 5. Wait for the bridge to complete — funds arrive as native ETH on Yominet
 
@@ -85,14 +85,14 @@ The [Initia Bridge](https://app.initia.xyz/?openBridge=true) supports bridging E
 1. Go to the [Initia Bridge](https://app.initia.xyz/?openBridge=true)
 2. Select **Yominet** as the destination chain
 3. Enter the destination wallet address (your Owner wallet)
-4. Send ETH from Ethereum mainnet
+4. Send ETH from **Arbitrum**, **Base**, or **Ethereum** mainnet
 5. Funds arrive as native ETH on Yominet
 
 ### Recommended Funding Amounts
 
-For a new bot developer, bridge **0.2-0.5 ETH**. Gas is extremely cheap (~0.001 ETH for thousands of transactions). The main ETH costs are:
+For a new player, bridge **0.01 ETH**. Gas is extremely cheap (~0.001 ETH for thousands of transactions). The main ETH costs are:
 
-- **Newbie Vendor purchases** — 0.005+ ETH per item (paid in native ETH via `msg.value`)
+- **KamiSwap purchases** — buying your first Kami on the [KamiSwap marketplace](player-api/marketplace.md) (paid in native ETH via `msg.value`)
 - **Gacha tickets** — purchased with $MUSU via Dutch auction (see [Gacha / Minting](player-api/minting.md))
 
 ---
@@ -118,11 +118,12 @@ Yominet has several distinct currency types. Understanding the differences is cr
 
 | Currency | Type | Where It Lives | Used For |
 |----------|------|---------------|----------|
-| **Native ETH** | Gas token | Wallet balance | Gas fees, marketplace listing buys (`msg.value`), Newbie Vendor purchases (`msg.value`) |
+| **Native ETH** | Gas token | Wallet balance | Gas fees, KamiSwap marketplace listing buys (`msg.value`) |
 | **WETH** | ERC-20 | Contract `0xE1Ff...2546` | Marketplace offers (approval-based), depositing into game as in-game ETH (item 103) via portal |
 | **In-game ETH** | Inventory item | In-game (item 103) | In-game ETH-denominated actions |
 | **$MUSU** | Inventory item | In-game (item 1) | Merchant purchases, trade fees, NPC gifts, quest costs |
 | **$ONYX** | ERC-20 | Contract `0x4BaD...7CF4` | Revive, rename (disabled), respec (disabled) |
+| **Onyx Shards** | Inventory item | In-game | In-game currency obtainable through gameplay |
 
 > **Key distinction:** Native ETH is what you bridge in and use for gas. WETH is the ERC-20 wrapper used for smart contract interactions that require token approvals. In-game ETH (item 103) is a separate inventory item created by depositing WETH through the portal.
 
@@ -163,16 +164,13 @@ $MUSU is the **primary in-game currency** (item index 1). It is **not** an ERC-2
 ### Earning $MUSU
 
 - Harvesting at resource nodes (primary source)
-- Quest rewards
-- Selling items to NPC merchants
 - Player-to-player trading
 
 ### $MUSU Uses
 
 - Merchant purchases from in-game shops
-- Trade fees on player-to-player trades
-- NPC gifts (relationship building)
-- Quest costs
+- Used to purchase gacha tickets (via Dutch auction)
+- Used in KWOB
 
 > **Note:** $MUSU cannot be transferred on-chain as a token. It can only be traded between players using the in-game [Trading](player-api/trading.md) system.
 
@@ -198,6 +196,12 @@ $ONYX is the in-game ERC-20 token used for premium operations.
 
 - **Trading on Baseline Markets** — $ONYX can be bought and sold on [Baseline Markets](https://legacy.baseline.markets). Search for the ONYX token on Yominet.
 - **Player-to-player trading** — Use the in-game [Trading](player-api/trading.md) system to exchange items or $MUSU for $ONYX with other players.
+
+---
+
+## Onyx Shards
+
+**Onyx Shards** are an in-game currency item that exists within the game's inventory system. Unlike $ONYX (which is an ERC-20 token), Onyx Shards are obtained through gameplay activities and used for in-game purposes.
 
 ---
 
