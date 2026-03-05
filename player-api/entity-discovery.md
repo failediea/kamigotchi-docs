@@ -165,6 +165,12 @@ const kamiData = await getter.getKamiByIndex(42);
 console.log("Kami entity ID:", kamiData.id);
 console.log("Account:", kamiData.account);  // 0 if unowned
 console.log("State:", kamiData.state);      // "RESTING", "HARVESTING", "DEAD", "721_EXTERNAL"
+
+// Stat fields: base, shift, boost, sync
+// ⚠️ ethers.js gotcha: `kamiData.health.shift` returns a function (Array.shift),
+// not the stat value. Access stat fields by positional index instead:
+const hp = kamiData.health;
+console.log("Health:", `base=${hp[0]} shift=${hp[1]} boost=${hp[2]} sync=${hp[3]}`);
 ```
 
 To list all Kamis owned by your account, use the **`component.id.kami.owns`** component on-chain, or call `getKami()` with known entity IDs. The `LibAccount.getKamis(accID)` function returns all Kami entity IDs owned by an account — this can be queried through the component directly.

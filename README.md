@@ -55,7 +55,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 | **Entity** | A `uint256` ID representing any game object (Kami, account, item, etc.). |
 | **Component** | On-chain storage keyed by entity ID (e.g., `HealthComponent`, `PowerComponent`). |
 | **Owner Wallet** | The player's main wallet — holds NFTs, registers accounts, spends $ONYX. |
-| **Operator Wallet** | A delegated wallet for frequent in-game transactions (abstracted via Privy). |
+| **Operator Wallet** | A delegated wallet for frequent in-game transactions. Set via `system.account.set.operator`. (The web UI uses Privy to auto-create one; bots generate their own.) |
 
 ---
 

@@ -328,17 +328,26 @@ struct AccountShape {
 
 ## Reading On-Chain Components
 
-Components store entity data in the MUD ECS model. You resolve component addresses the same way as systems — hash the component name and query the World registry.
+Components store entity data in the MUD ECS model. Components resolve via `world.components()` (the **Components** registry), NOT `world.systems()` (the Systems registry).
 
 ### Resolving Component Addresses
 
 ```javascript
-// Components use the same resolution pattern as systems.
-// Hash the component name → query the World for its address.
+// Components resolve via world.components(), NOT world.systems().
+// The Components registry maps componentAddress -> componentId.
+const world = new ethers.Contract(WORLD_ADDRESS, [
+  "function components() view returns (address)",
+], provider);
+
 async function getComponentAddress(componentName) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(componentName));
-  const systemsComponent = await getSystemsComponent();
-  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  const componentsRegistryAddr = await world.components();
+  const componentsRegistry = new ethers.Contract(
+    componentsRegistryAddr,
+    ["function getEntitiesWithValue(uint256) view returns (uint256[])"],
+    provider
+  );
+  const entities = await componentsRegistry.getEntitiesWithValue(hash);
   if (entities.length === 0) throw new Error(`Component not found: ${componentName}`);
   return ethers.getAddress(ethers.toBeHex(entities[0], 20));
 }
@@ -352,6 +361,9 @@ async function getComponentAddress(componentName) {
 | `component.id.kami.owns` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all Kamis owned by an account |
 | `component.id.inventory.owns` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all inventory entries for a holder |
 | `component.index.item` | `getValue(uint256) view returns (uint32)` | Read item index from an inventory/equipment entity |
+| `component.state` | `getValue(uint256) view returns (string)` | Read entity state (e.g., Kami: RESTING, HARVESTING, DEAD) |
+
+> **Stat component IDs** use the `component.stat.*` prefix: `component.stat.health`, `component.stat.power`, `component.stat.harmony`, `component.stat.violence`, `component.stat.slots`, `component.stat.stamina`. These are `BareComponent` types — `getEntitiesWithValue()` is not available on them; use `getValue(entityId)` to read the packed `Stat` struct directly. For most use cases, prefer the [GetterSystem](#getter-system) which returns decoded stats.
 
 ### Reading Inventory Balance
 

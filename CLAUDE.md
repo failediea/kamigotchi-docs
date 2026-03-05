@@ -36,6 +36,9 @@ Official contracts: https://github.com/Asphodel-OS/kamigotchi.git (`packages/con
 - System IDs use dot notation: `system.account.register`, `component.value`
 - PascalCase exceptions: `system.Kami721.IsInWorld`, `system.Kami721.Metadata`
 - No faucet on Yominet — must bridge real ETH; fund both Owner and Operator wallets
+- Components resolve via `world.components()`, NOT `world.systems()` — these are separate registries
+- Stat component IDs use `component.stat.*` prefix (e.g., `component.stat.health`, not `component.health`)
+- ethers.js gotcha: `Stat.shift` collides with `Array.shift()` — access stat fields by index (`h[0]`, `h[1]`, `h[2]`, `h[3]`), not by name
 
 ## Doc Conventions
 

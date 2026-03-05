@@ -54,6 +54,7 @@ const ownerSigner = new ethers.Wallet(mustEnv("OWNER_PRIVATE_KEY"), provider);
 // --- World Contract ---
 const WORLD_ABI = [
   "function systems() view returns (address)",
+  "function components() view returns (address)",
 ];
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
@@ -312,22 +313,23 @@ The getter system does not return inventory data. To check item balances, resolv
 import { ethers } from "ethers";
 import { provider, ownerSigner, getSystemAddress } from "./kamigotchi.js";
 
-// Resolve the ValueComponent address (same pattern as system resolution)
+// Resolve a Component address via the Components registry (NOT the Systems registry).
+// World.components() returns the ComponentsRegistryComponent, which maps componentAddress -> componentId.
 async function getComponentAddress(componentName) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(componentName));
-  const systemsComponentAddr = await (
+  const componentsRegistryAddr = await (
     new ethers.Contract(
       "0x2729174c265dbBd8416C6449E0E813E88f43D0E7",
-      ["function systems() view returns (address)"],
+      ["function components() view returns (address)"],
       provider
     )
-  )["systems()"]();
-  const systemsComponent = new ethers.Contract(
-    systemsComponentAddr,
+  ).components();
+  const componentsRegistry = new ethers.Contract(
+    componentsRegistryAddr,
     ["function getEntitiesWithValue(uint256) view returns (uint256[])"],
     provider
   );
-  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  const entities = await componentsRegistry.getEntitiesWithValue(hash);
   if (entities.length === 0) throw new Error(`Component not found: ${componentName}`);
   return ethers.getAddress(ethers.toBeHex(entities[0], 20));
 }
@@ -416,6 +418,7 @@ export const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"),
 
 const WORLD_ABI = [
   "function systems() view returns (address)",
+  "function components() view returns (address)",
 ];
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
@@ -451,23 +454,28 @@ export async function getSystem(systemId, abi, signer) {
 }
 
 // --- Helper: Resolve Component Address ---
-// Components use the same resolution pattern as systems.
-// Hash the component name → query the World registry for its address.
+// Components resolve via world.components(), NOT world.systems().
+// The Components registry maps componentAddress -> componentId.
+const COMPONENTS_REGISTRY_ABI = [
+  "function getEntitiesWithValue(uint256) view returns (uint256[])",
+];
+const componentCache = new Map();
+
 export async function getComponentAddress(componentName) {
-  if (!systemCache.has(componentName)) {
+  if (!componentCache.has(componentName)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(componentName));
-    const systemsComponentAddr = await world["systems()"]();
-    const systemsComponent = new ethers.Contract(
-      systemsComponentAddr,
-      SYSTEMS_COMPONENT_ABI,
+    const componentsRegistryAddr = await world.components();
+    const componentsRegistry = new ethers.Contract(
+      componentsRegistryAddr,
+      COMPONENTS_REGISTRY_ABI,
       provider
     );
-    const entities = await systemsComponent.getEntitiesWithValue(hash);
+    const entities = await componentsRegistry.getEntitiesWithValue(hash);
     if (entities.length === 0) throw new Error(`Component not found: ${componentName}`);
     const addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
-    systemCache.set(componentName, addr);
+    componentCache.set(componentName, addr);
   }
-  return systemCache.get(componentName);
+  return componentCache.get(componentName);
 }
 ```
 
