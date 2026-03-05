@@ -1,0 +1,20 @@
+{
+  "date_utc": "2026-03-05",
+  "flow": "Base OFT -> Initia L1 compose MsgTransfer -> Yominet unwrap toLocal(mode=6)",
+  "base": {
+    "txHash": "0x74ad371a2db619fbedee9cfe9232b1452208d8e07446c891d234ed7a44479566",
+    "block": 42973826
+  },
+  "layerzero": {
+    "status": "DELIVERED",
+    "destinationTxHash": "70CF79F1F7D2679C1D024C59B06E424887E76BF2143DFD220CCA67B1A0257B03"
+  },
+  "yominet": {
+    "incomingTokenTxHash": "0xb0bf0b591aa713234e13c0af64af512f8665bb665f1385f94e7fb987a7d68106",
+    "block": 25805691,
+    "timestamp": "2026-03-05T18:58:03Z",
+    "tokenContract": "0xE1Ff7038eAAAF027031688E1535a055B2Bac2546",
+    "amountRaw": "100000000000000",
+    "amountFormatted": "0.0001"
+  }
+}
