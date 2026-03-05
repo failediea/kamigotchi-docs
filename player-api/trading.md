@@ -56,6 +56,9 @@ console.log("Trade created!");
 
 - **Sell items are immediately escrowed** — removed from your inventory when the trade is created.
 - The `buyIndices`/`buyAmts` and `sellIndices`/`sellAmts` arrays must have matching lengths.
+- **Each trade is exactly 1 buy item + 1 sell item.** One side must be MUSU (item index 1) — direct item-for-item barter is not supported.
+- Items with the `NOT_TRADABLE` flag cannot be traded.
+- There is a `MAX_TRADES_PER_ACCOUNT` config limit on the number of open trades per account.
 - Use `targetID = 0` for public trades, or specify an account entity ID for private trades.
 
 ---

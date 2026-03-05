@@ -198,7 +198,7 @@ await tx.wait();
 
 ### Notes
 
-- Bio must be 1-140 bytes. Exceeding 140 bytes reverts with `"Account: bio cannot exceed 140chars"`.
+- Bio can be at most 140 bytes. Exceeding 140 bytes reverts with `"Account: bio cannot exceed 140chars"`.
 
 ---
 
@@ -272,6 +272,11 @@ const system = await getSystem("system.account.set.name", ABI, ownerSigner);
 const tx = await system.executeTyped("NewPlayerName");
 await tx.wait();
 ```
+
+### Notes
+
+- Same validation rules as registration: names must be 1-16 bytes, non-empty, and unique across all accounts.
+- Reverts: `"Account: name cannot be empty"`, `"Account: name must be < 16chars"`, `"Account: name taken"`.
 
 ---
 

@@ -350,18 +350,17 @@ async function getComponentAddress(componentName) {
 
 | Component Name | ABI | Use Case |
 |---------------|-----|----------|
-| `component.Value` | `getValue(uint256) view returns (uint256)` | Read inventory balances, stat values |
-| `component.IDOwnsKami` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all Kamis owned by an account |
-| `component.IDOwnsInventory` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all inventory entries for a holder |
-| `component.IndexItem` | `getValue(uint256) view returns (uint32)` | Read item index from an inventory/equipment entity |
-| `component.Config` | `getValue(uint256) view returns (uint256)` | Read config values (vault address, fee rates, etc.) |
+| `component.value` | `getValue(uint256) view returns (uint256)` | Read inventory balances, stat values, config values |
+| `component.id.kami.owns` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all Kamis owned by an account |
+| `component.id.inventory.owns` | `getEntitiesWithValue(uint256) view returns (uint256[])` | List all inventory entries for a holder |
+| `component.index.item` | `getValue(uint256) view returns (uint32)` | Read item index from an inventory/equipment entity |
 
 ### Reading Inventory Balance
 
 ```javascript
 // Check how many of a specific item you hold
 const VALUE_ABI = ["function getValue(uint256 entity) view returns (uint256)"];
-const valueAddr = await getComponentAddress("component.Value");
+const valueAddr = await getComponentAddress("component.value");
 const valueComponent = new ethers.Contract(valueAddr, VALUE_ABI, provider);
 
 // Compute the inventory entity ID (see Entity Discovery)
@@ -384,7 +383,7 @@ console.log("MUSU balance:", balance.toString());
 ```javascript
 // List all Kamis owned by your account
 const OWNS_KAMI_ABI = ["function getEntitiesWithValue(uint256) view returns (uint256[])"];
-const ownsKamiAddr = await getComponentAddress("component.IDOwnsKami");
+const ownsKamiAddr = await getComponentAddress("component.id.kami.owns");
 const ownsKami = new ethers.Contract(ownsKamiAddr, OWNS_KAMI_ABI, provider);
 
 const accountId = BigInt(ownerAddress);
@@ -401,20 +400,24 @@ for (const kamiId of kamiEntityIds) {
 
 ### Reading Config Values
 
-```javascript
-// Read the KamiMarketVault address from ConfigComponent
-const CONFIG_ABI = ["function getValue(uint256 entity) view returns (uint256)"];
-const configAddr = await getComponentAddress("component.Config");
-const configComponent = new ethers.Contract(configAddr, CONFIG_ABI, provider);
+Config values are stored in the **ValueComponent** (`component.value`), not in a separate config component. The entity ID for each config is derived by hashing the prefix `"is.config"` with the config name:
 
-// Config keys are hashed the same way as system IDs
-const vaultKey = ethers.keccak256(ethers.toUtf8Bytes("KAMI_MARKET_VAULT"));
-const vaultRaw = await configComponent.getValue(vaultKey);
-const vaultAddress = ethers.getAddress(ethers.toBeHex(vaultRaw, 20));
+```javascript
+// Config values are stored in ValueComponent, keyed by keccak256("is.config", name)
+const VALUE_ABI = ["function getValue(uint256 entity) view returns (uint256)"];
+const valueAddr = await getComponentAddress("component.value");
+const valueComp = new ethers.Contract(valueAddr, VALUE_ABI, provider);
+
+// Read a config value
+const configEntityId = ethers.keccak256(
+  ethers.solidityPacked(["string", "string"], ["is.config", "KAMI_MARKET_VAULT"])
+);
+const rawValue = await valueComp.getValue(configEntityId);
+const vaultAddress = ethers.toBeHex(rawValue, 20); // for address configs
 console.log("KamiMarketVault:", vaultAddress);
 ```
 
-> **Note:** Component names follow the pattern `component.{Name}`. The ABI for most components includes `getValue(uint256)` for single-entity reads and `getEntitiesWithValue(uint256)` for reverse lookups (finding all entities with a given value).
+> **Note:** Component names use lowercase dot notation (e.g., `component.value`). The ABI for most components includes `getValue(uint256)` for single-entity reads and `getEntitiesWithValue(uint256)` for reverse lookups (finding all entities with a given value).
 
 ---
 

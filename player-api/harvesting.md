@@ -154,7 +154,7 @@ Collect rewards from harvests.
 
 ### Description
 
-Collects accumulated rewards (items, XP) from a single harvest. Can be called while the harvest is still active (partial collection) or after stopping.
+Collects accumulated rewards (items, XP) from a single harvest. Can be called while the harvest is still active (partial collection).
 
 For batch collecting, use `executeBatched()` (see below).
 

@@ -167,16 +167,16 @@ console.log("Account:", kamiData.account);  // 0 if unowned
 console.log("State:", kamiData.state);      // "RESTING", "HARVESTING", "DEAD", "721_EXTERNAL"
 ```
 
-To list all Kamis owned by your account, use the **`IDOwnsKamiComponent`** on-chain, or call `getKami()` with known entity IDs. The `LibAccount.getKamis(accID)` function returns all Kami entity IDs owned by an account — this can be queried through the component directly.
+To list all Kamis owned by your account, use the **`component.id.kami.owns`** component on-chain, or call `getKami()` with known entity IDs. The `LibAccount.getKamis(accID)` function returns all Kami entity IDs owned by an account — this can be queried through the component directly.
 
 ### After Newbie Vendor or Marketplace Purchase
 
-After buying a Kami, you need its token index to derive the entity ID. Use the `IDOwnsKamiComponent` to find all Kamis owned by your account:
+After buying a Kami, you need its token index to derive the entity ID. Use the `component.id.kami.owns` component to find all Kamis owned by your account:
 
 ```javascript
 // Find your Kami after purchase using component read
 const OWNS_KAMI_ABI = ["function getEntitiesWithValue(uint256) view returns (uint256[])"];
-const ownsKamiAddr = await getComponentAddress("component.IDOwnsKami");
+const ownsKamiAddr = await getComponentAddress("component.id.kami.owns");
 const ownsKami = new ethers.Contract(ownsKamiAddr, OWNS_KAMI_ABI, provider);
 
 const accountId = BigInt(ownerSigner.address);
@@ -769,9 +769,9 @@ Each inventory entry is an entity with three components:
 
 | Component | Description |
 |-----------|-------------|
-| `IDOwnsInventoryComponent` | The holder's entity ID (your account ID) |
-| `IndexItemComponent` | The item's registry index (e.g., `1` for MUSU, `1001` for Wooden Stick) |
-| `ValueComponent` | The quantity held |
+| `component.id.inventory.owns` | The holder's entity ID (your account ID) |
+| `component.index.item` | The item's registry index (e.g., `1` for MUSU, `1001` for Wooden Stick) |
+| `component.value` | The quantity held |
 
 Inventory entity IDs are **deterministic** — derived from the holder ID and item index:
 
@@ -798,14 +798,14 @@ function getInventoryEntityId(holderEntityId, itemIndex) {
 
 ### Reading a Specific Item Balance
 
-If you know which item you're looking for, compute the inventory entity ID and read the `ValueComponent`:
+If you know which item you're looking for, compute the inventory entity ID and read `component.value`:
 
 ```javascript
 // Check how much MUSU (item index 1) the account holds
 const accountId = BigInt(ownerAddress);
 const musuInventoryId = getInventoryEntityId(accountId, 1);
 
-// Read ValueComponent for this entity
+// Read component.value for this entity
 const balance = await valueComponent.get(musuInventoryId);
 console.log("MUSU balance:", balance.toString());
 ```
@@ -814,7 +814,7 @@ console.log("MUSU balance:", balance.toString());
 
 ### Enumerating All Inventory Items
 
-To get **all** items held by an account, query the `IDOwnsInventoryComponent` for all entities with the account's ID as their value:
+To get **all** items held by an account, query `component.id.inventory.owns` for all entities with the account's ID as their value:
 
 ```javascript
 // Get all inventory entity IDs for this account
@@ -828,7 +828,7 @@ for (const invId of inventoryIds) {
 }
 ```
 
-This mirrors `LibInventory.getAllForHolder(components, holderID)` which returns all inventory entity IDs where `IDOwnsInventoryComponent` matches the holder.
+This mirrors `LibInventory.getAllForHolder(components, holderID)` which returns all inventory entity IDs where `component.id.inventory.owns` matches the holder.
 
 ### Key Constants
 
@@ -870,7 +870,7 @@ function getEquipmentEntityId(holderEntityId, slot) {
 const equipId = getEquipmentEntityId(kamiEntityId, "Kami_Pet_Slot");
 ```
 
-To enumerate all equipment on an entity, query the `IDOwnsEquipmentComponent`:
+To enumerate all equipment on an entity, query `component.id.equipment.owns`:
 
 ```javascript
 const equipIds = await idOwnsEquipmentComponent.getEntitiesWithValue(kamiEntityId);

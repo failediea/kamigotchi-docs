@@ -23,6 +23,9 @@ Quick reference for common Solidity revert messages across Kamigotchi systems. T
 |----------------|-------|
 | `"Account: Operator already in use"` | The new operator address is already assigned to another account (`set.operator`) |
 | `"Account: bio cannot exceed 140chars"` | Bio exceeds 140 bytes (`set.bio`) |
+| `"Account: name cannot be empty"` | Empty string passed as new name (`set.name`) |
+| `"Account: name must be < 16chars"` | New name exceeds 16 bytes (`set.name`) |
+| `"Account: name taken"` | Another account already uses this name (`set.name`) |
 
 ---
 

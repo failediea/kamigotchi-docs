@@ -41,8 +41,10 @@ console.log("Friend request sent!");
 ### Notes
 
 - Uses the target's **owner wallet address**, not operator address.
+- Cannot send a request to yourself — reverts with `"FriendRequest: cannot fren self"`.
 - Cannot send a request to an account that has blocked you.
 - Duplicate requests to the same account will revert.
+- The target's pending inbound requests are capped by the `FRIENDS_REQUEST_LIMIT` config. If the target has too many pending requests, the transaction reverts with `"Max friend requests reached"`.
 - Common reverts: `"Friend: already friends"`, `"Friend: already pending"`, `"Friend: blocked"`.
 
 ---
@@ -66,6 +68,10 @@ Accept a friend request.
 ### Description
 
 Accepts an incoming friend request. Both accounts become friends, enabling features like targeted trades.
+
+### Notes
+
+- Total friends per account are capped by the `FRIENDS_BASE_LIMIT` config (plus any bonus). If accepting would exceed the limit, the transaction reverts.
 
 ### Code Example
 
