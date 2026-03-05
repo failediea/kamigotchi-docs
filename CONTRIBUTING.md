@@ -1,6 +1,6 @@
 > **Doc Class:** Agent Guidance
 > **Canonical Source:** Repository contribution policy maintained in this file.
-> **Freshness Rule:** Keep policy aligned with `README.md`, `core-resources.md`, and `references/data-provenance.md`.
+> **Freshness Rule:** Keep policy aligned with `README.md`, `resources/README.md`, and `resources/references/data-provenance.md`.
 
 # Contributing
 
@@ -22,7 +22,7 @@ When changing Core pages, include all of the following in the same PR:
 
 - Source citation (on-chain or upstream repo path)
 - Verification timestamp
-- Update to [data-provenance.md](references/data-provenance.md) `Last verified` field
+- Update to [data-provenance.md](resources/references/data-provenance.md) `Last verified` field
 
 ## PR Checklist
 
@@ -38,7 +38,7 @@ Before merge:
 - Run the documentation validator:
 
 ```bash
-./tools/validate-docs.sh
+./guidance/tools/validate-docs.sh
 ```
 
 This validates:

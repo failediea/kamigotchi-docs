@@ -1,5 +1,5 @@
 > **Doc Class:** Agent Guidance
-> **Canonical Source:** Derived from Core Resources in this repo and canonical sources listed in `references/data-provenance.md`.
+> **Canonical Source:** Derived from Core Resources in this repo and canonical sources listed in `resources/references/data-provenance.md`.
 > **Freshness Rule:** Do not become source-of-truth for canonical values; link back to Core Resources for addresses, IDs, and tables.
 
 # CLAUDE.md
@@ -10,10 +10,10 @@ Agent developer documentation for Kamigotchi — a fully on-chain virtual pet ga
 
 ## Repo Structure
 
-- `contracts/` — System IDs, ABIs, component IDs, live deployed addresses
-- `player-api/` — 16 endpoint docs covering all player-facing systems (account, kami, harvesting, trading, gacha, etc.)
-- `references/` — Common revert errors, game data tables (items, rooms, skills, quests)
-- Top-level: `architecture.md`, `integration-guide.md`, `agent-bootstrap.md`, `chain-configuration.md`
+- `resources/contracts/` — System IDs, ABIs, component IDs, live deployed addresses
+- `resources/player-api/` — 16 endpoint docs covering all player-facing systems (account, kami, harvesting, trading, gacha, etc.)
+- `resources/references/` — Common revert errors, game data tables (items, rooms, skills, quests)
+- `guidance/` — Agent bootstrap, integration guide, and helper tooling
 
 ## Key Concepts
 
@@ -46,7 +46,7 @@ Official contracts: https://github.com/Asphodel-OS/kamigotchi.git (`packages/con
 
 ## Doc Conventions
 
-- Each `player-api/` doc covers: wallet type, function signature, parameters, common errors
-- `contracts/ids-and-abis.md`: non-standard entry points listed per system
-- `references/common-errors.md`: revert strings grouped by system domain
+- Each `resources/player-api/` doc covers: wallet type, function signature, parameters, common errors
+- `resources/contracts/ids-and-abis.md`: non-standard entry points listed per system
+- `resources/references/common-errors.md`: revert strings grouped by system domain
 - World contract: `0x2729174c265dbBd8416C6449E0E813E88f43D0E7`

@@ -1,6 +1,6 @@
 > **Doc Class:** Core Resource
 > **Canonical Source:** This repository's documentation contract and navigation, plus canonical protocol data in Core Resources.
-> **Freshness Rule:** Keep section boundaries and links current; when canonical values change, update Core pages and `references/data-provenance.md`.
+> **Freshness Rule:** Keep section boundaries and links current; when canonical values change, update Core pages and `resources/references/data-provenance.md`.
 
 # Kamigotchi Technical Documentation
 
@@ -17,12 +17,12 @@ Kamigotchi docs are organized into two explicit sections:
 
 Start here:
 
-- [Core Resources](core-resources.md)
-- [Agent Guidance](agent-guidance.md)
+- [Core Resources](resources/README.md)
+- [Agent Guidance](guidance/README.md)
 
 ## Global References
 
-- [Data Provenance & Freshness](references/data-provenance.md)
+- [Data Provenance & Freshness](resources/references/data-provenance.md)
 - [Contributing Guide](CONTRIBUTING.md)
 
 ## Quick Links
