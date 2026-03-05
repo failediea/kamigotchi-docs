@@ -363,7 +363,7 @@ Intensity increases the longer a Kami stays on a node. It resets when a harvest 
 
 ### Harvest Node Data
 
-Each node has a **Yield Index** (the item index granted — typically `1` for MUSU) and a **Scav Cost** (the stamina cost for scavenging at that node). Nodes also have a **Level Limit** — some beginner nodes cap the Kami level that can earn XP there.
+Each node has a **Yield Index** (the item index granted — `1` for MUSU on most nodes, or `2` for VIPP/VIP Paper on certain deeper nodes) and a **Scav Cost** (the stamina cost for scavenging at that node). Nodes also have a **Level Limit** — some beginner nodes cap the Kami level that can earn XP there.
 
 See the [Harvest Nodes table](../references/game-data.md#harvest-nodes) for per-node affinity, yield index, and scav cost values.
 

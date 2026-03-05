@@ -555,7 +555,10 @@ async function main() {
   console.log("Operator balance:", ethers.formatEther(operatorBal), "ETH");
 
   if (ownerBal === 0n) throw new Error("Owner wallet has no ETH. Bridge funds first.");
-  if (operatorBal === 0n) throw new Error("Operator wallet has no ETH. Send gas funds first.");
+  if (operatorBal === 0n) {
+    console.warn("⚠️  Operator wallet has no ETH. It will need gas to send gameplay transactions.");
+    console.warn("   Send a small amount of ETH to:", operatorSigner.address);
+  }
 
   // ----------------------------------------------------------
   // 2. Register account (skip if already registered)

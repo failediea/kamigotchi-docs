@@ -15,9 +15,10 @@ Items are identified by a `uint32` index. The on-chain entity ID for an item is 
 | Index | Name | Type | Description |
 |-------|------|------|-------------|
 | 1 | MUSU | Misc | Kamigotchi kurrency — the primary in-game currency |
+| 2 | VIPP | Misc | VIP Points token — can be burned at Forest Hut (room 65) for VIP benefits |
 | 10 | Gacha Ticket | Misc | Redeemable for one Kami at the vending machine |
 | 11 | Reroll Ticket | Misc | Allows you to reroll a Kami once |
-| 100 | Onyx Shard | ERC20 | Premium game currency ($ONYX) — see [Chain Configuration](../chain-configuration.md#game-currency-onyx) for how to acquire |
+| 100 | Onyx Shard | ERC20 | In-game form of $ONYX (1 ONYX = 100 Onyx Shards). Deposited/withdrawn via `system.erc20.portal` — see [Chain Configuration](../chain-configuration.md#onyx-shards) |
 | 103 | ETH | ERC20 | In-game wrapped ETH balance. Deposited via `system.erc20.portal`. |
 
 ### Raw Materials
@@ -214,7 +215,7 @@ Rooms are identified by a `uint32` index. On-chain entity ID: `keccak256("room",
 | 89 | Trophies of the Hunt | — | Other World |
 | 90 | Scenic View | — | Other World |
 
-> **Total rooms:** 68. Room connectivity (exits) defines the world graph. Some exits are gated by quest completion or items.
+> **Total rooms:** 68. Room indices are **not sequential** — there are gaps (e.g., indices 7, 8, 14, 17, 20–24, 27–28 do not exist). Do not assume rooms form a contiguous range; always check for existence before querying. Room connectivity (exits) defines the world graph. Some exits are gated by quest completion or items.
 >
 > **Room coordinates** are stored on-chain in the Location component. To determine room adjacency for movement, query the coordinates and check: adjacent rooms differ by exactly 1 on a single axis (x or y), same z-level. Some rooms also have special exits listed in the table above.
 
@@ -257,7 +258,9 @@ Nodes are the harvestable locations within rooms. Each node shares an index with
 | 52 | Airplane Crash | Eerie | MUSU | — | 300 |
 | 53 | Blooming Tree | Eerie | MUSU | — | 300 |
 
-> **Total nodes:** 64. Shown above are the first 30; for the full list see `packages/contracts/deployment/world/data/rooms/nodes.csv`. Node affinity affects harvest efficacy — match your Kami's body/hand affinities to the node affinity for bonuses. Note: most nodes use YieldIndex=1, but nodes 18 (Cave Crossroads), 83 (Canyon Bridge), and 88 (Treasure Hoard) use YieldIndex=2.
+> **Total nodes:** 64. Shown above are the first 30; for the full list see `packages/contracts/deployment/world/data/rooms/nodes.csv`. Node affinity affects harvest efficacy — match your Kami's body/hand affinities to the node affinity for bonuses.
+>
+> **Yield Index:** Most nodes use YieldIndex=1 (yields MUSU, item index 1). The following nodes use YieldIndex=2, which yields **VIPP** (VIP Paper, item index 2 — a consumable that can be sacrificed for VIP status): 18 (Cave Crossroads), 60 (Scrap Trees), 61 (Musty Forest Path), 62 (Centipedes), 63 (Deeper Forest Path), 65 (Forest Hut), 73 (Broken Tube), 75 (Flood Mural), 79 (Abandoned Campsite), 83 (Canyon Bridge), 88 (Treasure Hoard).
 
 ---
 

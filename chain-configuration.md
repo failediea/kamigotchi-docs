@@ -122,8 +122,8 @@ Yominet has several distinct currency types. Understanding the differences is cr
 | **WETH** | ERC-20 | Contract `0xE1Ff...2546` | Marketplace offers (approval-based), depositing into game as in-game ETH (item 103) via portal |
 | **In-game ETH** | Inventory item | In-game (item 103) | In-game ETH-denominated actions |
 | **$MUSU** | Inventory item | In-game (item 1) | Merchant purchases, trade fees, NPC gifts, quest costs |
-| **$ONYX** | ERC-20 | Contract `0x4BaD...7CF4` | Revive, rename (disabled), respec (disabled) |
-| **Onyx Shards** | Inventory item | In-game | In-game currency obtainable through gameplay |
+| **$ONYX** | ERC-20 | Contract `0x4BaD...7CF4` on Yominet | Bridged into game as Onyx Shards via portal. Also used directly for revive, rename (disabled), respec (disabled) |
+| **Onyx Shards** | Inventory item | In-game (item 100) | In-game form of $ONYX. **1 ONYX = 100 Onyx Shards.** Deposited via `system.erc20.portal` |
 
 > **Key distinction:** Native ETH is what you bridge in and use for gas. WETH is the ERC-20 wrapper used for smart contract interactions that require token approvals. In-game ETH (item 103) is a separate inventory item created by depositing WETH through the portal.
 
@@ -170,7 +170,7 @@ $MUSU is the **primary in-game currency** (item index 1). It is **not** an ERC-2
 
 - Merchant purchases from in-game shops
 - Used to purchase gacha tickets (via Dutch auction)
-- Used in KWOB
+- Used in KWOB (Kamigotchi World Order Book) — the player-to-player trading system
 
 > **Note:** $MUSU cannot be transferred on-chain as a token. It can only be traded between players using the in-game [Trading](player-api/trading.md) system.
 
@@ -201,7 +201,7 @@ $ONYX is the in-game ERC-20 token used for premium operations.
 
 ## Onyx Shards
 
-**Onyx Shards** are an in-game currency item that exists within the game's inventory system. Unlike $ONYX (which is an ERC-20 token), Onyx Shards are obtained through gameplay activities and used for in-game purposes.
+**Onyx Shards** (item index 100) are the in-game form of $ONYX. When $ONYX (ERC-20) is deposited into the game via the [ERC20 Portal](player-api/portal.md), it converts to Onyx Shards at a rate of **1 ONYX = 100 Onyx Shards**. Conversely, withdrawing Onyx Shards via the portal converts them back to $ONYX at the same rate. Onyx Shards can also be obtained through gameplay activities (e.g., trading with other players).
 
 ---
 

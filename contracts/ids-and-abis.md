@@ -1,6 +1,6 @@
 # System IDs & ABI References
 
-Kamigotchi has **67 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
+Kamigotchi has **66 documented player-facing systems** in the World contract. Each system is identified by a human-readable string ID, hashed with `keccak256` for on-chain lookup. The World contains additional internal and admin systems not covered here.
 
 ---
 
@@ -130,9 +130,9 @@ Kamigotchi has **67 documented player-facing systems** in the World contract. Ea
 | `system.kami721.transfer` | Transfer Kami NFT | Owner | [Portal](../player-api/portal.md) |
 | `system.Kami721.IsInWorld` | Check if Kami is in-world (view) | N/A | [Portal](../player-api/portal.md) |
 | `system.Kami721.Metadata` | Get Kami token URI metadata (view) | N/A | [Portal](../player-api/portal.md) |
+| `system.erc20.portal` | ERC20 deposit/withdraw | Owner | [Portal](../player-api/portal.md) |
 
 > **Note:** `system.Kami721.IsInWorld` and `system.Kami721.Metadata` use **PascalCase** — this differs from all other system IDs which use lowercase dot notation. These IDs must be passed exactly as shown (case-sensitive) when hashing with `keccak256`.
-| `system.erc20.portal` | ERC20 deposit/withdraw | Owner | [Portal](../player-api/portal.md) |
 
 ### NPC / Relationship Systems
 
@@ -157,7 +157,6 @@ Kamigotchi has **67 documented player-facing systems** in the World contract. Ea
 | `system.kamimarket.offer` | Make a specific or collection offer (WETH) | Operator | [Marketplace](../player-api/marketplace.md) |
 | `system.kamimarket.acceptoffer` | Accept an offer (specific or collection) | Operator | [Marketplace](../player-api/marketplace.md) |
 | `system.kamimarket.cancel` | Cancel a listing or offer | Operator | [Marketplace](../player-api/marketplace.md) |
-| `system.kamimarket.buy` | Buy a Kami from KamiSwap marketplace | Owner | [Marketplace](../player-api/marketplace.md) |
 
 ### Auction Systems
 

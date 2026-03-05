@@ -34,18 +34,20 @@ There is also an **admin-only** registry system (`system.kamimarket.registry`) f
 | **WETH** | `0xE1Ff7038eAAAF027031688E1535a055B2Bac2546` | ERC-20 wrapped ETH (bridged via LayerZero) — the underlying asset is also used as native gas, but WETH is the ERC-20 form |
 | **KamiMarketVault** | *(resolve from World config — see below)* | Holds WETH approvals for offer settlement |
 
-> **Finding the KamiMarketVault address:** The vault address is stored in the World's `ConfigComponent`. Read it using the component read pattern:
+> **Finding the KamiMarketVault address:** The vault address is stored in the `ValueComponent` (`component.value`), keyed by `keccak256("is.config", "KAMI_MARKET_VAULT")`. Read it using the component read pattern:
 >
 > ```javascript
-> // Resolve KamiMarketVault address from ConfigComponent
-> const configAddr = await getComponentAddress("component.Config");
-> const config = new ethers.Contract(
->   configAddr,
+> // Resolve KamiMarketVault address from ValueComponent
+> const valueAddr = await getComponentAddress("component.value");
+> const valueComp = new ethers.Contract(
+>   valueAddr,
 >   ["function getValue(uint256) view returns (uint256)"],
 >   provider
 > );
-> const vaultKey = ethers.keccak256(ethers.toUtf8Bytes("KAMI_MARKET_VAULT"));
-> const vaultRaw = await config.getValue(vaultKey);
+> const configEntityId = ethers.keccak256(
+>   ethers.solidityPacked(["string", "string"], ["is.config", "KAMI_MARKET_VAULT"])
+> );
+> const vaultRaw = await valueComp.getValue(configEntityId);
 > const vaultAddress = ethers.getAddress(ethers.toBeHex(vaultRaw, 20));
 > ```
 >
@@ -363,7 +365,6 @@ The offer system uses **custom function names** instead of the standard `execute
 |--------|-------------|-----------|
 | `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32 kamiIndex, uint256 price, uint256 expiry)` / `executeTypedCollection(uint256 price, uint32 quantity, uint256 expiry)` |
 | `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256 offerID, uint32 kamiIndex)` / `executeTyped(uint256 offerID, uint32[] kamiIndices)` |
-| `system.newbievendor.buy` | `calcPrice` (view) | `calcPrice() view returns (uint256)` |
 
 All other marketplace systems use the standard `executeTyped(...)` pattern.
 

@@ -133,10 +133,7 @@ const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"), provid
 
 const world = new ethers.Contract(
   WORLD_ADDRESS,
-  [
-    "function systems() view returns (address)",
-    "function systems(uint256) view returns (address)",
-  ],
+  ["function systems() view returns (address)"],
   provider
 );
 const SYSTEMS_COMPONENT_ABI = [
@@ -145,13 +142,7 @@ const SYSTEMS_COMPONENT_ABI = [
 
 async function getSystemAddress(systemId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-
-  try {
-    const legacyAddr = await world["systems(uint256)"](hash);
-    if (legacyAddr !== ethers.ZeroAddress) return legacyAddr;
-  } catch (_) {}
-
-  const systemsComponentAddr = await world["systems()"]();
+  const systemsComponentAddr = await world.systems();
   const systemsComponent = new ethers.Contract(
     systemsComponentAddr,
     SYSTEMS_COMPONENT_ABI,
@@ -188,11 +179,9 @@ Fix by running `npm pkg set type=module`.
 Use `chainId: 428962654539583` as a number, not `428962654539583n`.
 3. `invalid private key`:
 Your env var is missing/invalid. Re-export `OWNER_PRIVATE_KEY` and `OPERATOR_PRIVATE_KEY`.
-4. `NewbieVendor: kami not on display`:
-Refresh current vendor display indices and retry with a displayed `kamiIndex`.
-5. Gacha reveal commit mismatch:
+4. Gacha reveal commit mismatch:
 Resolve commit IDs from confirmed tx events/indexer output (do not trust preflight `staticCall` alone).
-6. Marketplace listing ID mismatch:
+5. Marketplace listing ID mismatch:
 Use `LISTING_ID` from confirmed tx events/indexer output; listing IDs are non-deterministic.
 
 ---
