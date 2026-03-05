@@ -8,12 +8,20 @@ Kamiden is Kamigotchi's off-chain **gRPC indexer** service. It indexes on-chain 
 
 ## Connection
 
-Kamiden uses **Protobuf over gRPC-Web**. The official client connects via the `VITE_KAMIGAZE_URL` environment variable. There is no publicly documented default URL — you must obtain the endpoint from the Asphodel team or run your own indexer.
+Kamiden uses **Protobuf over gRPC-Web**. The official client connects via the `VITE_KAMIGAZE_URL` environment variable.
+
+### Production Endpoints
+
+| Service | URL |
+|---------|-----|
+| **Kamiden gRPC** | `https://api.prod.kamigotchi.io` |
+| **Kamigaze gRPC** | `https://api.prod.kamigotchi.io` |
+| **Asset CDN** | `https://cdn.prod.kamigotchi.io` |
 
 ```javascript
 import { createChannel, createClient } from "nice-grpc-web";
 
-const KAMIDEN_URL = process.env.KAMIDEN_URL; // Obtain from Asphodel team
+const KAMIDEN_URL = "https://api.prod.kamigotchi.io";
 const channel = createChannel(KAMIDEN_URL);
 // Use the KamidenServiceDefinition from the generated proto types
 ```
