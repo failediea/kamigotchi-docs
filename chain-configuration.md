@@ -205,6 +205,75 @@ $ONYX is the in-game ERC-20 token used for premium operations.
 
 ---
 
+## WebSocket Event Subscription
+
+Yominet exposes a WebSocket RPC endpoint for real-time event streaming. This is useful for bots that need to react to on-chain events (e.g., harvest completions, marketplace listings, droptable reveals).
+
+### Connecting with ethers.js v6
+
+```javascript
+import { ethers } from "ethers";
+
+const WS_URL = "wss://jsonrpc-ws-yominet-1.anvil.asia-southeast.initia.xyz";
+const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
+
+const wsProvider = new ethers.WebSocketProvider(WS_URL, {
+  chainId: 428962654539583,
+  name: "Yominet",
+});
+
+// Subscribe to Store_SetRecord events (MUD's universal state-change event)
+// This fires whenever any component value is created or updated on-chain.
+const STORE_SET_RECORD_TOPIC = ethers.id(
+  "Store_SetRecord(bytes32,bytes32[],bytes,bytes32)"
+);
+
+wsProvider.on(
+  {
+    address: WORLD_ADDRESS,
+    topics: [STORE_SET_RECORD_TOPIC],
+  },
+  (log) => {
+    console.log("Store_SetRecord event:");
+    console.log("  Block:", log.blockNumber);
+    console.log("  Tx:", log.transactionHash);
+    console.log("  Data:", log.data.slice(0, 66) + "...");
+    // Decode further using ethers.AbiCoder — see Entity Discovery for patterns
+  }
+);
+
+console.log("Listening for Store_SetRecord events...");
+
+// Handle disconnects
+wsProvider.websocket.on("close", () => {
+  console.log("WebSocket disconnected — reconnecting...");
+  // Implement your reconnection logic here
+});
+```
+
+### Filtering by Table ID
+
+To listen for specific component changes (e.g., only inventory updates), filter on `topics[1]` which contains the `tableId` (the keccak256 hash of the component name):
+
+```javascript
+// Listen only for ValueComponent changes (inventory balance updates)
+const VALUE_TABLE_ID = ethers.keccak256(ethers.toUtf8Bytes("component.value"));
+
+wsProvider.on(
+  {
+    address: WORLD_ADDRESS,
+    topics: [STORE_SET_RECORD_TOPIC, VALUE_TABLE_ID],
+  },
+  (log) => {
+    console.log("Inventory/value change detected:", log.transactionHash);
+  }
+);
+```
+
+> **Tip:** WebSocket connections may drop under load. Always implement reconnection logic. For high-reliability setups, consider polling via HTTP RPC as a fallback. See [Entity Discovery](player-api/entity-discovery.md) for details on decoding entity IDs from event logs.
+
+---
+
 ## Infrastructure
 
 | Layer | Technology |

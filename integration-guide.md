@@ -861,6 +861,8 @@ async function sendWithRetry(system, method, args, overrides = {}) {
 
 ## Next Steps
 
+> 📖 **Read next: [Entity Discovery](player-api/entity-discovery.md)** — Understanding how to derive entity IDs is essential for reading game state, building queries, and calling most systems. Read this before diving into individual API pages.
+
 1. **Explore the API** — Browse the [Player API pages](player-api/overview.md) for full function documentation
 2. **Check contracts** — See [Live Addresses](contracts/live-addresses.md) and [System IDs](contracts/ids-and-abis.md)
 3. **Understand the chain** — Review [Chain Configuration](chain-configuration.md) for network details

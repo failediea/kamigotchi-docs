@@ -13,6 +13,7 @@ This documentation covers the smart contract architecture, chain configuration, 
 - [Chain Configuration](chain-configuration.md) — Yominet network details, RPC, gas, wallets, and bridging
 - [Integration Guide](integration-guide.md) — Step-by-step setup for third-party developers
 - [Agent Bootstrap](agent-bootstrap.md) — Copy-paste setup path for a first-time agent/bot script
+- [Entity Discovery](player-api/entity-discovery.md) — How to find and derive entity IDs for gameplay
 
 ### Contracts
 
@@ -22,7 +23,6 @@ This documentation covers the smart contract architecture, chain configuration, 
 ### Player API
 
 - [Overview & Setup](player-api/overview.md) — SDK setup, wallet model, and calling conventions
-- [Entity Discovery](player-api/entity-discovery.md) — How to find and derive entity IDs for gameplay
 - [Echo](player-api/echo.md) — Force-emit Kami and Room data
 - [Kami](player-api/kami.md) — Level, name, sacrifice, items, equipment, skills
 - [Account](player-api/account.md) — Register, move, settings, chat

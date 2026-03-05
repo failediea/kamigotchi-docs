@@ -547,6 +547,7 @@ loop:
   if kami.state == "RESTING"    → start harvest (system.harvest.start, kamiId, nodeIndex, 0, 0)
   wait N minutes
   collect rewards               → system.harvest.collect(harvestId)
+  reveal droptable items        → system.droptable.item.reveal(pendingDropIds)
   repeat
 ```
 
