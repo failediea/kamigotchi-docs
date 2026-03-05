@@ -394,10 +394,7 @@ function mustEnv(name) {
 // Helper to resolve system contracts
 const world = new ethers.Contract(
   WORLD_ADDRESS,
-  [
-    "function systems() view returns (address)",
-    "function systems(uint256) view returns (address)", // legacy worlds
-  ],
+  ["function systems() view returns (address)"],
   provider
 );
 const SYSTEMS_COMPONENT_ABI = [
@@ -405,22 +402,18 @@ const SYSTEMS_COMPONENT_ABI = [
 ];
 async function sys(id, abi, signer) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(id));
-  let addr = ethers.ZeroAddress;
-  try {
-    addr = await world["systems(uint256)"](hash);
-  } catch (_) {}
 
-  if (addr === ethers.ZeroAddress) {
-    const systemsComponentAddr = await world["systems()"]();
-    const systemsComponent = new ethers.Contract(
-      systemsComponentAddr,
-      SYSTEMS_COMPONENT_ABI,
-      provider
-    );
-    const entities = await systemsComponent.getEntitiesWithValue(hash);
-    if (entities.length === 0) throw new Error(`System not found: ${id}`);
-    addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
-  }
+  // World.systems() returns the SystemsComponent (IUint256Component),
+  // which maps systemAddress -> systemId. We reverse-lookup by value.
+  const systemsComponentAddr = await world.systems();
+  const systemsComponent = new ethers.Contract(
+    systemsComponentAddr,
+    SYSTEMS_COMPONENT_ABI,
+    provider
+  );
+  const entities = await systemsComponent.getEntitiesWithValue(hash);
+  if (entities.length === 0) throw new Error(`System not found: ${id}`);
+  const addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
 
   return new ethers.Contract(addr, abi, signer);
 }

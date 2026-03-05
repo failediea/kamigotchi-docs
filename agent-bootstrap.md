@@ -142,6 +142,9 @@ const SYSTEMS_COMPONENT_ABI = [
 
 async function getSystemAddress(systemId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
+
+  // World.systems() returns the SystemsComponent (IUint256Component),
+  // which maps systemAddress -> systemId. We reverse-lookup by value.
   const systemsComponentAddr = await world.systems();
   const systemsComponent = new ethers.Contract(
     systemsComponentAddr,

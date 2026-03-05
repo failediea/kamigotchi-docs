@@ -119,6 +119,7 @@ These can appear across multiple systems:
 |----------------|-------|
 | `"Account: no account detected"` | No account registered for the owner wallet (`LibAccount.getByOwner`) |
 | `"Account: Operator not found"` | No account registered for the operator wallet (`LibAccount.getByOperator`) |
+| `"LibAccount: account operator not found"` | No account registered for the operator of `msg.sender` (`LibAccount.verifyOperator`) |
 | `"kami not urs"` | Kami is not owned by the caller's account (`LibKami.verifyAccount`) |
 | `"kami not RESTING"` | Kami is not in `RESTING` state (e.g., already harvesting or dead) (`LibKami.verifyState`) |
 | `"kami on cooldown"` | Kami's action cooldown has not expired (`LibKami.verifyCooldown`) |

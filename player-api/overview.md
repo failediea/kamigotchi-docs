@@ -54,7 +54,6 @@ const ownerSigner = new ethers.Wallet(mustEnv("OWNER_PRIVATE_KEY"), provider);
 // --- World Contract ---
 const WORLD_ABI = [
   "function systems() view returns (address)",
-  "function systems(uint256) view returns (address)", // legacy worlds
 ];
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
@@ -65,15 +64,9 @@ const world = new ethers.Contract(WORLD_ADDRESS, WORLD_ABI, provider);
 async function getSystemAddress(systemId) {
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
 
-  // Legacy deployment path (systems(uint256) -> address)
-  try {
-    const legacyAddr = await world["systems(uint256)"](hash);
-    if (legacyAddr !== ethers.ZeroAddress) return legacyAddr;
-  } catch (_) {}
-
-  // Current Yominet path:
-  // World.systems() -> SystemsComponent (systemAddress -> systemId)
-  const systemsComponentAddr = await world["systems()"]();
+  // World.systems() returns the SystemsComponent (IUint256Component),
+  // which maps systemAddress -> systemId. We reverse-lookup by value.
+  const systemsComponentAddr = await world.systems();
   const systemsComponent = new ethers.Contract(
     systemsComponentAddr,
     SYSTEMS_COMPONENT_ABI,
@@ -338,7 +331,6 @@ export const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"),
 
 const WORLD_ABI = [
   "function systems() view returns (address)",
-  "function systems(uint256) view returns (address)", // legacy worlds
 ];
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
@@ -350,25 +342,18 @@ const systemCache = new Map();
 export async function getSystemAddress(systemId) {
   if (!systemCache.has(systemId)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
-    let addr = ethers.ZeroAddress;
 
-    // Legacy deployment path
-    try {
-      addr = await world["systems(uint256)"](hash);
-    } catch (_) {}
-
-    // Current Yominet path
-    if (addr === ethers.ZeroAddress) {
-      const systemsComponentAddr = await world["systems()"]();
-      const systemsComponent = new ethers.Contract(
-        systemsComponentAddr,
-        SYSTEMS_COMPONENT_ABI,
-        provider
-      );
-      const entities = await systemsComponent.getEntitiesWithValue(hash);
-      if (entities.length === 0) throw new Error(`System not found: ${systemId}`);
-      addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
-    }
+    // World.systems() returns the SystemsComponent (IUint256Component),
+    // which maps systemAddress -> systemId. We reverse-lookup by value.
+    const systemsComponentAddr = await world.systems();
+    const systemsComponent = new ethers.Contract(
+      systemsComponentAddr,
+      SYSTEMS_COMPONENT_ABI,
+      provider
+    );
+    const entities = await systemsComponent.getEntitiesWithValue(hash);
+    if (entities.length === 0) throw new Error(`System not found: ${systemId}`);
+    const addr = ethers.getAddress(ethers.toBeHex(entities[0], 20));
 
     systemCache.set(systemId, addr);
   }

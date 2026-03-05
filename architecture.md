@@ -32,6 +32,7 @@ The **World** contract is the root of the entire game. It:
 - Exposes the `systems()` registry component, which maps `systemAddress -> systemId`
 - Resolves system addresses by querying `SystemsComponent.getEntitiesWithValue(keccak256(systemId))` and casting the entity ID to `address`
 - Manages access control and ownership
+- Emits `ComponentValueSet(uint256 indexed componentId, address indexed component, uint256 indexed entity, bytes data)` and `ComponentValueRemoved(uint256 indexed componentId, address indexed component, uint256 indexed entity)` on every component write/removal — these are the primary events for off-chain indexers to reconstruct game state
 - Address: [`0x2729174c265dbBd8416C6449E0E813E88f43D0E7`](https://scan.initia.xyz/yominet-1/address/0x2729174c265dbBd8416C6449E0E813E88f43D0E7)
 
 ### Systems
@@ -47,7 +48,11 @@ Kamigotchi has **66 documented player-facing systems** — see [System IDs & ABI
 
 ### Components
 
-Components are on-chain key-value stores, keyed by **entity ID** (`uint256`). They hold all game state:
+Components are on-chain key-value stores, keyed by **entity ID** (`uint256`). They hold all game state.
+
+**BareComponent vs Component:** `BareComponent` is a basic key-value store (`entityToValue` mapping) with no reverse index — `getEntitiesWithValue()` reverts. `Component` extends it by adding a `valToEntities` reverse mapping (using `EnumerableSet`), enabling lookups like `getEntitiesWithValue(bytes)`. Most game components use the full `Component`; stat components use `BareComponent` since reverse lookups on numeric stats are not needed.
+
+**Access Control (OwnableWritable):** All components inherit `OwnableWritable`, which restricts writes to authorized addresses via the `onlyWriter` modifier. The component owner calls `authorizeWriter(address)` to grant write access to registered systems. The owner and any authorized writer can write; everyone else has read-only access.
 
 | Component | Description |
 |-----------|-------------|
@@ -229,8 +234,22 @@ Each stat has:
 |-----------|-------------|
 | `base` | Innate stat from Kami species/rarity |
 | `shift` | Permanent modifications (leveling, items) |
-| `boost` | Temporary buffs/debuffs |
+| `boost` | Temporary buffs/debuffs (percentage multiplier, 3 decimals of precision — baseline 1000 = 100.0%) |
 | `sync` | Synchronization bonus |
+
+**Effective stat formula:** `total = (1000 + boost) * (base + shift) / 1000`. The `boost` field is an `int32` stored with 1e3 precision, so a boost value of `250` means a +25.0% multiplier.
+
+### Kami Lifecycle States
+
+Each Kami has a state tracked by `StateComponent`, defined by the `KamiState` enum:
+
+| State | Value | Description |
+|-------|-------|-------------|
+| `NULL` | 0 | Default / uninitialized |
+| `RESTING` | 1 | Idle — available for actions |
+| `HARVESTING` | 2 | Currently harvesting resources |
+| `DEAD` | 3 | Dead — must be revived before use |
+| `EXTERNAL_721` | 4 | Unstaked to external ERC-721 — not in-game |
 
 ---
 

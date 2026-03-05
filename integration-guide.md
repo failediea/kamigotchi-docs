@@ -117,7 +117,6 @@ console.log("Operator:", operatorSigner.address);
 const WORLD_ADDRESS = "0x2729174c265dbBd8416C6449E0E813E88f43D0E7";
 const WORLD_ABI = [
   "function systems() view returns (address)",
-  "function systems(uint256) view returns (address)", // legacy worlds
 ];
 const SYSTEMS_COMPONENT_ABI = [
   "function getEntitiesWithValue(uint256) view returns (uint256[])",
@@ -131,18 +130,9 @@ async function getSystemAddress(systemId) {
   if (!systemCache.has(systemId)) {
     const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
 
-    // Legacy deployment path (systems(uint256) -> address)
-    try {
-      const legacyAddr = await world["systems(uint256)"](hash);
-      if (legacyAddr !== ethers.ZeroAddress) {
-        systemCache.set(systemId, legacyAddr);
-        return legacyAddr;
-      }
-    } catch (_) {}
-
-    // Current Yominet path:
-    // World.systems() -> SystemsComponent, keyed by systemAddress -> systemId
-    const systemsComponentAddr = await world["systems()"]();
+    // World.systems() returns the SystemsComponent (IUint256Component),
+    // which maps systemAddress -> systemId. We reverse-lookup by value.
+    const systemsComponentAddr = await world.systems();
     const systemsComponent = new ethers.Contract(
       systemsComponentAddr,
       SYSTEMS_COMPONENT_ABI,
@@ -468,10 +458,7 @@ const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"), provid
 
 const world = new ethers.Contract(
   WORLD_ADDRESS,
-  [
-    "function systems() view returns (address)",
-    "function systems(uint256) view returns (address)",
-  ],
+  ["function systems() view returns (address)"],
   provider
 );
 
@@ -486,17 +473,9 @@ async function getSystemAddress(systemId) {
 
   const hash = ethers.keccak256(ethers.toUtf8Bytes(systemId));
 
-  // Try legacy path first (systems(uint256) -> address)
-  try {
-    const legacyAddr = await world["systems(uint256)"](hash);
-    if (legacyAddr !== ethers.ZeroAddress) {
-      systemCache.set(systemId, legacyAddr);
-      return legacyAddr;
-    }
-  } catch (_) {}
-
-  // Current Yominet path: World.systems() -> SystemsComponent
-  const scAddr = await world["systems()"]();
+  // World.systems() returns the SystemsComponent (IUint256Component),
+  // which maps systemAddress -> systemId. We reverse-lookup by value.
+  const scAddr = await world.systems();
   const sc = new ethers.Contract(scAddr, SYSTEMS_COMPONENT_ABI, provider);
   const entities = await sc.getEntitiesWithValue(hash);
   if (entities.length === 0) {

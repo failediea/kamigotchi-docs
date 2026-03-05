@@ -251,16 +251,16 @@ Most systems use `executeTyped(...)` as their typed entry point. However, some s
 | `system.kami721.transfer` | `batchTransfer` / `batchTransferToMany` | `batchTransfer(uint256[], address)` / `batchTransferToMany(uint256[], address[])` |
 | `system.getter` | `getKami` / `getAccount` / `getKamiByIndex` | View functions — see [Getter System](#getter-system) below |
 | `system.kami.sacrifice.commit` | `executeTyped` | `executeTyped(uint32 kamiIndex) returns (uint256)` — Takes uint32 kamiIndex (ERC721 token index), not uint256 entity ID |
-| `system.kami.sacrifice.reveal` | `executeTypedBatch` | `executeTypedBatch(uint256[] commitIDs)` |
-| `system.harvest.stop` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
-| `system.harvest.collect` | `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
-| `system.kami721.stake` | `executeBatch` | `executeBatch(uint32[] tokenIndices)` |
-| `system.kami721.unstake` | `executeBatch` | `executeBatch(uint32[] tokenIndices)` |
+| `system.kami.sacrifice.reveal` | `executeTyped` / `executeTypedBatch` | `executeTyped(uint256 commitID)` / `executeTypedBatch(uint256[] commitIDs)` |
+| `system.harvest.stop` | `executeTyped` / `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeTyped(uint256 id) returns (bytes)` / `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
+| `system.harvest.collect` | `executeTyped` / `executeBatched` / `executeBatchedAllowFailure` / `executeAllowFailure` | `executeTyped(uint256 id) returns (bytes)` / `executeBatched(uint256[] ids) returns (bytes[])` / `executeBatchedAllowFailure(uint256[] ids) returns (bytes[])` / `executeAllowFailure(bytes) returns (bytes)` |
+| `system.kami721.stake` | `executeTyped` / `executeBatch` | `executeTyped(uint32 tokenIndex) returns (bytes)` / `executeBatch(uint32[] tokenIndices)` |
+| `system.kami721.unstake` | `executeTyped` / `executeBatch` | `executeTyped(uint32 tokenIndex) returns (bytes)` / `executeBatch(uint32[] tokenIndices)` |
 | `system.kamimarket.offer` | `executeTypedOffer` / `executeTypedCollection` | `executeTypedOffer(uint32, uint256, uint256)` / `executeTypedCollection(uint256, uint32, uint256)` |
 | `system.kamimarket.acceptoffer` | `executeTyped` (overloaded) | `executeTyped(uint256, uint32)` / `executeTyped(uint256, uint32[])` |
 | `system.Kami721.IsInWorld` | `isInWorld` | `isInWorld(uint256 petIndex) view returns (bool)` |
 | `system.Kami721.Metadata` | `tokenURI` | `tokenURI(uint256 petIndex) view returns (string)` |
-| `system.harvest.start` | `executeBatched` | `executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes[])` |
+| `system.harvest.start` | `executeTyped` / `executeBatched` | `executeTyped(uint256 kamiID, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes)` / `executeBatched(uint256[] kamiIDs, uint32 nodeIndex, uint256 taxerID, uint256 taxAmt) returns (bytes[])` |
 | `system.kamimarket.buy` | `executeTyped` (payable, array) | `executeTyped(uint256[] listingIDs) payable returns (bytes)` |
 | `system.kami.send` | `executeTyped` (overloaded) | `executeTyped(uint32, address)` / `executeTyped(uint32[], address)` |
 
