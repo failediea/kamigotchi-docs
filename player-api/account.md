@@ -66,7 +66,12 @@ console.log("Account registered!");
 - The operator wallet can be changed later with `set.operator()`.
 - In the official client, Privy creates and manages the operator wallet automatically.
 - **Starting room:** New accounts are placed in **Room 1** (Misty Riverside). The contract sets `IndexRoomComponent` to `1` in `LibAccount.create()`.
-- Initial stamina and move cost are on-chain config values (`ACCOUNT_STAMINA`). Full config indices: 0 = base stamina, 1 = recovery period (seconds per 1 stamina point recovered), 2 = move cost, 3 = XP per move. Query the config component for exact values.
+- **Stamina config** (`ACCOUNT_STAMINA` on-chain config array):
+  - Index 0 = **Base stamina**: `100` (max stamina for a new account)
+  - Index 1 = **Recovery period**: `60` seconds per 1 stamina point recovered
+  - Index 2 = Move cost (per room move)
+  - Index 3 = XP per move
+- **Stamina formula**: `currentStamina = min(total, sync + floor((now - lastActionTime) / recoveryPeriod))`
 
 ---
 

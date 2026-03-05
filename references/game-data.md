@@ -634,7 +634,7 @@ Recipes are identified by a `uint32` index. Crafting consumes ingredients from i
 
 ## Affinities (Types)
 
-Affinities affect harvest efficacy and liquidation matchups.
+Affinities affect harvest efficacy and liquidation (attack) matchups. There are four affinities:
 
 | Affinity | Description |
 |----------|-------------|
@@ -643,7 +643,157 @@ Affinities affect harvest efficacy and liquidation matchups.
 | **Insect** | Corruption, defilement, decay |
 | **Scrap** | Human-made remnants, material attachments |
 
-Kami have body and hand affinities. Nodes can have one or two affinities (e.g., "Eerie, Scrap"). Matching affinities grants harvest bonuses.
+### Kami Trait → Affinity Mapping
+
+Each Kami's **body** and **hand** traits carry an affinity. The **face** trait also has an affinity but it is **not used** for harvest efficacy calculations — only body and hand matter for harvesting. Face affinity is used in liquidation (attack) matchups.
+
+> **Source:** Affinities are set per-trait in the trait registry CSV files and stored on-chain in the `AffinityComponent`. The affinity is looked up from the trait's registry entry via `LibKami.getBodyAffinity()` and `LibKami.getHandAffinity()`.
+
+#### Face Traits
+
+| Index | Name | Affinity | Rarity |
+|-------|------|----------|--------|
+| 0 | .\_.  | Normal | Common |
+| 1 | .w. | Normal | Common |
+| 2 | n\_n | Normal | Common |
+| 3 | >\_> | Scrap | Common |
+| 4 | ^-^ | Normal | Common |
+| 5 | v\_v | Scrap | Common |
+| 6 | o\_O | Normal | Common |
+| 7 | O\_o | Normal | Common |
+| 8 | -\_- | Normal | Common |
+| 9 | x\_x | Insect | Common |
+| 10 | o\_o | Normal | Common |
+| 11 | O\_0 | Eerie | Common |
+| 12 | Teddy | Normal | Rare |
+| 13 | Disapproval | Insect | Uncommon |
+| 14 | HeartS | Normal | Rare |
+| 15 | Impacted | Normal | Rare |
+| 16 | Sideeye | Eerie | Uncommon |
+| 17 | Lenny 2 | Normal | Rare |
+| 18 | :3 | Insect | Uncommon |
+| 19 | Unamused | Normal | Uncommon |
+| 20 | Ou0 | Eerie | Rare |
+| 21 | Concerned | Normal | Uncommon |
+| 22 | Lenny 1 | Normal | Legendary |
+| 23 | Serious Teddy | Normal | Rare |
+| 24 | Drip | Eerie | Epic |
+| 25 | Insectoid | Insect | Epic |
+| 26 | Insectoid (Partisan) | Insect | Epic |
+| 27 | N+B | Scrap | Epic |
+| 28 | Sensor | Scrap | Epic |
+| 29 | Sated | Eerie | Epic |
+| 30 | Hungry | Eerie | Epic |
+| 31 | Wassie | *(none)* | Rare |
+| 32 | Jiangshi Hat | *(none)* | Epic |
+| 33 | Sunglasses | *(none)* | Legendary |
+| 34 | Nerd | *(none)* | Epic |
+| 35 | Third Eye | *(none)* | Epic |
+
+#### Hand Traits
+
+| Index | Name | Affinity | Rarity |
+|-------|------|----------|--------|
+| 0 | Candles | Eerie | Epic |
+| 1 | Spectral | Eerie | Common |
+| 2 | Spinning Coins | Normal | Rare |
+| 3 | Coins | Normal | Uncommon |
+| 4 | Orbs | Normal | Common |
+| 5 | Eyeballs | Eerie | Rare |
+| 6 | Fan Blades | Scrap | Epic |
+| 7 | Beetle | Insect | Common |
+| 8 | Mantis | Insect | Epic |
+| 9 | Paws | Normal | Common |
+| 10 | Plugs | Scrap | Common |
+| 11 | Scorpion | Insect | Common |
+| 12 | Tentacles | Eerie | Uncommon |
+| 13 | Toasters | Scrap | Uncommon |
+| 14 | UFO Catcher | Scrap | Rare |
+| 15 | Wrenches | Scrap | Common |
+| 16 | Mole Cricket | Insect | Uncommon |
+| 17 | Plant | Normal | Uncommon |
+| 18 | Guns | Normal | Rare |
+| 19 | Torus | Normal | Epic |
+| 20 | Crab | Insect | Rare |
+| 21 | Melted | Eerie | Common |
+| 22 | Wassie Flipper | Normal | Rare |
+| 23 | Mudra | Eerie | Legendary |
+| 24 | Van de Graaf | Scrap | Legendary |
+| 25 | Fairy | Insect | Legendary |
+| 26 | Wings | Normal | Legendary |
+
+#### Body Traits
+
+| Index | Name | Affinity | Rarity |
+|-------|------|----------|--------|
+| 0 | Battery | Scrap | Common |
+| 1 | Bee | Insect | Common |
+| 2 | Butterfly | Insect | Epic |
+| 3 | Caterpillar | Insect | Common |
+| 4 | Cube | Normal | Rare |
+| 5 | Ghost | Normal | Common |
+| 6 | Drip | Eerie | Common |
+| 7 | Lightbulb | Scrap | Common |
+| 8 | Working CRT Monitor | Scrap | Epic |
+| 9 | Broken CRT Monitor | Scrap | Rare |
+| 10 | Octahedron | Normal | Epic |
+| 11 | Octopus | Eerie | Common |
+| 12 | Orb | Normal | Common |
+| 13 | Pumpkin | Eerie | Epic |
+| 14 | Tube | Normal | Uncommon |
+| 15 | Jellyfish | Eerie | Uncommon |
+| 16 | Eyes | Eerie | Rare |
+| 17 | Amphora | Scrap | Rare |
+| 18 | Shrimp | Insect | Uncommon |
+| 19 | Spider | Insect | Rare |
+| 20 | Plant | Normal | Uncommon |
+| 21 | Magatama | Normal | Rare |
+| 22 | Snake | Insect | Legendary |
+| 23 | Tank | Scrap | Legendary |
+| 24 | Hagoromo | Eerie | Legendary |
+| 25 | Lotus | Eerie | Rare |
+| 26 | Ant | Insect | Rare |
+| 27 | Soda Cup | Scrap | Uncommon |
+| 28 | Suit | Normal | Legendary |
+| 29 | No Kami | Normal | Epic |
+
+### Harvest Affinity Effectiveness
+
+When a Kami harvests at a node, the **body** and **hand** trait affinities are compared against the node's affinity to determine an efficacy modifier. This is calculated in `LibAffinity.getHarvestEffectiveness()`:
+
+| Kami Trait Affinity | Node Affinity | Effectiveness | Effect |
+|--------------------|---------------|---------------|--------|
+| *(same as node)* | *(any typed)* | **Strong** | Bonus to harvest fertility |
+| *(different typed)* | *(different typed)* | **Weak** | Penalty to harvest fertility |
+| Normal | *(any)* | **Neutral** | Half of Strong bonus (special case) |
+| *(any)* | Normal | **Neutral** | No modifier |
+| *(empty)* | *(any)* | **Neutral** | No modifier |
+
+**Key rules:**
+- If either the trait affinity or node affinity is empty or `NORMAL`, the result is always **Neutral**
+- If both are typed (Eerie/Insect/Scrap) and **match**, the result is **Strong** (bonus)
+- If both are typed and **don't match**, the result is **Weak** (penalty)
+- `NORMAL` trait affinities receive **half** of the Strong bonus as a special case in `LibHarvest.calcEfficacy()`
+- Body affinity has more impact than hand affinity (separate config keys: `KAMI_HARV_EFFICACY_BODY` and `KAMI_HARV_EFFICACY_HAND`)
+
+**Dual-affinity nodes** (e.g., "Eerie-Scrap"): The system picks the most favorable assignment of body/hand to the two node affinities. It prioritizes matching the body trait first since body has higher impact.
+
+### Liquidation (Attack) Affinity Effectiveness
+
+Attack matchups use `LibAffinity.getAttackEffectiveness()` with a rock-paper-scissors triangle:
+
+| Attacker | Defender | Effectiveness |
+|----------|----------|---------------|
+| Eerie | Scrap | **Strong** |
+| Eerie | Insect | **Weak** |
+| Scrap | Insect | **Strong** |
+| Scrap | Eerie | **Weak** |
+| Insect | Eerie | **Strong** |
+| Insect | Scrap | **Weak** |
+| Normal | Normal | **Special** |
+| *(any other combo)* | — | **Neutral** |
+
+> The attack affinity triangle: **Eerie → Scrap → Insect → Eerie**. Normal vs Normal is a special case.
 
 ---
 

@@ -98,7 +98,9 @@ Sacrifice a Kami to receive loot.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `kamiIndex` | `uint32` | Index of the Kami in the account's Kami list |
+| `kamiIndex` | `uint32` | ERC721 token index of the Kami to sacrifice (e.g., `42`) |
+
+> **Note:** `kamiIndex` is the Kami's **ERC721 token index** (the same index used in `getKamiByIndex()`), not a positional index in any list. The contract accepts it as `uint32` here. See also [onyx.revive()](#onyxrevive) which accepts the same value as `uint256`.
 
 ### Description
 
@@ -536,14 +538,14 @@ Send in-world (staked) Kamis to another player without unstaking.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `kamiIndex` | `uint32` | Token index of the Kami to send |
+| `kamiIndex` | `uint32` | ERC721 token index of the Kami to send |
 | `toAddress` | `address` | **Operator wallet address** of the recipient |
 
 ### Parameters (batch)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `kamiIndices` | `uint32[]` | Array of Kami token indices to send |
+| `kamiIndices` | `uint32[]` | Array of ERC721 token indices of Kamis to send |
 | `toAddress` | `address` | **Operator wallet address** of the recipient |
 
 ### Description
