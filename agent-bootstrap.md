@@ -200,6 +200,10 @@ Your env var is missing/invalid. Re-export `OWNER_PRIVATE_KEY` and `OPERATOR_PRI
 Resolve commit IDs from confirmed tx events/indexer output (do not trust preflight `staticCall` alone).
 5. Marketplace listing ID mismatch:
 Use `LISTING_ID` from confirmed tx events/indexer output; listing IDs are non-deterministic.
+6. `missing revert data` during `register()` or `kamimarket.buy()`:
+This usually means a failed precondition. Before sending txs, check owner/operator registration status, validate account name length (1-15 bytes), and verify owner ETH covers gas (and listing price for buys).
+7. Account name length confusion:
+Name validation uses **bytes**, not characters. Keep names ASCII and <= 15 bytes.
 
 ---
 

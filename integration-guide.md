@@ -164,24 +164,71 @@ Registration is called from the **Owner wallet** and takes the **Operator addres
 const REGISTER_ABI = [
   "function executeTyped(address operatorAddress, string name) returns (bytes)",
 ];
+const GETTER_ABI = [
+  "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
+];
 
 const registerSystem = await getSystem(
   "system.account.register",
   REGISTER_ABI,
   ownerSigner // Must use Owner wallet — this becomes the account owner
 );
+const getter = await getSystem("system.getter", GETTER_ABI, provider);
 
-// operatorSigner.address is the Operator wallet you generated
-// "MyBotAccount" is the in-game display name
-const tx = await registerSystem.executeTyped(
-  operatorSigner.address,
-  "MyBotAccount"
-);
-const receipt = await tx.wait();
-console.log("Account registered! Tx:", receipt.hash);
+const accountName = process.env.KAMI_ACCOUNT_NAME ?? "MyBot01";
+const nameBytes = ethers.toUtf8Bytes(accountName).length;
+if (nameBytes < 1 || nameBytes > 15) {
+  throw new Error(
+    `Invalid KAMI_ACCOUNT_NAME "${accountName}" (${nameBytes} bytes). Use 1-15 bytes.`
+  );
+}
+
+const ownerAccountId = BigInt(ownerSigner.address);
+const operatorAccountId = BigInt(operatorSigner.address);
+
+async function hasAccount(accountId) {
+  try {
+    const account = await getter.getAccount(accountId);
+    return account.name !== "";
+  } catch {
+    return false;
+  }
+}
+
+if (await hasAccount(ownerAccountId)) {
+  console.log("Owner already has a registered account — skipping register().");
+} else {
+  if (await hasAccount(operatorAccountId)) {
+    throw new Error(
+      "Operator address is already in use by another account. Generate a new operator wallet."
+    );
+  }
+
+  const gasEstimate = await registerSystem.executeTyped.estimateGas(
+    operatorSigner.address,
+    accountName
+  );
+  const gasPrice = (await provider.getFeeData()).gasPrice ?? 2_500_000n;
+  const minGasCost = gasEstimate * gasPrice;
+  const ownerBalance = await provider.getBalance(ownerSigner.address);
+  if (ownerBalance < minGasCost) {
+    throw new Error(
+      `Owner needs at least ${ethers.formatEther(minGasCost)} ETH for register() gas, has ${ethers.formatEther(ownerBalance)} ETH`
+    );
+  }
+
+  const tx = await registerSystem.executeTyped(
+    operatorSigner.address,
+    accountName
+  );
+  const receipt = await tx.wait();
+  console.log("Account registered! Tx:", receipt.hash);
+}
 ```
 
 > **What happens:** `AccountRegisterSystem.executeTyped(operatorAddress, name)` creates a new account entity owned by `msg.sender` (your Owner wallet) and sets the provided address as the Operator. The Operator can then sign routine gameplay transactions on behalf of the account.
+>
+> **If you see `missing revert data`:** pre-check `owner`/`operator` registration state, name length (1-15 bytes), and owner gas balance before sending the tx.
 
 ### Changing the Operator Later
 
@@ -573,25 +620,66 @@ async function main() {
     ["function executeTyped(address operatorAddress, string name) returns (bytes)"],
     ownerSigner
   );
+  const getterForRegister = await getSystem(
+    "system.getter",
+    [
+      "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
+    ],
+    provider
+  );
 
-  try {
-    const regTx = await registerSystem.executeTyped(
-      operatorSigner.address,
-      "MyBotAccount"
+  const accountName = process.env.KAMI_ACCOUNT_NAME ?? "MyBot01";
+  const accountNameBytes = ethers.toUtf8Bytes(accountName).length;
+  if (accountNameBytes < 1 || accountNameBytes > 15) {
+    throw new Error(
+      `Invalid KAMI_ACCOUNT_NAME "${accountName}" (${accountNameBytes} bytes). Use 1-15 bytes.`
     );
-    await regTx.wait();
-    console.log("Account registered.");
-  } catch (err) {
-    // If the account is already registered the contract reverts.
-    // Detect this and continue gracefully.
-    const reason = err.reason || err.message || "";
-    if (
-      reason.includes("already") ||
-      reason.includes("registered") ||
-      reason.includes("exists")
-    ) {
-      console.log("Account already registered — skipping.");
-    } else {
+  }
+
+  async function hasAccount(address) {
+    try {
+      const account = await getterForRegister.getAccount(BigInt(address));
+      return account.name !== "";
+    } catch {
+      return false;
+    }
+  }
+
+  if (await hasAccount(ownerSigner.address)) {
+    console.log("Owner already registered — skipping.");
+  } else {
+    if (await hasAccount(operatorSigner.address)) {
+      throw new Error(
+        "Operator address already in use. Create a fresh operator wallet and retry."
+      );
+    }
+
+    const regGas = await registerSystem.executeTyped.estimateGas(
+      operatorSigner.address,
+      accountName
+    );
+    const gasPrice = (await provider.getFeeData()).gasPrice ?? 2_500_000n;
+    const minRegCost = regGas * gasPrice;
+    if (ownerBal < minRegCost) {
+      throw new Error(
+        `Owner has ${ethers.formatEther(ownerBal)} ETH, but register() needs at least ${ethers.formatEther(minRegCost)} ETH for gas`
+      );
+    }
+
+    try {
+      const regTx = await registerSystem.executeTyped(
+        operatorSigner.address,
+        accountName
+      );
+      await regTx.wait();
+      console.log("Account registered.");
+    } catch (err) {
+      const reason = err.reason || err.message || "";
+      if (reason.includes("missing revert data")) {
+        throw new Error(
+          "register() reverted without reason. Re-check owner/operator registration state, name byte length (1-15), and owner ETH."
+        );
+      }
       throw err;
     }
   }

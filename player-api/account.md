@@ -62,6 +62,14 @@ console.log("Account registered!");
   }
   ```
 - **Name format:** Names are validated by **byte length** (1-16 bytes), not character count. Multi-byte UTF-8 characters (e.g., emoji, CJK) consume more than 1 byte each. Stick to ASCII alphanumeric characters for predictable length. Names must be unique across all accounts.
+- Practical rule: the contract reverts if name bytes are `>= 16`, so use **1-15 bytes**.
+  ```javascript
+  const name = "MyBot01";
+  const nameBytes = ethers.toUtf8Bytes(name).length;
+  if (nameBytes < 1 || nameBytes > 15) {
+    throw new Error(`Invalid name byte length: ${nameBytes}`);
+  }
+  ```
 - **Operator address reuse:** Each operator address can only be assigned to one account. Using the same operator key for two accounts will revert with `"Account: exists for Operator"`.
 - The operator wallet can be changed later with `set.operator()`.
 - In the official client, Privy creates and manages the operator wallet automatically.
