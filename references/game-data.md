@@ -855,3 +855,102 @@ Factions are named on-chain entities (with metadata: name, description, media UR
 - [Harvesting](../player-api/harvesting.md) — Harvest mechanics and node interactions
 - [Skills & Relationships](../player-api/skills-and-relationships.md) — Skill upgrade system
 - [Quests](../player-api/quests.md) — Quest accept/complete mechanics
+
+---
+
+## Trait Affinities
+
+Each Kami has **body** and **hand** traits, each with an affinity (Normal, Eerie, Insect, or Scrap). Matching your Kami's trait affinities to a harvest node's affinity improves efficacy.
+
+### Body Traits
+
+| Index | Name | Affinity | Rarity |
+|-------|------|----------|--------|
+| 0 | Battery | Scrap | Common |
+| 1 | Bee | Insect | Common |
+| 2 | Butterfly | Insect | Epic |
+| 3 | Caterpillar | Insect | Common |
+| 4 | Cube | Normal | Rare |
+| 5 | Ghost | Normal | Common |
+| 6 | Drip | Eerie | Common |
+| 7 | Lightbulb | Scrap | Common |
+| 8 | Working CRT Monitor | Scrap | Epic |
+| 9 | Broken CRT Monitor | Scrap | Rare |
+| 10 | Octahedron | Normal | Epic |
+| 11 | Octopus | Eerie | Common |
+| 12 | Orb | Normal | Common |
+| 13 | Pumpkin | Eerie | Epic |
+| 14 | Tube | Normal | Uncommon |
+| 15 | Jellyfish | Eerie | Uncommon |
+| 16 | Eyes | Eerie | Rare |
+| 17 | Amphora | Scrap | Rare |
+| 18 | Shrimp | Insect | Uncommon |
+
+### Hand Traits
+
+| Index | Name | Affinity | Rarity |
+|-------|------|----------|--------|
+| 0 | Candles | Eerie | Epic |
+| 1 | Spectral | Eerie | Common |
+| 2 | Spinning Coins | Normal | Rare |
+| 3 | Coins | Normal | Uncommon |
+| 4 | Orbs | Normal | Common |
+| 5 | Eyeballs | Eerie | Rare |
+| 6 | Fan Blades | Scrap | Epic |
+| 7 | Beetle | Insect | Common |
+| 8 | Mantis | Insect | Epic |
+| 9 | Paws | Normal | Common |
+| 10 | Plugs | Scrap | Common |
+| 11 | Scorpion | Insect | Common |
+| 12 | Tentacles | Eerie | Uncommon |
+| 13 | Toasters | Scrap | Uncommon |
+| 14 | UFO Catcher | Scrap | Rare |
+| 15 | Wrenches | Scrap | Common |
+| 16 | Mole Cricket | Insect | Uncommon |
+| 17 | Plant | Normal | Uncommon |
+| 18 | Guns | Normal | Rare |
+
+### Efficacy
+
+Harvest efficacy depends on body and hand affinity matching the node affinity. The config keys `KAMI_HARV_EFFICACY_BODY` and `KAMI_HARV_EFFICACY_HAND` define multipliers: `base` (neutral), `up` (matching affinity), `down` (mismatched), `special`. Match both body and hand to the node affinity for maximum harvest rate.
+
+---
+
+## NPC Merchants
+
+NPCs are located in specific rooms. Use `merchantIndex` when calling `system.listing.buy` or `system.listing.sell`.
+
+| Index | Name | Room | Room Index |
+|-------|------|------|------------|
+| 1 | Mina | Convenience Store | 13 |
+| 2 | Vending Machine | Cave Crossroads | 18 |
+
+### Mina's Listings (Index 1, Room 13)
+
+| Item | Item Index | Currency | Price | Pricing |
+|------|-----------|----------|-------|---------|
+| Stick | 1001 | Onyx Shards | 0.05 | Fixed |
+| Stone | 1002 | Onyx Shards | 1 | Fixed |
+| Ribbon | 11001 | MUSU | 100 | GDA 300 Daily 50% Decay |
+| Gum | 11301 | MUSU | 60 | GDA 1500 Daily 50% Decay |
+| Fruit Candy | 11303 | MUSU | 100 | GDA 750 Daily 50% Decay |
+| Cookie Sticks | 11304 | MUSU | 160 | GDA 250 Daily 50% Decay |
+| Ice Cream S | 21201 | MUSU | 150 | GDA 60 Daily 50% Decay |
+| Ice Cream M | 21202 | MUSU | 250 | GDA 40 Daily 50% Decay |
+| Ice Cream L | 21203 | MUSU | 450 | GDA 20 Daily 50% Decay |
+| Grinder | 23100 | MUSU | 2500 | Fixed |
+| Burner | 23101 | MUSU | 4000 | Fixed |
+
+### Vending Machine Listings (Index 2, Room 18)
+
+| Item | Item Index | Currency | Price | Pricing |
+|------|-----------|----------|-------|---------|
+| Ribbon | 11001 | MUSU | 100 | GDA 20 Daily 50% Decay |
+| Gum | 11301 | MUSU | 60 | GDA 300 Daily 50% Decay |
+| Fruit Candy | 11303 | MUSU | 100 | GDA 150 Daily 50% Decay |
+| Cookie Sticks | 11304 | MUSU | 160 | GDA 50 Daily 50% Decay |
+| Ice Cream S | 21201 | MUSU | 150 | GDA 12 Daily 50% Decay |
+| Ice Cream M | 21202 | MUSU | 250 | GDA 8 Daily 50% Decay |
+| Ice Cream L | 21203 | MUSU | 450 | GDA 4 Daily 50% Decay |
+
+> **GDA Pricing:** Most merchant items use a Gradual Dutch Auction (GDA). The price starts at the listed value, and supply replenishes daily with 50% decay. Items may be more expensive when recently purchased by other players.
