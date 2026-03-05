@@ -614,53 +614,64 @@ async function main() {
   // const buyTx = await buySystem.executeTyped([listingId], { value: listingPrice });
   // await buyTx.wait();
 
-  let kamiTokenIndex = null;
-
   // ----------------------------------------------------------
-  // 4. Discover the Kami's token index and entity ID
+  // 4. Discover the Kami's entity ID via component lookup
   // ----------------------------------------------------------
-  // Use the getter to find our Kami. After a vendor buy (or any acquisition),
-  // the Kami's account field matches our owner address cast to uint256.
-  const GETTER_ABI = [
-    "function getKamiByIndex(uint32 index) view returns (tuple(uint256 id, uint32 index, string name, string mediaURI, tuple(tuple(int32 base, int32 shift, int32 boost, int32 sync) health, tuple(int32 base, int32 shift, int32 boost, int32 sync) power, tuple(int32 base, int32 shift, int32 boost, int32 sync) harmony, tuple(int32 base, int32 shift, int32 boost, int32 sync) violence) stats, tuple(uint32 face, uint32 hand, uint32 body, uint32 background, uint32 color) traits, string[] affinities, uint256 account, uint256 level, uint256 xp, uint32 room, string state))",
-    "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
-  ];
-  const getterAddr = await getSystemAddress("system.getter");
-  const getter = new ethers.Contract(getterAddr, GETTER_ABI, provider);
+  // Use the component.id.kami.owns component to find all Kamis owned by this
+  // account. This is O(1) on-chain — no brute-force scanning required.
+  // See: player-api/entity-discovery.md and contracts/ids-and-abis.md
 
-  // Account entity ID = uint256(uint160(ownerAddress))
-  const accountEntityId = BigInt(ownerSigner.address);
+  // Resolve a component address from the World's component registry.
+  // Components resolve via world.components(), NOT world.systems().
+  const worldForComponents = new ethers.Contract(
+    WORLD_ADDRESS,
+    ["function components() view returns (address)"],
+    provider
+  );
 
-  // If we don't already know the token index, scan a range to find our Kami.
-  // Vendor-bought Kamis typically have low indices. Scan up to 10000 as a safe range.
-  if (kamiTokenIndex === null) {
-    console.log("Scanning for Kami owned by this account...");
-    let consecutiveErrors = 0;
-    for (let idx = 0; idx < 10000; idx++) {
-      try {
-        const kami = await getter.getKamiByIndex(idx);
-        consecutiveErrors = 0; // reset on success
-        if (kami.account === accountEntityId) {
-          kamiTokenIndex = idx;
-          console.log("Found Kami: tokenIndex =", idx, "| name =", kami.name);
-          break;
-        }
-      } catch (_) {
-        consecutiveErrors++;
-        // 5 consecutive errors → likely past the last minted index
-        if (consecutiveErrors >= 5) break;
-      }
-    }
+  async function getComponentAddress(componentName) {
+    const hash = ethers.keccak256(ethers.toUtf8Bytes(componentName));
+    const componentsRegistryAddr = await worldForComponents.components();
+    const componentsRegistry = new ethers.Contract(
+      componentsRegistryAddr,
+      ["function getEntitiesWithValue(uint256) view returns (uint256[])"],
+      provider
+    );
+    const entities = await componentsRegistry.getEntitiesWithValue(hash);
+    if (entities.length === 0)
+      throw new Error(`Component not found: ${componentName}`);
+    return ethers.getAddress(ethers.toBeHex(entities[0], 20));
   }
 
-  if (kamiTokenIndex === null) {
+  const accountEntityId = BigInt(ownerSigner.address);
+
+  const OWNS_KAMI_ABI = [
+    "function getEntitiesWithValue(uint256) view returns (uint256[])",
+  ];
+  const ownsKamiAddr = await getComponentAddress("component.id.kami.owns");
+  const ownsKami = new ethers.Contract(ownsKamiAddr, OWNS_KAMI_ABI, provider);
+
+  const myKamiIds = await ownsKami.getEntitiesWithValue(accountEntityId);
+  if (myKamiIds.length === 0) {
     throw new Error(
       "No Kami found for this account. Buy one from KamiSwap or mint via Gacha first."
     );
   }
 
-  const kamiEntityId = getKamiEntityId(kamiTokenIndex);
-  console.log("Kami entity ID:", kamiEntityId.toString());
+  const GETTER_ABI = [
+    "function getKami(uint256 kamiId) view returns (tuple(uint256 id, uint32 index, string name, string mediaURI, tuple(tuple(int32 base, int32 shift, int32 boost, int32 sync) health, tuple(int32 base, int32 shift, int32 boost, int32 sync) power, tuple(int32 base, int32 shift, int32 boost, int32 sync) harmony, tuple(int32 base, int32 shift, int32 boost, int32 sync) violence) stats, tuple(uint32 face, uint32 hand, uint32 body, uint32 background, uint32 color) traits, string[] affinities, uint256 account, uint256 level, uint256 xp, uint32 room, string state))",
+    "function getAccount(uint256 accountId) view returns (tuple(uint32 index, string name, int32 currStamina, uint32 room))",
+  ];
+  const getterAddr = await getSystemAddress("system.getter");
+  const getter = new ethers.Contract(getterAddr, GETTER_ABI, provider);
+
+  // Use the first owned Kami
+  const kamiEntityId = myKamiIds[0];
+  const kamiData = await getter.getKami(kamiEntityId);
+  console.log(
+    `Found Kami: entityId=${kamiEntityId} | index=${kamiData.index} | name=${kamiData.name || "(unnamed)"}`
+  );
+  console.log(`Owned Kamis total: ${myKamiIds.length}`);
 
   // ----------------------------------------------------------
   // 5. Move to a harvest room (Room 1 — Misty Riverside has a node)

@@ -278,6 +278,73 @@ For a first bot, Guardian is the safest path. You can always respec later with a
 
 > **Skill reference:** See [Game Data Reference — Skills](references/game-data.md#skills) for all 72 skills across 4 trees.
 
+### Applying the Build
+
+Use `system.skill.upgrade` to spend skill points one at a time. Each call upgrades a single skill by one point.
+
+```javascript
+// Guardian T1 skill indices:
+//   311 = Defensiveness (+1 Harmony per point)
+//   312 = Toughness     (+10 HP per point)
+//   313 = Patience       (+5 Intensity/hr per point)
+
+const ABI = ["function executeTyped(uint256 holderID, uint32 skillIndex) returns (bytes)"];
+const skillSystem = await getSystem("system.skill.upgrade", ABI, operatorSigner);
+
+// Example: put 5 points into Defensiveness, then 5 into Toughness
+for (let i = 0; i < 5; i++) {
+  await (await skillSystem.executeTyped(kamiEntityId, 311)).wait(); // Defensiveness
+}
+for (let i = 0; i < 5; i++) {
+  await (await skillSystem.executeTyped(kamiEntityId, 312)).wait(); // Toughness
+}
+console.log("T1 Defensiveness and Toughness maxed.");
+```
+
+> The `holderID` parameter is the Kami's **entity ID** (not token index). See [skill.upgrade()](player-api/kami.md#skillupgrade) and [Skills table](references/game-data.md#skills) for all indices.
+
+### Staying Alive
+
+A bot must monitor HP and act before its Kami dies. Dead Kamis can't harvest, and other players can kill low-HP Kamis for loot.
+
+**Check HP:**
+
+```javascript
+const kami = await getter.getKami(kamiEntityId);
+const h = kami.stats.health;
+// ⚠️ Access stat fields by index — h.shift collides with Array.shift() in ethers.js
+const effectiveHP = Math.max(0, ((1000 + Number(h[2])) * (Number(h[0]) + Number(h[1]))) / 1000);
+console.log(`HP: ${effectiveHP} (base=${h[0]} shift=${h[1]} boost=${h[2]})`);
+```
+
+**Feed to heal** (resets Intensity timer too):
+
+```javascript
+const feedABI = ["function executeTyped(uint256 kamiID, uint32 itemIndex) returns (bytes)"];
+const feedSystem = await getSystem("system.kami.use.item", feedABI, operatorSigner);
+
+// Feed a Cheeseburger (item 11302, HP+50) when health drops below 50
+if (effectiveHP < 50) {
+  const tx = await feedSystem.executeTyped(kamiEntityId, 11302);
+  await tx.wait();
+  console.log("Fed Kami — HP restored.");
+}
+```
+
+**Revive if dead** (costs 33 ONYX):
+
+```javascript
+const reviveABI = ["function executeTyped(uint256 id) returns (bytes)"];
+const reviveSystem = await getSystem("system.kami.onyx.revive", reviveABI, operatorSigner);
+
+// Pass the Kami's ERC721 token INDEX (not entity ID)
+const tx = await reviveSystem.executeTyped(kamiTokenIndex);
+await tx.wait();
+console.log("Kami revived — state set to RESTING, HP restored to 33.");
+```
+
+> See [Health Monitoring](player-api/harvesting.md#health-monitoring) for polling patterns and thresholds, and [onyx.revive()](player-api/kami.md#onyxrevive) for full details.
+
 ---
 
 ## Next Docs
