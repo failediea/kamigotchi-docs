@@ -155,11 +155,11 @@ Purchase a Kami on the **KamiSwap** marketplace, or mint one via the gacha syste
 
 ### "Which room should my Kami harvest in?"
 
-Room 1 (Misty Riverside) has a harvest node at index 1, and most rooms have nodes. Higher-level nodes may have better yields. Check [Game Data — Harvest Nodes](game-data.md) for the full list of rooms and node indices.
+Room 1 (Misty Riverside) has a harvest node at index 1, and most rooms have nodes. Check [Game Data — Harvest Nodes](game-data.md) for the full list of rooms and node indices.
 
 ### "How do I know when to collect my harvest?"
 
-You can query the harvest entity's on-chain components to check accumulated rewards, or simply collect periodically with `system.harvest.collect`. Uncollected rewards accumulate — there is no expiration or penalty for waiting.
+You can query the harvest entity's on-chain components to check accumulated rewards, or simply collect periodically with `system.harvest.collect`. Harvesting for too long can be dangerous due to predators.
 
 ---
 
