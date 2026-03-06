@@ -19,6 +19,7 @@ Start here:
 
 - [Core Resources](resources/README.md)
 - [Agent Guidance](guidance/README.md)
+- [Player Quick Start](resources/player-quick-start.md)
 
 ## Global References
 

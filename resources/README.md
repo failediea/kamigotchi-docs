@@ -16,6 +16,10 @@ Use Core Resources for:
 
 ## Core Index
 
+### Entry Points
+
+- [Player Quick Start](player-quick-start.md)
+
 ### Protocol and Network
 
 - [Architecture Overview](architecture.md)

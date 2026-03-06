@@ -4,7 +4,7 @@
 
 # Integration Guide
 
-This guide walks third-party developers through integrating with Kamigotchi's on-chain systems. By the end, you'll be able to register accounts, manage Kamis, and interact with the full game API.
+This guide walks third-party developers through the low-level contract integration flow after bootstrap. By the end, you'll be able to register accounts, manage Kamis, and interact with the full game API.
 
 If you want the shortest first-run path for a new bot developer, start with [Agent Bootstrap](agent-bootstrap.md) and return here for the full flow.
 
@@ -27,13 +27,12 @@ If you want the shortest first-run path for a new bot developer, start with [Age
 
 ## Funding Your Wallet
 
-**There is no faucet on Yominet.** You must bridge real ETH before you can transact.
+**There is no faucet on Yominet.** You must arrive with real ETH on Yominet before you can transact.
 
-Two options:
+Use one of these bot-oriented paths:
 
-1. **In-game bridge** — Open the Kamigotchi client, go to Settings > Bridge (uses the Initia bridge).
-2. **Initia Bridge** — Use the [Initia Bridge](https://app.initia.xyz/?openBridge=true) to bridge ETH from Arbitrum, Base, or Ethereum mainnet to Yominet.
-3. **Base agent bootstrap route** — Use [Yominet Bridge Tooling](tools/yominet-bridge/README.md) if your agent starts with a single owner key funded on Base.
+1. **Base agent bootstrap route** — Use [Yominet Bridge Tooling](tools/yominet-bridge/README.md) if your agent starts from a single owner key funded on Base.
+2. **External funding route** — If you are not using the bootstrap route, fund the owner wallet through an external route you control before running these scripts. For current network details, see [Chain Configuration](../resources/chain-configuration.md).
 
 **Cost summary:**
 
@@ -47,7 +46,7 @@ Two options:
 
 **Recommended starting budget:** 0.01 ETH bridged to Yominet.
 
-> **Note:** For bots and programmatic integrations, you manage both wallets yourself — **Privy is only used by the web UI client**. If you are using the single-owner-key bootstrap, bridge ETH to the Owner first, then fund the derived Operator from that balance before gameplay transactions.
+> **Note:** If you are using the single-owner-key bootstrap, bridge ETH to the Owner first, then fund the derived Operator from that balance before gameplay transactions.
 
 ---
 
@@ -93,7 +92,7 @@ console.log(`Connected to Yominet (block: ${blockNumber})`);
 
 ## Step 2: Set Up Wallets
 
-Kamigotchi uses a **dual-wallet model**. The official game client handles this via [Privy](https://privy.io) — players connect their external wallet (Owner), and Privy auto-creates an embedded wallet (Operator). **For bots, Privy is not involved**. The higher-level bootstrap may derive the operator from the owner key, but by the time you reach the contract layer you must have both keys available, and the operator must be a **different** address from the owner:
+Kamigotchi uses a **dual-wallet model**. Contract interactions distinguish between an Owner wallet and a **distinct** Operator wallet. The higher-level bootstrap may derive the operator from the owner key, but by the time you reach the contract layer you must have both keys available and the operator must be a different address from the owner:
 
 ```javascript
 function mustEnv(name) {
@@ -108,7 +107,6 @@ function mustEnv(name) {
 const ownerSigner = new ethers.Wallet(mustEnv("OWNER_PRIVATE_KEY"), provider);
 
 // Operator wallet — handles routine gameplay transactions
-// (In the official client, this is Privy's embedded wallet)
 const operatorSigner = new ethers.Wallet(mustEnv("OPERATOR_PRIVATE_KEY"), provider);
 
 if (ownerSigner.address === operatorSigner.address) {
@@ -170,7 +168,7 @@ async function getSystem(systemId, abi, signer) {
 
 ## Step 4: Register an Account
 
-Registration is called from the **Owner wallet** and takes the **Operator address** as a parameter. The Operator is not "assigned by Privy" for bots — you pass the address of your distinct operator wallet.
+Registration is called from the **Owner wallet** and takes the **Operator address** as a parameter. Pass the address of your distinct operator wallet directly.
 
 ```javascript
 const REGISTER_ABI = [
@@ -183,7 +181,7 @@ const GETTER_ABI = [
 const registerSystem = await getSystem(
   "system.account.register",
   REGISTER_ABI,
-  ownerSigner // Must use Owner wallet — this becomes the account owner
+  ownerSigner // Must use Owner wallet; this becomes the account owner
 );
 const getter = await getSystem("system.getter", GETTER_ABI, provider);
 

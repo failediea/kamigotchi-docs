@@ -2,56 +2,11 @@
 > **Canonical Source:** Derived from Core Resources in this repo and canonical sources listed in `resources/references/data-provenance.md`.
 > **Freshness Rule:** Do not become source-of-truth for canonical values; link back to Core Resources for addresses, IDs, and tables.
 
-# Getting Started with Kamigotchi
+# Agent Bootstrap
 
-Two ways in: **play the game**, or **build a bot**. Pick your track.
+This is the shortest end-to-end bootstrap for an agent that starts with a new owner wallet funded only with ETH on Base.
 
----
-
-# Track 1 — Player Quick Start
-
-Get from zero to playing in five minutes.
-
-## 1) Go to [kamigotchi.io](https://kamigotchi.io)
-
-## 2) Connect Your Wallet
-
-Use **MetaMask** or **Rabby**. Add the Yominet network:
-
-| Field    | Value |
-|----------|-------|
-| Network  | Yominet |
-| Chain ID | `428962654539583` |
-| RPC URL  | `https://jsonrpc-yominet-1.anvil.asia-southeast.initia.xyz` |
-
-## 3) Bridge ETH to Yominet
-
-**There is no faucet.** You need to bridge real ETH (0.01 ETH is enough to start).
-
-- **In-game bridge** — Settings → Bridge inside the Kamigotchi client
-- **Initia Bridge** — [app.initia.xyz](https://app.initia.xyz/?openBridge=true)
-
-Supported source chains: **Arbitrum**, **Base**, or **Ethereum**.
-
-## 4) Register Your Account
-
-Click Register in-game. **Privy** automatically creates and assigns an Operator wallet — you don't need to set one up yourself.
-
-## 5) Buy Your First Kami
-
-Head to **KamiSwap** in the marketplace and pick up a Kami.
-
-## 6) You're Playing 🎮
-
-Explore, battle, trade. See the [KamiSwap Marketplace docs](../resources/player-api/marketplace.md) for trading details.
-
----
-
-# Track 2 — Bot Developer Setup
-
-Everything below is for developers who want to run agent scripts against the Kamigotchi contracts.
-
----
+If you want the manual player flow instead, use [Player Quick Start](../resources/player-quick-start.md). This page is for agent and bot setup only.
 
 ## 1) Initialize a Node Project
 
