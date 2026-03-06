@@ -251,8 +251,9 @@ After registering, you need a Kami to play. The primary way to acquire one is **
 For bots, the recommended first-Kami flow is:
 
 1. Pull active listings from `GetKamiMarketListings`
-2. Filter/select by budget, traits, or strategy
-3. Buy the chosen listing with `system.kamimarket.buy`
+2. Filter by budget and present the available options to the player (show Kami index, price, traits, affinities)
+3. Let the player choose which Kami they want
+4. Buy the chosen listing with `system.kamimarket.buy`
 
 See [Kamiden Indexer](../resources/player-api/indexer.md#getkamimarketlistings) for the listing query and [KamiSwap Marketplace](../resources/player-api/marketplace.md#2-buy-a-listing) for the on-chain buy call.
 
